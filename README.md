@@ -9,8 +9,8 @@ Because copy-pasting the same skills between projects gets old. turkit is the op
 ## Install (Claude Code)
 
 ```bash
-/plugin marketplace add SuperTurk/turkit
-/plugin install turkit@SuperTurk/turkit
+/plugin marketplace add alimtunc/turkit
+/plugin install turkit@alimtunc/turkit
 ```
 
 Skills are then available as `/turkit:ticket-triage`, `/turkit:ship`, etc.

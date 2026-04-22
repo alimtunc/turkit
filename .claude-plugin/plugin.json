@@ -3,11 +3,11 @@
   "description": "Project-agnostic Claude Code workflow skills: ticket lifecycle, reviews, ship, handoff.",
   "version": "0.1.0",
   "author": {
-    "name": "SuperTurk",
-    "url": "https://github.com/SuperTurk"
+    "name": "alimtunc",
+    "url": "https://github.com/alimtunc"
   },
-  "homepage": "https://github.com/SuperTurk/turkit",
-  "repository": "https://github.com/SuperTurk/turkit",
+  "homepage": "https://github.com/alimtunc/turkit",
+  "repository": "https://github.com/alimtunc/turkit",
   "license": "MIT",
   "keywords": [
     "claude-code",
