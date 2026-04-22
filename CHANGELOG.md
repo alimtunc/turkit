@@ -21,6 +21,7 @@ All notable changes to turkit are tracked here. The project follows [SemVer](htt
 ### Changed
 
 - `README.md` rewritten for the marketplace layout. Ticket flow diagram updated with the new namespace.
+- `ticket-execute` workspace default changed: creates a feature branch in-place via `git checkout -b` instead of a worktree. Worktrees are now opt-in — the operator must explicitly request isolation.
 
 ## turkit v0.2.0 — 2026-04-22
 

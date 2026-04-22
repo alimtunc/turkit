@@ -46,7 +46,7 @@ flowchart TD
     T -->|"split-first — multi-day"| S["🔀 Split into sub-tickets<br/>re-triage each"]
 
     P -->|"operator validates the plan"| E
-    E --> W["🔧 Implements in a worktree<br/>never commits"]
+    E --> W["🔧 Implements on a feature branch<br/>(worktree if requested, never commits)"]
     W --> V["🧪 Operator manually verifies"]
 
     V --> PCR["/turkit-workflow:pre-commit-review"]
@@ -76,7 +76,7 @@ flowchart TD
 | `/turkit-workflow:turkit-init` | Detects the project's build tool, package manager, base branch, tracker, proposes `.turkit.yaml`. |
 | `/turkit-workflow:ticket-triage` | Routes a ticket to one-shot / plan-then-execute / split-first. |
 | `/turkit-workflow:ticket-plan` | Writes a structured plan to `.claude/plans/<TICKET>.md` for operator review. |
-| `/turkit-workflow:ticket-execute` | Executes a validated plan in a worktree. Never commits. |
+| `/turkit-workflow:ticket-execute` | Executes a validated plan on a feature branch (worktree opt-in). Never commits. |
 | `/turkit-workflow:pre-commit-review` | Reviews the current diff and auto-fixes low-risk issues. |
 | `/turkit-workflow:pre-push-review` | Full-branch review across every commit vs. the base branch. |
 | `/turkit-workflow:pr-description` | Concise PR description from the branch diff. |
