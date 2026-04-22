@@ -1,7 +1,7 @@
 {
-  "name": "turkit",
-  "description": "Project-agnostic Claude Code workflow skills: ticket lifecycle, reviews, ship, handoff.",
-  "version": "0.2.0",
+  "name": "turkit-workflow",
+  "description": "Project-agnostic Claude Code workflow skills: ticket lifecycle, reviews, ship, handoff, rules-refresh.",
+  "version": "1.0.0",
   "author": {
     "name": "alimtunc",
     "url": "https://github.com/alimtunc"
@@ -15,6 +15,7 @@
     "workflow",
     "tickets",
     "code-review",
-    "pr"
+    "pr",
+    "meta"
   ]
 }
