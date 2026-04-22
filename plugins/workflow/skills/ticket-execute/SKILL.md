@@ -1,6 +1,6 @@
 ---
 name: ticket-execute
-description: Execute a validated plan at `.claude/plans/<TICKET>.md`. Verifies plan alignment with current code, sets up a worktree if needed, implements criterion by criterion, emits a handoff. Never commits.
+description: Execute a validated plan at `.claude/plans/<TICKET>.md`. Verifies plan alignment with current code, sets up a feature branch (or worktree if the operator asks for one), implements criterion by criterion, emits a handoff. Never commits.
 ---
 
 # Ticket Execute
@@ -10,7 +10,7 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
 ## Preconditions
 
 - `.claude/plans/<TICKET-ID>.md` exists and looks current.
-- The current branch is **not** the base branch. If it is, set up a worktree first (see Step 2).
+- The current branch is **not** the base branch. If it is, Step 3 will set up a feature branch (default) or a worktree (if you ask).
 
 ## Steps
 
@@ -46,7 +46,7 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
 
 7. **Do NOT commit.** The operator commits after manual verification (via `/turkit:ship`).
 
-8. **Emit a handoff** (structure matches `handoff` skill — context / decisions / what we did / pointer). Include the worktree path so the operator can manually test.
+8. **Emit a handoff** (structure matches `handoff` skill — context / decisions / what we did / pointer). Include the working path (branch name or worktree path) so the operator can manually test.
 
 ## Guardrails
 
