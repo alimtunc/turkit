@@ -22,25 +22,25 @@ Skills are then available as `/turkit:ticket-triage`, `/turkit:ship`, etc.
 
 ```mermaid
 flowchart TD
-    A[📋 New ticket] --> T[/turkit:ticket-triage/]
+    A["📋 New ticket"] --> T["/turkit:ticket-triage"]
 
-    T -->|one-shot — &lt; 1h| E[/turkit:ticket-execute/]
-    T -->|plan-then-execute — 1h to 1d| P[/turkit:ticket-plan/]
-    T -->|split-first — multi-day| S[🔀 Split into sub-tickets<br/>re-triage each]
+    T -->|"one-shot — under 1h"| E["/turkit:ticket-execute"]
+    T -->|"plan-then-execute — 1h to 1d"| P["/turkit:ticket-plan"]
+    T -->|"split-first — multi-day"| S["🔀 Split into sub-tickets<br/>re-triage each"]
 
-    P -->|operator validates the plan| E
-    E --> W[🔧 Implements in a worktree<br/>never commits]
-    W --> V[🧪 Operator manually verifies]
+    P -->|"operator validates the plan"| E
+    E --> W["🔧 Implements in a worktree<br/>never commits"]
+    W --> V["🧪 Operator manually verifies"]
 
-    V --> PCR[/turkit:pre-commit-review/]
-    PCR -. branch &gt; 1 commit .-> PPR[/turkit:pre-push-review/]
-    PCR --> SHIP[/turkit:ship/]
+    V --> PCR["/turkit:pre-commit-review"]
+    PCR -. "branch has multiple commits" .-> PPR["/turkit:pre-push-review"]
+    PCR --> SHIP["/turkit:ship"]
     PPR --> SHIP
-    SHIP --> DONE[🚀 PR opened + ticket Done]
+    SHIP --> DONE["🚀 PR opened + ticket Done"]
 
-    V -. helpers .-> TI[/turkit:test-instructions/]
-    SHIP -. delegates to .-> PRD[/turkit:pr-description/]
-    V -. escape hatch .-> HO[/turkit:handoff/<br/>resume in another session]
+    V -. "helper" .-> TI["/turkit:test-instructions"]
+    SHIP -. "delegates to" .-> PRD["/turkit:pr-description"]
+    V -. "escape hatch" .-> HO["/turkit:handoff<br/>resume in another session"]
 ```
 
 **How to read it** — the operator always drives: every arrow is a deliberate slash-command invocation, nothing auto-chains. Typical usage:
