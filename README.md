@@ -1,74 +1,99 @@
 # turkit
 
-Project-agnostic Claude Code workflow skills. One plugin, ten skills: init, ticket lifecycle, reviews, ship, handoff — installable into any repo.
+Project-agnostic Claude Code skills, shipped as a marketplace.
 
-## Why
+Two plugins today; more to come:
 
-Because copy-pasting the same skills between projects gets old. turkit is the opinionated workflow I've found useful across codebases, in a single installable plugin.
+- **`turkit-workflow`** — ticket lifecycle, code review, ship, handoff, rules-refresh. The workflow backbone that works in any repo.
+- **`turkit-react`** — opinionated React review. Modern React 19+ only, strict component boundaries, disciplined hooks.
 
 ## Install (Claude Code)
 
 ```bash
+# One-time: register the marketplace
 /plugin marketplace add alimtunc/turkit
-/plugin install turkit@alimtunc/turkit
-/turkit:init
+
+# Install the core workflow (everyone)
+/plugin install turkit-workflow@alimtunc/turkit
+
+# Optional: add the React pack
+/plugin install turkit-react@alimtunc/turkit
+
+# Per-project setup (writes .turkit.yaml, opt-in)
+/turkit-workflow:turkit-init
 ```
 
-The last step detects your build tool, package manager, base branch, and issue tracker, and writes a `.turkit.yaml` tailored to the repo (opt-in — nothing is written without confirmation). You can skip it and turkit still works with runtime detection.
+## Upgrading from v0.2.0
 
-Skills are then available as `/turkit:ticket-triage`, `/turkit:ship`, etc.
+v1.0.0 splits turkit into a marketplace. You need to uninstall the old plugin and install the new ones:
+
+```bash
+/plugin uninstall turkit
+/plugin install turkit-workflow@alimtunc/turkit
+/plugin install turkit-react@alimtunc/turkit     # optional
+```
+
+Slash commands move from `/turkit:xxx` to `/turkit-workflow:xxx` (or `/turkit-react:xxx`).
 
 ## How the ticket flow fits together
 
 ```mermaid
 flowchart TD
-    A["📋 New ticket"] --> T["/turkit:ticket-triage"]
+    A["📋 New ticket"] --> T["/turkit-workflow:ticket-triage"]
 
-    T -->|"one-shot — under 1h"| E["/turkit:ticket-execute"]
-    T -->|"plan-then-execute — 1h to 1d"| P["/turkit:ticket-plan"]
+    T -->|"one-shot — under 1h"| E["/turkit-workflow:ticket-execute"]
+    T -->|"plan-then-execute — 1h to 1d"| P["/turkit-workflow:ticket-plan"]
     T -->|"split-first — multi-day"| S["🔀 Split into sub-tickets<br/>re-triage each"]
 
     P -->|"operator validates the plan"| E
     E --> W["🔧 Implements in a worktree<br/>never commits"]
     W --> V["🧪 Operator manually verifies"]
 
-    V --> PCR["/turkit:pre-commit-review"]
-    PCR -. "branch has multiple commits" .-> PPR["/turkit:pre-push-review"]
-    PCR --> SHIP["/turkit:ship"]
+    V --> PCR["/turkit-workflow:pre-commit-review"]
+    PCR -. "branch has multiple commits" .-> PPR["/turkit-workflow:pre-push-review"]
+    PCR --> SHIP["/turkit-workflow:ship"]
     PPR --> SHIP
     SHIP --> DONE["🚀 PR opened + ticket Done"]
 
-    V -. "helper" .-> TI["/turkit:test-instructions"]
-    SHIP -. "delegates to" .-> PRD["/turkit:pr-description"]
-    V -. "escape hatch" .-> HO["/turkit:handoff<br/>resume in another session"]
+    V -. "helper" .-> TI["/turkit-workflow:test-instructions"]
+    SHIP -. "delegates to" .-> PRD["/turkit-workflow:pr-description"]
+    V -. "escape hatch" .-> HO["/turkit-workflow:handoff<br/>resume in another session"]
 ```
 
-**How to read it** — the operator always drives: every arrow is a deliberate slash-command invocation, nothing auto-chains. Typical usage:
+**Typical usage:**
+- **Small tickets**: `ticket-triage` → `ticket-execute` → `pre-commit-review` → `ship`.
+- **Medium tickets**: `ticket-triage` → `ticket-plan` → operator validates → `ticket-execute` → `pre-commit-review` → `ship`.
+- **Large tickets**: `ticket-triage` (split-first) → split into sub-tickets → re-triage each.
+- **Long branches**: `pre-push-review` instead of (or in addition to) `pre-commit-review`.
+- **Running out of context**: `handoff` at any point.
+- **Stack-specific review**: pair `pre-commit-review` with `/turkit-react:react-review` for React-specific findings.
+- **Rules drifting**: `/turkit-workflow:rules-refresh <path>` to re-audit a rules doc against the current Claude version.
 
-- **Small tickets**: `triage` → (`one-shot`) → `execute` → verify → `pre-commit-review` → `ship`.
-- **Medium tickets**: `triage` → (`plan-then-execute`) → `plan` → operator review → `execute` → verify → `pre-commit-review` → `ship`.
-- **Large tickets**: `triage` → (`split-first`) → split into sub-tickets in your tracker → start over on each.
-- **Long branches**: before `ship`, run `pre-push-review` instead of (or in addition to) `pre-commit-review`.
-- **Running out of context**: `handoff` at any point to pass the baton to a fresh session.
-
-## Skills
+## `turkit-workflow` skills
 
 | Skill | What it does |
 |---|---|
-| `/turkit:init` | Detects your project's build tool, package manager, base branch, and tracker. Proposes a `.turkit.yaml`. |
-| `/turkit:ticket-triage` | Routes a ticket to one-shot / plan-then-execute / split-first. Emits a next-step prompt. |
-| `/turkit:ticket-plan` | Writes a structured plan to `.claude/plans/<TICKET>.md` for operator review. |
-| `/turkit:ticket-execute` | Executes a validated plan, criterion by criterion, in a worktree. Never commits. |
-| `/turkit:pre-commit-review` | Reviews the current diff against clean-code principles and auto-fixes low-risk issues. |
-| `/turkit:pre-push-review` | Full-branch review iterating over every commit vs. the base branch. |
-| `/turkit:pr-description` | Generates a short PR description from the branch diff. |
-| `/turkit:test-instructions` | Emits a concise manual-test checklist after an issue is implemented. |
-| `/turkit:ship` | Commit + push + PR + close the ticket. Operator invokes after manual verification. |
-| `/turkit:handoff` | Summarizes the current conversation so it can be pasted into another LLM. |
+| `/turkit-workflow:turkit-init` | Detects the project's build tool, package manager, base branch, tracker, proposes `.turkit.yaml`. |
+| `/turkit-workflow:ticket-triage` | Routes a ticket to one-shot / plan-then-execute / split-first. |
+| `/turkit-workflow:ticket-plan` | Writes a structured plan to `.claude/plans/<TICKET>.md` for operator review. |
+| `/turkit-workflow:ticket-execute` | Executes a validated plan in a worktree. Never commits. |
+| `/turkit-workflow:pre-commit-review` | Reviews the current diff and auto-fixes low-risk issues. |
+| `/turkit-workflow:pre-push-review` | Full-branch review across every commit vs. the base branch. |
+| `/turkit-workflow:pr-description` | Concise PR description from the branch diff. |
+| `/turkit-workflow:test-instructions` | Short manual-test checklist post-implementation. |
+| `/turkit-workflow:ship` | Commit + push + PR + close the ticket. |
+| `/turkit-workflow:handoff` | Summarize the current conversation for another LLM. |
+| `/turkit-workflow:rules-refresh` | Audit a rules doc and propose Keep / Sharpen / Add-rationale / Redundant / Stale updates. |
+
+## `turkit-react` skills
+
+| Skill | What it does |
+|---|---|
+| `/turkit-react:react-review` | Review React code against 13 opinionated rules (modern React, component boundaries, conditional rendering, hooks). Auto-fixes low-risk violations. |
 
 ## Configuration
 
-turkit works with zero config. Run `/turkit:init` to generate a `.turkit.yaml` tailored to your project. Typical output on a pnpm + TypeScript repo:
+Run `/turkit-workflow:turkit-init` to generate a `.turkit.yaml` tailored to your project. Example output on a pnpm + TypeScript repo:
 
 ```yaml
 commands:
@@ -84,7 +109,7 @@ All fields optional. See `.turkit.yaml.example` for the full shape and `docs/con
 
 ## Issue tracker support
 
-Skills that touch tickets (triage, plan, execute, ship, handoff) detect your tracker at runtime:
+Skills that touch tickets detect your tracker at runtime:
 
 1. **MCP tools** whose names match `*issue*get*`, `*issue*save*`, etc. — known-good: Linear MCP.
 2. **Branch-name fallback** — `sup-80-xxx` → `SUP-80`.
@@ -94,12 +119,12 @@ See `docs/contracts/issue-tracker-detection.md` for the full detection rules.
 
 ## Codex / other platforms
 
-SKILL.md files under `skills/` follow the standard format. Copy any folder into your Codex skills directory to use them outside Claude Code.
+SKILL.md files under `plugins/<plugin>/skills/` follow the standard format. Copy any folder into your Codex skills directory to use them outside Claude Code.
 
 ## Contributing
 
 - File an issue describing the use case before a PR.
-- Skill prompts stay language-agnostic and project-agnostic. Stack-specific logic belongs in separate packs.
+- Workflow skills stay language-agnostic. Stack-specific logic belongs in its own `turkit-<stack>` plugin.
 - Commit messages: short subject, no AI credit, no `Co-Authored-By`.
 
 ## License
