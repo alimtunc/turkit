@@ -18,10 +18,21 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
 
 2. **Verify plan alignment with current code.** Since the plan was written, the codebase may have moved. For each "Files to touch" entry, verify the file still exists (for Modify) or the target path is still free (for Create). If mismatches exist, stop and propose a plan update.
 
-3. **Set up workspace.**
-   - If already on a non-base branch or in a worktree → continue.
-   - Otherwise, create a worktree: `git worktree add .worktrees/<ticket-slug> -b <ticket-slug> <base_branch>` (base per `docs/contracts/build-tool-detection.md#base_branch`).
-   - If the project has init steps documented in its `CLAUDE.md` / `AGENTS.md` (copy env file, install deps), run them.
+3. **Set up workspace.** Worktrees are opt-in, not default.
+   - If already on a non-base branch → continue.
+   - If currently on the base branch:
+     - **Default** — create a feature branch in the current workspace:
+       ```bash
+       git checkout -b <ticket-slug>
+       ```
+       Base branch resolved per `docs/contracts/build-tool-detection.md#base_branch`.
+     - **Opt-in worktree** — only if the operator explicitly asks for isolation (e.g., to keep the main workspace untouched while they review another branch):
+       ```bash
+       git worktree add .worktrees/<ticket-slug> -b <ticket-slug> <base-branch>
+       cd .worktrees/<ticket-slug>
+       ```
+       Do NOT create a worktree silently — the operator has to ask for it.
+   - If the project has init steps documented in its `CLAUDE.md` / `AGENTS.md` (copy env file, install deps), run them regardless of in-place vs worktree.
 
 4. **Move the ticket to In Progress** if a tracker is available (per `docs/contracts/issue-tracker-detection.md`).
 
