@@ -14,7 +14,7 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
 
 ## Steps
 
-1. **Read the plan** at `.claude/plans/<TICKET-ID>.md`. If missing, stop and tell the operator to run `/turkit:ticket-plan <TICKET-ID>` first.
+1. **Read the plan** at `.claude/plans/<TICKET-ID>.md`. If missing, stop and tell the operator to run `/turkit-workflow:ticket-plan <TICKET-ID>` first.
 
 2. **Verify plan alignment with current code.** Since the plan was written, the codebase may have moved. For each "Files to touch" entry, verify the file still exists (for Modify) or the target path is still free (for Create). If mismatches exist, stop and propose a plan update.
 
@@ -44,7 +44,7 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
 
 6. **Run the check/lint/fmt/test suite** at the end. Resolve commands per the build-tool contract. If any fail, fix or escalate.
 
-7. **Do NOT commit.** The operator commits after manual verification (via `/turkit:ship`).
+7. **Do NOT commit.** The operator commits after manual verification (via `/turkit-workflow:ship`).
 
 8. **Emit a handoff** (structure matches `handoff` skill — context / decisions / what we did / pointer). Include the working path (branch name or worktree path) so the operator can manually test.
 

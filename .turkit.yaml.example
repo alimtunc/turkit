@@ -1,5 +1,5 @@
 # Copy to .turkit.yaml at your repo root to override build tool detection.
-# All fields optional. Run /turkit:init to auto-generate one tailored to your project.
+# All fields optional. Run /turkit-workflow:turkit-init to auto-generate one tailored to your project.
 
 commands:
   check: pnpm typecheck

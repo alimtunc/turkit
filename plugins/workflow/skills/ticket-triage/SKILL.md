@@ -29,7 +29,7 @@ Route a ticket toward the right workflow. **Does not write code.** **Does not au
 4. **Emit a next-step prompt.** Produce exactly one copy-pasteable block, matching the chosen path:
 
    - **one-shot** → a prompt like: "Implement <TICKET-ID>: <one-line summary>. Acceptance criteria: <list>. Work on a worktree/branch, commit after manual verification."
-   - **plan-then-execute** → a prompt like: "Run `/turkit:ticket-plan <TICKET-ID>`. Validate the plan, then run `/turkit:ticket-execute <TICKET-ID>`."
+   - **plan-then-execute** → a prompt like: "Run `/turkit-workflow:ticket-plan <TICKET-ID>`. Validate the plan, then run `/turkit-workflow:ticket-execute <TICKET-ID>`."
    - **split-first** → a prompt like: "Before implementing <TICKET-ID>, split it into N sub-tickets: <bullet list of proposed splits>. Update the tracker, then re-triage each sub-ticket."
 
 5. **Stop.** Do not invoke any other skill. Do not write any file except the next-step prompt in the conversation.
