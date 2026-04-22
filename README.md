@@ -1,6 +1,6 @@
 # turkit
 
-Project-agnostic Claude Code workflow skills. One plugin, nine skills: ticket lifecycle, reviews, ship, handoff — installable into any repo.
+Project-agnostic Claude Code workflow skills. One plugin, ten skills: init, ticket lifecycle, reviews, ship, handoff — installable into any repo.
 
 ## Why
 
@@ -17,6 +17,39 @@ Because copy-pasting the same skills between projects gets old. turkit is the op
 The last step detects your build tool, package manager, base branch, and issue tracker, and writes a `.turkit.yaml` tailored to the repo (opt-in — nothing is written without confirmation). You can skip it and turkit still works with runtime detection.
 
 Skills are then available as `/turkit:ticket-triage`, `/turkit:ship`, etc.
+
+## How the ticket flow fits together
+
+```mermaid
+flowchart TD
+    A[📋 New ticket] --> T[/turkit:ticket-triage/]
+
+    T -->|one-shot — &lt; 1h| E[/turkit:ticket-execute/]
+    T -->|plan-then-execute — 1h to 1d| P[/turkit:ticket-plan/]
+    T -->|split-first — multi-day| S[🔀 Split into sub-tickets<br/>re-triage each]
+
+    P -->|operator validates the plan| E
+    E --> W[🔧 Implements in a worktree<br/>never commits]
+    W --> V[🧪 Operator manually verifies]
+
+    V --> PCR[/turkit:pre-commit-review/]
+    PCR -. branch &gt; 1 commit .-> PPR[/turkit:pre-push-review/]
+    PCR --> SHIP[/turkit:ship/]
+    PPR --> SHIP
+    SHIP --> DONE[🚀 PR opened + ticket Done]
+
+    V -. helpers .-> TI[/turkit:test-instructions/]
+    SHIP -. delegates to .-> PRD[/turkit:pr-description/]
+    V -. escape hatch .-> HO[/turkit:handoff/<br/>resume in another session]
+```
+
+**How to read it** — the operator always drives: every arrow is a deliberate slash-command invocation, nothing auto-chains. Typical usage:
+
+- **Small tickets**: `triage` → (`one-shot`) → `execute` → verify → `pre-commit-review` → `ship`.
+- **Medium tickets**: `triage` → (`plan-then-execute`) → `plan` → operator review → `execute` → verify → `pre-commit-review` → `ship`.
+- **Large tickets**: `triage` → (`split-first`) → split into sub-tickets in your tracker → start over on each.
+- **Long branches**: before `ship`, run `pre-push-review` instead of (or in addition to) `pre-commit-review`.
+- **Running out of context**: `handoff` at any point to pass the baton to a fresh session.
 
 ## Skills
 
