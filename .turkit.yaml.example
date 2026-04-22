@@ -1,0 +1,13 @@
+# Copy to .turkit.yaml at your repo root to override build tool detection.
+# All fields optional.
+
+commands:
+  check: just check
+  lint: just lint
+  fmt: just fmt
+  test: cargo test --workspace
+  build: just build
+
+# Branch compared against by review / PR skills.
+# Defaults to `git symbolic-ref refs/remotes/origin/HEAD` then `main`.
+base_branch: main
