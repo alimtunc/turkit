@@ -1,0 +1,25 @@
+{
+  "name": "turkit",
+  "owner": {
+    "name": "alimtunc",
+    "email": "alim.tunc@outlook.fr"
+  },
+  "metadata": {
+    "description": "Project-agnostic Claude Code workflow + stack-specific review skills.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "turkit-workflow",
+      "description": "Ticket lifecycle, reviews, ship, handoff, rules-refresh meta-skill.",
+      "source": "./plugins/workflow",
+      "strict": false
+    },
+    {
+      "name": "turkit-react",
+      "description": "Opinionated React review skill (modern React only, component boundaries, conditional rendering, hooks hygiene).",
+      "source": "./plugins/react",
+      "strict": false
+    }
+  ]
+}
