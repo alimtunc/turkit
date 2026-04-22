@@ -11,7 +11,10 @@ Because copy-pasting the same skills between projects gets old. turkit is the op
 ```bash
 /plugin marketplace add alimtunc/turkit
 /plugin install turkit@alimtunc/turkit
+/turkit:init
 ```
+
+The last step detects your build tool, package manager, base branch, and issue tracker, and writes a `.turkit.yaml` tailored to the repo (opt-in — nothing is written without confirmation). You can skip it and turkit still works with runtime detection.
 
 Skills are then available as `/turkit:ticket-triage`, `/turkit:ship`, etc.
 
