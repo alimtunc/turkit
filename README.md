@@ -19,6 +19,7 @@ Skills are then available as `/turkit:ticket-triage`, `/turkit:ship`, etc.
 
 | Skill | What it does |
 |---|---|
+| `/turkit:init` | Detects your project's build tool, package manager, base branch, and tracker. Proposes a `.turkit.yaml`. |
 | `/turkit:ticket-triage` | Routes a ticket to one-shot / plan-then-execute / split-first. Emits a next-step prompt. |
 | `/turkit:ticket-plan` | Writes a structured plan to `.claude/plans/<TICKET>.md` for operator review. |
 | `/turkit:ticket-execute` | Executes a validated plan, criterion by criterion, in a worktree. Never commits. |
@@ -31,19 +32,19 @@ Skills are then available as `/turkit:ticket-triage`, `/turkit:ship`, etc.
 
 ## Configuration
 
-turkit works with zero config. For explicit overrides, drop a `.turkit.yaml` at your repo root:
+turkit works with zero config. Run `/turkit:init` to generate a `.turkit.yaml` tailored to your project. Typical output on a pnpm + TypeScript repo:
 
 ```yaml
 commands:
-  check: just check
-  lint: just lint
-  fmt: just fmt
-  test: cargo test --workspace
-  build: just build
+  check: pnpm typecheck
+  lint: pnpm lint
+  fmt: pnpm format
+  test: pnpm test
+  build: pnpm build
 base_branch: main
 ```
 
-All fields optional. See `.turkit.yaml.example` for the full shape and `docs/contracts/build-tool-detection.md` for the resolution order.
+All fields optional. See `.turkit.yaml.example` for the full shape and `docs/contracts/build-tool-detection.md` for the resolution order (pnpm, bun, yarn, npm, just, make, cargo, poetry, uv, go).
 
 ## Issue tracker support
 

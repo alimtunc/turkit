@@ -1,0 +1,6 @@
+# Local-only working docs (spec, plans) — not for the public repo.
+/docs/specs/
+/docs/plans/
+
+# Local operator overrides
+/.turkit.yaml

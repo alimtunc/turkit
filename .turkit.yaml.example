@@ -1,12 +1,12 @@
 # Copy to .turkit.yaml at your repo root to override build tool detection.
-# All fields optional.
+# All fields optional. Run /turkit:init to auto-generate one tailored to your project.
 
 commands:
-  check: just check
-  lint: just lint
-  fmt: just fmt
-  test: cargo test --workspace
-  build: just build
+  check: pnpm typecheck
+  lint: pnpm lint
+  fmt: pnpm format
+  test: pnpm test
+  build: pnpm build
 
 # Branch compared against by review / PR skills.
 # Defaults to `git symbolic-ref refs/remotes/origin/HEAD` then `main`.
