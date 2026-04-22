@@ -1,0 +1,20 @@
+{
+  "name": "turkit",
+  "description": "Project-agnostic Claude Code workflow skills: ticket lifecycle, reviews, ship, handoff.",
+  "version": "0.1.0",
+  "author": {
+    "name": "SuperTurk",
+    "url": "https://github.com/SuperTurk"
+  },
+  "homepage": "https://github.com/SuperTurk/turkit",
+  "repository": "https://github.com/SuperTurk/turkit",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "skills",
+    "workflow",
+    "tickets",
+    "code-review",
+    "pr"
+  ]
+}
