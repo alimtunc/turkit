@@ -9,7 +9,6 @@ All notable changes to turkit are tracked here. The project follows [SemVer](htt
 - Repo restructured from a single plugin to a **marketplace** with two plugins: `turkit-workflow` and `turkit-react`.
 - Slash-command namespace: `/turkit:xxx` → `/turkit-workflow:xxx` (or `/turkit-react:xxx`).
 - Install command changed: `/plugin install turkit@alimtunc/turkit` → `/plugin install turkit-workflow@alimtunc/turkit` (plus optional `turkit-react`).
-- No compatibility shim for v0.2.0 users — uninstall the old plugin and install the new ones.
 
 ### Added
 

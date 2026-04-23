@@ -23,18 +23,6 @@ Two plugins today; more to come:
 /turkit-workflow:turkit-init
 ```
 
-## Upgrading from v0.2.0
-
-v1.0.0 splits turkit into a marketplace. You need to uninstall the old plugin and install the new ones:
-
-```bash
-/plugin uninstall turkit
-/plugin install turkit-workflow@alimtunc/turkit
-/plugin install turkit-react@alimtunc/turkit     # optional
-```
-
-Slash commands move from `/turkit:xxx` to `/turkit-workflow:xxx` (or `/turkit-react:xxx`).
-
 ## How the ticket flow fits together
 
 ```mermaid
