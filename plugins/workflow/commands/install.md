@@ -1,5 +1,5 @@
 ---
-description: Bootstrap Turkit in this repo: detect stack-specific packs, recommend plugin install commands, and set up .turkit.yaml.
+description: "Bootstrap Turkit in this repo: detect stack-specific packs, recommend plugin install commands, and set up .turkit.yaml."
 allowed-tools: Skill, Bash(git status:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git symbolic-ref:*), Bash(pwd:*), Read, Grep, Glob, Write, Edit
 ---
 

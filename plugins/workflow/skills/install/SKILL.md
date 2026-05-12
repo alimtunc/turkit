@@ -1,6 +1,6 @@
 ---
 name: install
-description: Bootstrap Turkit in a repository. Use when setting up Turkit skills for a project: detect the stack, recommend workflow/react plugin installs, and create or update .turkit.yaml only after operator confirmation.
+description: "Bootstrap Turkit in a repository. Use when setting up Turkit skills for a project: detect the stack, recommend workflow/react plugin installs, and create or update .turkit.yaml only after operator confirmation."
 disable-model-invocation: true
 allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git symbolic-ref:*), Bash(pwd:*), Read, Grep, Glob, Write, Edit
 ---
