@@ -19,8 +19,8 @@ Two plugins today; more to come:
 # Optional: add the React pack
 /plugin install turkit-react@alimtunc/turkit
 
-# Per-project setup (writes .turkit.yaml, opt-in)
-/turkit-workflow:turkit-init
+# Per-project setup (detects stack packs + writes .turkit.yaml, opt-in)
+/turkit-workflow:install
 ```
 
 ## How the ticket flow fits together
@@ -38,7 +38,7 @@ flowchart TD
     W --> V["🧪 Operator manually verifies"]
 
     V --> PCR["/turkit-workflow:pre-commit-review"]
-    PCR -. "branch has multiple commits" .-> PPR["/turkit-workflow:pre-push-review"]
+    PCR -. "branch has multiple commits" .-> PPR["/turkit-workflow:pre-pr-review"]
     PCR --> SHIP["/turkit-workflow:ship"]
     PPR --> SHIP
     SHIP --> DONE["🚀 PR opened + ticket Done"]
@@ -52,7 +52,7 @@ flowchart TD
 - **Small tickets**: `ticket-triage` → `ticket-execute` → `pre-commit-review` → `ship`.
 - **Medium tickets**: `ticket-triage` → `ticket-plan` → operator validates → `ticket-execute` → `pre-commit-review` → `ship`.
 - **Large tickets**: `ticket-triage` (split-first) → split into sub-tickets → re-triage each.
-- **Long branches**: `pre-push-review` instead of (or in addition to) `pre-commit-review`.
+- **Long branches**: `pre-pr-review` instead of (or in addition to) `pre-commit-review`.
 - **Running out of context**: `handoff` at any point.
 - **Stack-specific review**: pair `pre-commit-review` with `/turkit-react:react-review` for React-specific findings.
 - **Rules drifting**: `/turkit-workflow:rules-refresh <path>` to re-audit a rules doc against the current Claude version.
@@ -61,12 +61,13 @@ flowchart TD
 
 | Skill | What it does |
 |---|---|
+| `/turkit-workflow:install` | Bootstraps Turkit in a repo: detects stack-specific packs (React when applicable), prints plugin install commands, and sets up `.turkit.yaml` via the init workflow. |
 | `/turkit-workflow:turkit-init` | Detects the project's build tool, package manager, base branch, tracker, proposes `.turkit.yaml`. |
 | `/turkit-workflow:ticket-triage` | Routes a ticket to one-shot / plan-then-execute / split-first. |
 | `/turkit-workflow:ticket-plan` | Writes a structured plan to `.claude/plans/<TICKET>.md` for operator review. |
 | `/turkit-workflow:ticket-execute` | Executes a validated plan on a feature branch (worktree opt-in). Never commits. |
-| `/turkit-workflow:pre-commit-review` | Reviews the current diff and auto-fixes low-risk issues. |
-| `/turkit-workflow:pre-push-review` | Full-branch review across every commit vs. the base branch. |
+| `/turkit-workflow:pre-commit-review` | Strict review of the current diff. Mechanical pre-pass via the project's lint, judgment pass against an opinionated checklist (SOC, DRY, over-engineering, comments, types, error handling). Auto-fixes mechanical violations (unstaged), surfaces judgment calls as required changes. |
+| `/turkit-workflow:pre-pr-review` | Strict full-branch review vs. the base branch before opening or updating a PR. Same per-diff rubric as `pre-commit-review`, plus branch-level checks (per-commit coherence, cross-commit drift, dead intermediate files, intent). Auto-fixes mechanical violations. |
 | `/turkit-workflow:pr-description` | Concise PR description from the branch diff. |
 | `/turkit-workflow:test-instructions` | Short manual-test checklist post-implementation. |
 | `/turkit-workflow:ship` | Commit + push + PR + close the ticket. |
@@ -77,11 +78,11 @@ flowchart TD
 
 | Skill | What it does |
 |---|---|
-| `/turkit-react:react-review` | Review React code against 13 opinionated rules (modern React, component boundaries, conditional rendering, hooks). Auto-fixes low-risk violations. |
+| `/turkit-react:react-review` | Strict React review (React 19+). Mechanical pre-pass via [`react-doctor`](https://www.npmjs.com/package/react-doctor) (oxlint-based), judgment pass against an opinionated checklist (useless `useEffect`, SOC inside `.tsx`, JSX hygiene, hooks discipline, types). Auto-fixes mechanical violations (unstaged), surfaces judgment calls as required changes. |
 
 ## Configuration
 
-Run `/turkit-workflow:turkit-init` to generate a `.turkit.yaml` tailored to your project. Example output on a pnpm + TypeScript repo:
+Run `/turkit-workflow:install` for full setup (stack pack recommendations + `.turkit.yaml`). Run `/turkit-workflow:turkit-init` when you only want to generate or update `.turkit.yaml`. Example output on a pnpm + TypeScript repo:
 
 ```yaml
 commands:
@@ -90,6 +91,8 @@ commands:
   fmt: pnpm format
   test: pnpm test
   build: pnpm build
+  # Optional, used by /turkit-react:react-review when present.
+  react_review: pnpm react-review
 base_branch: main
 ```
 
@@ -107,7 +110,7 @@ See `docs/contracts/issue-tracker-detection.md` for the full detection rules.
 
 ## Codex / other platforms
 
-SKILL.md files under `plugins/<plugin>/skills/` follow the standard format. Copy any folder into your Codex skills directory to use them outside Claude Code.
+SKILL.md files under `plugins/<plugin>/skills/` follow the standard format. For standalone use outside Claude Code, copy the full plugin folder when a skill references shared `references/` files.
 
 ## Contributing
 

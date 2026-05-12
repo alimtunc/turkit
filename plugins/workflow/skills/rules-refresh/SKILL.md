@@ -1,6 +1,8 @@
 ---
 name: rules-refresh
 description: Audit a rules document (SKILL.md, CLAUDE.md, AGENTS.md, or convention doc) and propose updates that leverage what the current Claude version knows natively. Classifies each rule as Keep / Sharpen / Add-rationale / Redundant / Stale, and applies all proposed changes only on one explicit confirmation.
+disable-model-invocation: true
+allowed-tools: Bash(git status:*), Read, Grep, Glob, Edit, MultiEdit, Write
 ---
 
 # Rules Refresh

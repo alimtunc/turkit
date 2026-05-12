@@ -37,6 +37,15 @@ base_branch: main   # optional; defaults to detection via `git symbolic-ref refs
 
 All fields optional. Skills should tolerate a missing file.
 
+Stack-specific plugins MAY add optional commands under `commands:` without changing the core contract. Example:
+
+```yaml
+commands:
+  react_review: pnpm react-review
+```
+
+Core workflow skills ignore unknown command keys. Stack plugins own their own resolution order and fallbacks.
+
 ## `base_branch`
 
 Skills that compare against a base branch (reviews, PR generation) MUST resolve it via:

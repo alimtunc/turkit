@@ -1,6 +1,8 @@
 ---
 name: ship
 description: Commit, push, open a PR, and mark the issue done — one command to ship a finished change. Operator invokes only after manual verification.
+disable-model-invocation: true
+allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git log:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(gh pr create:*), Read, Grep, Glob
 ---
 
 # Ship

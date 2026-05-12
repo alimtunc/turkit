@@ -1,6 +1,8 @@
 ---
 name: ticket-plan
 description: Write a structured plan to `.claude/plans/<TICKET>.md` for operator review before any code. Scans the workspace for reuse opportunities. Does not modify code. Does not auto-invoke ticket-execute.
+disable-model-invocation: true
+allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git diff:*), Read, Grep, Glob, Write, Edit
 ---
 
 # Ticket Plan
@@ -11,10 +13,12 @@ Produce a written plan for a ticket so the operator can validate the approach **
 
 1. **Resolve the ticket.** Via `docs/contracts/issue-tracker-detection.md`, or accept an explicit ID as argument. Fetch title + body.
 
-2. **Scan the workspace for reuse.** Before designing, look for:
+2. **Scan the workspace for reuse and ownership.** Before designing, look for:
    - Existing modules/components that solve a similar problem.
    - Patterns the codebase already uses for this class of change.
    - Utility functions whose signature fits the new work.
+   - The correct ownership home for new helpers, types, constants, schemas, and tests.
+   - Stack-specific quality gates that should apply (for example `react-doctor` for React projects).
 
    Prefer reusing over re-inventing. If reuse is unsuitable, say *why* in the plan.
 
@@ -35,6 +39,13 @@ Produce a written plan for a ticket so the operator can validate the approach **
 
    ## Reuse
    <list of existing code we'll leverage, or explicit "no reuse" with reason>
+
+   ## Quality contract
+   - Reuse: <existing modules/helpers/components to reuse, or "none" with reason>
+   - Ownership: <where helpers/types/constants/schemas/components belong; call out what must not be colocated>
+   - Boundaries: <module/layer/import boundaries that must not be crossed>
+   - Verification: <check/lint/test/build/manual checks required before handoff>
+   - Stack-specific gates: <e.g. react-doctor/react-review when React files are touched, or "none">
 
    ## Files to touch
    - Create: `path/to/new.ext` — <responsibility>

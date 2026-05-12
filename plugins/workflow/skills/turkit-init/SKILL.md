@@ -1,6 +1,8 @@
 ---
 name: turkit-init
 description: Detect the project's build tool, package manager, base branch, and issue tracker, then propose a .turkit.yaml tailored to the repo. Writes the file only after operator confirmation.
+disable-model-invocation: true
+allowed-tools: Bash(git status:*), Bash(git symbolic-ref:*), Read, Grep, Glob, Write, Edit
 ---
 
 # Turkit Init

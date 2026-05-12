@@ -1,63 +1,56 @@
 ---
 name: pre-commit-review
-description: Review the current unstaged + staged diff against clean-code principles (DRY, SOC, naming, error handling, complexity) and auto-fix low-risk issues before the operator commits. Language-agnostic.
+description: Operator-invoked review of the current local diff (staged + unstaged + untracked) before committing. Strict gatekeeper stance with mechanical auto-fixes and required-change findings. Language-agnostic.
+disable-model-invocation: true
+allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git diff:*), Bash(git log:*), Bash(git ls-files:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(just:*), Bash(make:*), Bash(cargo:*), Bash(poetry:*), Bash(uv:*), Bash(go:*), Bash(mix:*), Read, Grep, Glob, Edit, MultiEdit, Write
 ---
 
 # Pre-Commit Review
 
-Review the **current diff** (unstaged + staged) and auto-fix low-risk issues before a commit.
+Review the local diff before committing. This skill is operator-invoked and may edit files only for mechanical auto-fixes, which land unstaged.
 
-## Scope
+## Source of Truth
 
-- Input: `git diff HEAD` (both staged and unstaged changes).
-- Output: a short review report + files auto-fixed in-place for low-risk issues.
-- Language-agnostic. No stack-specific idioms. Principles only.
+Before judging or fixing, read [`../../references/review-rubric.md`](../../references/review-rubric.md). It defines severity, categories, fix policy, checklist, and output format.
 
-## Steps
+## Reviewer Mindset
 
-1. **Gather the diff.** `git diff HEAD --stat` then `git diff HEAD` for full content.
+The bar is clean, minimal, DRY, SOC-respecting code. "Works" is the floor.
 
-2. **Classify findings** into three buckets:
-   - **Auto-fix**: rename a clearly-misleading variable, delete obviously-dead code introduced by this diff, extract a duplicated block used 3+ times within the diff, tighten a comment that lies.
-   - **Flag, don't fix**: missing error handling, unclear abstraction, logic that looks wrong but might be intentional, tests missing.
-   - **Style**: formatting inconsistencies the formatter will catch — ignore (trust the formatter).
+- The diff must justify itself; unrelated changes are scope creep.
+- Touched lines are the author's responsibility, even when nearby legacy code is worse.
+- Structural violations are blocking. Do not downgrade them because the diff is large or deadline-driven.
+- When in doubt, flag with a concrete rationale.
 
-3. **Check the diff against these principles** (in order of priority):
-   1. **DRY** — duplicated logic within the diff. Extract if ≥ 3 copies.
-   2. **SOC** — does each new unit have a single responsibility?
-   3. **Naming** — do names describe intent, not implementation? No `data`, `util`, `handle`.
-   4. **Error handling** — are error paths visible, or silenced? Flag silenced errors.
-   5. **Complexity** — a function > ~40 lines or > 3 levels of nesting — consider splitting.
-   6. **Dead code** — imports, variables, functions added but unused.
-   7. **Comments** — do they explain *why*? Delete `// increments i`.
-   8. **Hardcoded values** — magic numbers / strings that look environment-specific.
+## Workflow
 
-4. **Apply auto-fixes** in the actual files (not as a patch suggestion). After each fix, re-read the file to confirm.
+1. Inspect:
+   - `git status --short`
+   - `git diff --cached`
+   - `git diff`
+   - `git ls-files --others --exclude-standard`
+2. If there are no staged, unstaged, or untracked changes, stop and report nothing to review.
+3. Keep findings labeled `staged`, `unstaged`, or `untracked` when multiple scopes exist.
+4. Run the project's lint command:
+   - `.turkit.yaml → commands.lint`
+   - fallback per `docs/contracts/build-tool-detection.md`
+   - if unavailable, continue and report "lint unavailable"
+5. Review changed hunks first. For untracked files, review the full file.
+6. Walk the shared rubric checklist in order.
+7. Apply only the shared rubric's Auto-fix bucket. Do not stage or commit.
+8. Re-run lint after auto-fixes and capture residual failures.
+9. Report using the shared rubric's Pre-Commit Output Format.
 
-5. **Report.** Produce the report in the format below.
+## Review Sizing
 
-## Report format
-
-```
-Pre-commit review — <N> files changed
-
-AUTO-FIXED
-- path/to/file.ext:L — <short description>
-- …
-
-FLAGGED (operator decides)
-- path/to/file.ext:L — <what> | <why it matters> | <suggested direction>
-- …
-
-PASS
-<anything notable that looked good, 1-3 bullets max>
-```
-
-Respond in the conversation's language by default.
+- **Fast**: renames, docs, config, dependency bumps. Walk the checklist quickly.
+- **Medium**: bounded logic/UI/module changes. Walk every section.
+- **Deep**: auth, payments, schemas, core state, public API, or heterogeneous large diffs. Split by scope when useful, then synthesize before fixing.
 
 ## Guardrails
 
-- Never delete code the operator wrote outside the current diff.
-- Never reformat whole files — trust the formatter.
-- Never change public interfaces (function signatures, exported types) in auto-fix mode — flag instead.
-- If in doubt between auto-fix and flag → flag.
+- Do not turn this into a broad refactor.
+- Do not edit unrelated files.
+- Do not stage, commit, push, amend, rebase, reset, or rewrite history.
+- If staged changes existed before auto-fixes, state clearly that fixes landed unstaged.
+- Respond in the conversation's language by default.
