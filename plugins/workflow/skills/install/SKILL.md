@@ -20,7 +20,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
    - React project signals: `package.json` dependency/devDependency on `react`, `react-dom`, `next`, `@vitejs/plugin-react`, `remix`, `@remix-run/*`, `expo`, or `react-native`.
    - If React is detected, recommend:
      ```bash
-     /plugin install turkit-react@alimtunc/turkit
+     /plugin install turkit-react@turkit
      ```
    - If React is detected, also inspect `package.json` for a pinned React gate script (`react-review`, `react:review`, or `react-doctor`). If found, recommend adding it to `.turkit.yaml` as `commands.react_review`.
    - If no stack-specific pack matches, say that only `turkit-workflow` is recommended for now.

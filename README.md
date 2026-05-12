@@ -14,10 +14,10 @@ Two plugins today; more to come:
 /plugin marketplace add alimtunc/turkit
 
 # Install the core workflow (everyone)
-/plugin install turkit-workflow@alimtunc/turkit
+/plugin install turkit-workflow@turkit
 
 # Optional: add the React pack
-/plugin install turkit-react@alimtunc/turkit
+/plugin install turkit-react@turkit
 
 # Per-project setup (detects stack packs + writes .turkit.yaml, opt-in)
 /turkit-workflow:install
