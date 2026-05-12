@@ -2,7 +2,7 @@
 name: ticket-execute
 description: Execute a validated plan at `.claude/plans/<TICKET>.md`. Verifies plan alignment with current code, sets up a feature branch (or worktree if the operator asks for one), implements criterion by criterion, emits a handoff. Never commits.
 disable-model-invocation: true
-allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git checkout:*), Bash(git switch:*), Bash(git worktree:*), Bash(git diff:*), Bash(git ls-files:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(just:*), Bash(make:*), Bash(cargo:*), Bash(poetry:*), Bash(uv:*), Bash(go:*), Bash(mix:*), Bash(npx:*), Read, Grep, Glob, Edit, MultiEdit, Write
+allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git checkout:*), Bash(git switch:*), Bash(git worktree:*), Bash(git diff:*), Bash(git ls-files:*), Bash(pwd:*), Bash(cp:*), Bash(mkdir:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(just:*), Bash(make:*), Bash(cargo:*), Bash(poetry:*), Bash(uv:*), Bash(go:*), Bash(mix:*), Bash(npx:*), Read, Grep, Glob, Edit, MultiEdit, Write
 ---
 
 # Ticket Execute
@@ -18,23 +18,37 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
 
 1. **Read the plan** at `.claude/plans/<TICKET-ID>.md`. If missing, stop and tell the operator to run `/turkit-workflow:ticket-plan <TICKET-ID>` first.
 
-2. **Verify plan alignment with current code.** Since the plan was written, the codebase may have moved. For each "Files to touch" entry, verify the file still exists (for Modify) or the target path is still free (for Create). Verify the plan has a `Quality contract`; if it is missing, synthesize one from the current code and update the plan before coding. If file ownership or boundaries no longer match the plan, stop and propose a plan update.
+2. **Verify plan alignment with current code.** Since the plan was written, the codebase may have moved. Read `.turkit.yaml` if present and load relevant `rules.docs` entries. For each "Files to touch" entry, verify the file still exists (for Modify) or the target path is still free (for Create). Verify the plan has a `Quality contract`; if it is missing, synthesize one from the current code and update the plan before coding. If file ownership or boundaries no longer match the plan, stop and propose a plan update.
 
-3. **Set up workspace.** Worktrees are opt-in, not default.
-   - If already on a non-base branch → continue.
-   - If currently on the base branch:
-     - **Default** — create a feature branch in the current workspace:
-       ```bash
-       git checkout -b <ticket-slug>
-       ```
-       Base branch resolved per `docs/contracts/build-tool-detection.md#base_branch`.
-     - **Opt-in worktree** — only if the operator explicitly asks for isolation (e.g., to keep the main workspace untouched while they review another branch):
+3. **Set up workspace.** Resolve workspace policy from `.turkit.yaml → workflow.workspace`:
+   - `worktree_required` means create or enter a worktree before editing.
+   - `feature_branch` means work in the current workspace on a feature branch.
+   - Missing value defaults to `feature_branch`.
+
+   - If `workflow.workspace: worktree_required`:
+     - Run `pwd` and verify the path already contains the configured
+       `workflow.worktree_dir` segment. If yes, continue.
+     - Otherwise create a worktree and switch into it before any edit:
        ```bash
        git worktree add .worktrees/<ticket-slug> -b <ticket-slug> <base-branch>
        cd .worktrees/<ticket-slug>
        ```
-       Do NOT create a worktree silently — the operator has to ask for it.
-   - If the project has init steps documented in its `CLAUDE.md` / `AGENTS.md` (copy env file, install deps), run them regardless of in-place vs worktree.
+       Use `.turkit.yaml → workflow.worktree_dir` instead of `.worktrees` when configured. After creating it, run `pwd` again and stop if the path is not inside that directory.
+   - If `workflow.workspace` is missing or `feature_branch`:
+     - If already on a non-base branch → continue.
+     - If currently on the base branch, create a feature branch in the current workspace:
+       ```bash
+       git checkout -b <ticket-slug>
+       ```
+       Base branch resolved per `docs/contracts/build-tool-detection.md#base_branch`.
+     - If the operator explicitly asks for isolation, create a worktree instead:
+       ```bash
+       git worktree add .worktrees/<ticket-slug> -b <ticket-slug> <base-branch>
+       cd .worktrees/<ticket-slug>
+       ```
+       Use `.turkit.yaml → workflow.worktree_dir` instead of `.worktrees` when configured.
+   - Use `.turkit.yaml → workflow.branch_template` when present. Supported placeholders are `{ticket_id}`, `{ticket_id_lower}`, and `{slug}`.
+   - If `.turkit.yaml → workflow.init` is present, run each listed command exactly after branch/worktree setup and stop on the first failure. Otherwise, if the project has init steps documented in `CLAUDE.md` / `AGENTS.md`, run them regardless of in-place vs worktree.
 
 4. **Move the ticket to In Progress** if a tracker is available (per `docs/contracts/issue-tracker-detection.md`).
 

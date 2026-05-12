@@ -7,7 +7,24 @@ commands:
   fmt: pnpm format
   test: pnpm test
   build: pnpm build
+  # Optional stack-specific command used by /turkit-react:react-review.
+  react_review: pnpm react-review
 
 # Branch compared against by review / PR skills.
 # Defaults to `git symbolic-ref refs/remotes/origin/HEAD` then `main`.
 base_branch: main
+
+# Optional workflow policy used by ticket execution skills.
+workflow:
+  workspace: feature_branch # or worktree_required
+  worktree_dir: .worktrees
+  branch_template: "{ticket_id_lower}-{slug}"
+  init:
+    - pnpm install
+
+# Optional project rule sources loaded by planning/execution/review skills.
+rules:
+  docs:
+    - CLAUDE.md
+    - AGENTS.md
+    - docs/conventions/*.md

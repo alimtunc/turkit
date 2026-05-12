@@ -31,15 +31,21 @@ The bar is clean, minimal, DRY, SOC-respecting code. "Works" is the floor.
    - `git ls-files --others --exclude-standard`
 2. If there are no staged, unstaged, or untracked changes, stop and report nothing to review.
 3. Keep findings labeled `staged`, `unstaged`, or `untracked` when multiple scopes exist.
-4. Run the project's lint command:
+4. Load project rules before judging:
+   - Read `.turkit.yaml` if present.
+   - If it defines `rules.docs`, read the relevant listed docs.
+   - Otherwise read relevant defaults when present: `CLAUDE.md`, `AGENTS.md`,
+     and `docs/conventions/*.md`.
+5. Run the project's lint command:
    - `.turkit.yaml → commands.lint`
    - fallback per `docs/contracts/build-tool-detection.md`
    - if unavailable, continue and report "lint unavailable"
-5. Review changed hunks first. For untracked files, review the full file.
-6. Walk the shared rubric checklist in order.
-7. Apply only the shared rubric's Auto-fix bucket. Do not stage or commit.
-8. Re-run lint after auto-fixes and capture residual failures.
-9. Report using the shared rubric's Pre-Commit Output Format.
+6. Review changed hunks first. For untracked files, review the full file.
+7. Walk the shared rubric checklist in order, then apply any loaded project
+   rules that are relevant to the touched files.
+8. Apply only the shared rubric's Auto-fix bucket. Do not stage or commit.
+9. Re-run lint after auto-fixes and capture residual failures.
+10. Report using the shared rubric's Pre-Commit Output Format.
 
 ## Review Sizing
 

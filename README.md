@@ -56,12 +56,14 @@ flowchart TD
 - **Running out of context**: `handoff` at any point.
 - **Stack-specific review**: pair `pre-commit-review` with `/turkit-react:react-review` for React-specific findings.
 - **Rules drifting**: `/turkit-workflow:rules-refresh <path>` to re-audit a rules doc against the current Claude version.
+- **Existing local Claude skills**: `/turkit-workflow:adopt-project` to migrate project-specific rules into `.turkit.yaml`/docs and archive duplicated local workflow skills.
 
 ## `turkit-workflow` skills
 
 | Skill | What it does |
 |---|---|
 | `/turkit-workflow:install` | Bootstraps Turkit in a repo: detects stack-specific packs (React when applicable), prints plugin install commands, and sets up `.turkit.yaml` via the init workflow. |
+| `/turkit-workflow:adopt-project` | Migrates an existing repo that already has local `.claude/skills` or `.claude/commands`: keeps project-specific knowledge, updates `.turkit.yaml`, and archives workflow duplicates outside the active skill path. |
 | `/turkit-workflow:turkit-init` | Detects the project's build tool, package manager, base branch, tracker, proposes `.turkit.yaml`. |
 | `/turkit-workflow:ticket-triage` | Routes a ticket to one-shot / plan-then-execute / split-first. |
 | `/turkit-workflow:ticket-plan` | Writes a structured plan to `.claude/plans/<TICKET>.md` for operator review. |
@@ -94,6 +96,16 @@ commands:
   # Optional, used by /turkit-react:react-review when present.
   react_review: pnpm react-review
 base_branch: main
+workflow:
+  workspace: feature_branch # or worktree_required
+  worktree_dir: .worktrees
+  branch_template: "{ticket_id_lower}-{slug}"
+  init:
+    - pnpm install
+rules:
+  docs:
+    - CLAUDE.md
+    - docs/conventions/*.md
 ```
 
 All fields optional. See `.turkit.yaml.example` for the full shape and `docs/contracts/build-tool-detection.md` for the resolution order (pnpm, bun, yarn, npm, just, make, cargo, poetry, uv, go).

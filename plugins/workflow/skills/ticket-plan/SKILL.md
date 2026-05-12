@@ -13,7 +13,13 @@ Produce a written plan for a ticket so the operator can validate the approach **
 
 1. **Resolve the ticket.** Via `docs/contracts/issue-tracker-detection.md`, or accept an explicit ID as argument. Fetch title + body.
 
-2. **Scan the workspace for reuse and ownership.** Before designing, look for:
+2. **Load project rules.** Read `.turkit.yaml` when present. If it defines
+   `rules.docs`, read the listed docs relevant to this ticket. Otherwise use the
+   repo defaults when present: `CLAUDE.md`, `AGENTS.md`, and
+   `docs/conventions/*.md`. Keep context focused; do not bulk-load unrelated
+   large docs.
+
+3. **Scan the workspace for reuse and ownership.** Before designing, look for:
    - Existing modules/components that solve a similar problem.
    - Patterns the codebase already uses for this class of change.
    - Utility functions whose signature fits the new work.
@@ -22,7 +28,7 @@ Produce a written plan for a ticket so the operator can validate the approach **
 
    Prefer reusing over re-inventing. If reuse is unsuitable, say *why* in the plan.
 
-3. **Write the plan** to `.claude/plans/<TICKET-ID>.md` (create the directory if missing). Structure:
+4. **Write the plan** to `.claude/plans/<TICKET-ID>.md` (create the directory if missing). Structure:
 
    ```markdown
    # <TICKET-ID> — <short title>
@@ -41,6 +47,7 @@ Produce a written plan for a ticket so the operator can validate the approach **
    <list of existing code we'll leverage, or explicit "no reuse" with reason>
 
    ## Quality contract
+   - Project rules: <docs/rules loaded and the highest-risk rule for this ticket>
    - Reuse: <existing modules/helpers/components to reuse, or "none" with reason>
    - Ownership: <where helpers/types/constants/schemas/components belong; call out what must not be colocated>
    - Boundaries: <module/layer/import boundaries that must not be crossed>
@@ -59,7 +66,7 @@ Produce a written plan for a ticket so the operator can validate the approach **
    - <thing we deliberately aren't doing here>
    ```
 
-4. **Stop.** Do not implement. Do not invoke `ticket-execute`. Tell the operator the plan path and ask them to review.
+5. **Stop.** Do not implement. Do not invoke `ticket-execute`. Tell the operator the plan path and ask them to review.
 
 ## Guardrails
 

@@ -33,12 +33,18 @@ Use [`../../references/review-rubric.md`](../../references/review-rubric.md) for
    - `git diff <base>..HEAD`
    - `git diff <base>..HEAD --name-only`
    - `git show <hash>` only when a cross-commit finding needs deeper inspection
-5. Run the project's lint command (`.turkit.yaml → commands.lint`, fallback per `docs/contracts/build-tool-detection.md`). If unavailable, continue and report it.
-6. Walk the shared rubric against the full branch diff.
-7. Walk the branch-level checklist below.
-8. Apply only the shared rubric's Auto-fix bucket. Auto-fixes land unstaged on current `HEAD`; do not create/amend commits or rewrite history.
-9. Re-run lint. If auto-fixes landed, the verdict cannot be `Ready for PR`; the operator must commit/amend and re-run this review.
-10. Report using the output format below.
+5. Load project rules before judging:
+   - Read `.turkit.yaml` if present.
+   - If it defines `rules.docs`, read the relevant listed docs.
+   - Otherwise read relevant defaults when present: `CLAUDE.md`, `AGENTS.md`,
+     and `docs/conventions/*.md`.
+6. Run the project's lint command (`.turkit.yaml → commands.lint`, fallback per `docs/contracts/build-tool-detection.md`). If unavailable, continue and report it.
+7. Walk the shared rubric against the full branch diff, then apply any loaded
+   project rules that are relevant to the branch.
+8. Walk the branch-level checklist below.
+9. Apply only the shared rubric's Auto-fix bucket. Auto-fixes land unstaged on current `HEAD`; do not create/amend commits or rewrite history.
+10. Re-run lint. If auto-fixes landed, the verdict cannot be `Ready for PR`; the operator must commit/amend and re-run this review.
+11. Report using the output format below.
 
 ## Branch-Level Checklist
 

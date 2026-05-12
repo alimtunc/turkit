@@ -33,6 +33,19 @@ commands:
   test: cargo test --workspace
   build: just build
 base_branch: main   # optional; defaults to detection via `git symbolic-ref refs/remotes/origin/HEAD`
+workflow:
+  # optional; defaults to feature_branch
+  workspace: feature_branch # or worktree_required
+  worktree_dir: .worktrees
+  branch_template: "{ticket_id_lower}-{slug}"
+  init:
+    - cp .env.example .env
+    - pnpm install
+rules:
+  docs:
+    - CLAUDE.md
+    - AGENTS.md
+    - docs/conventions/*.md
 ```
 
 All fields optional. Skills should tolerate a missing file.
@@ -45,6 +58,27 @@ commands:
 ```
 
 Core workflow skills ignore unknown command keys. Stack plugins own their own resolution order and fallbacks.
+
+## `workflow`
+
+Workflow-aware skills MAY read `.turkit.yaml → workflow`:
+
+- `workspace`
+  - `feature_branch` (default): create/use a normal feature branch.
+  - `worktree_required`: create/use a git worktree before editing.
+- `worktree_dir`: relative directory for worktrees. Defaults to `.worktrees`.
+- `branch_template`: branch slug template. Supported placeholders:
+  `{ticket_id}`, `{ticket_id_lower}`, `{slug}`.
+- `init`: literal shell commands to run after branch/worktree setup. Commands
+  must be copy-pasteable and repo-relative from the active working directory.
+  Prefer package-manager directory flags (for example `pnpm --dir ui install`)
+  over `cd ui && ...` so command allowlists can match the executable reliably.
+
+## `rules`
+
+Workflow skills MAY read `.turkit.yaml → rules.docs` to find project-specific
+instructions. If absent, use repo defaults when present: `CLAUDE.md`,
+`AGENTS.md`, and `docs/conventions/*.md`.
 
 ## `base_branch`
 

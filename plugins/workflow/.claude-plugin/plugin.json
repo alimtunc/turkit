@@ -1,6 +1,6 @@
 {
   "name": "turkit-workflow",
-  "description": "Project-agnostic Claude Code workflow skills: ticket lifecycle, reviews, ship, handoff, rules-refresh.",
+  "description": "Project-agnostic Claude Code workflow skills: ticket lifecycle, reviews, ship, handoff, rules-refresh, project adoption.",
   "version": "1.0.0",
   "author": {
     "name": "alimtunc",
@@ -16,6 +16,8 @@
     "tickets",
     "code-review",
     "pr",
-    "meta"
+    "meta",
+    "migration",
+    "adoption"
   ]
 }

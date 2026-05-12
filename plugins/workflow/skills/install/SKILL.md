@@ -14,6 +14,10 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
 1. **Confirm repository context.**
    - Read the repo root and current branch.
    - Inspect `git status --short`.
+   - If `.claude/skills/*` or `.claude/commands/*` exists, note that the repo
+     already has local Claude assets. Recommend
+     `/turkit-workflow:adopt-project` after install so generic workflow skills
+     do not stay duplicated locally.
    - If the tree has unrelated user changes, continue read-only until the operator approves writing `.turkit.yaml`.
 
 2. **Detect stack packs.** Inspect root manifests and common package locations.
@@ -36,6 +40,8 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
    - Recommended plugin install commands.
    - `.turkit.yaml` status: created / update proposed / already OK / skipped.
    - Suggested first quality command: `/turkit-workflow:pre-commit-review`, plus `/turkit-react:react-review` when React is detected.
+   - If local Claude assets were detected, suggested migration command:
+     `/turkit-workflow:adopt-project`.
 
 ## Guardrails
 
