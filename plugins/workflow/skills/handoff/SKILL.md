@@ -1,52 +1,56 @@
 ---
 name: handoff
-description: Summarize the current conversation so it can be pasted into another LLM to continue the work. Commits pending changes, returns worktree work to the parent branch, optionally marks the issue as done, then outputs a copy-pasteable markdown summary.
+description: Résume la conversation en cours pour l'envoyer à un autre LLM. Usage - /handoff
 ---
 
 # Handoff
 
-Produce a markdown summary of **this conversation**, ready to paste into another LLM so it can pick up where you left off.
+Produis un résumé markdown de **cette conversation**, prêt à coller dans un autre LLM pour qu'il reprenne le fil.
 
-## Steps
+## Étapes
 
-1. **Commit pending changes.** Follow the project's commit rules (concise subject, no `Co-Authored-By`). If nothing to commit, skip.
+1. **Commiter** tous les changements non commités avant de résumer. Suivre les règles de commit du projet (message concis, pas de `Co-Authored-By`). Si rien à commiter, passer à l'étape suivante.
+2. **Worktree → branche mère** — Si on est dans un git worktree :
+   - Identifier la branche mère (celle depuis laquelle le worktree a été créé).
+   - Pousser les commits du worktree vers la branche mère avec `git push origin HEAD:<branche-mère>` ou cherry-pick selon le cas.
+   - Sortir du worktree (`ExitWorktree`) pour revenir à l'espace principal.
+   - Supprimer le worktree (`git worktree remove <path>`).
+   - Vérifier dans l'espace principal que les commits sont bien sur la branche mère (`git log --oneline -5`).
+3. **Passer l'issue Linear en Done** — Si une issue Linear est associée à la conversation (identifiant DEV-XXXX dans les commits ou le contexte), la passer au statut "Done" via le MCP Linear (`save_issue` avec `stateId` correspondant à "Done").
+4. **Rédiger le résumé** — court et haut niveau. Objectif : l'autre LLM voit **où on en est** et **ce qu'on a fait**, pas le détail des fichiers. Couvrir :
+   - Contexte (sur quoi on bossait, ticket associé)
+   - Ce qu'on s'est dit d'important (décisions, arbitrages, pièges évités)
+   - Ce qu'on a fait (résumé fonctionnel, pas la liste des fichiers)
+   - Pointeur vers le(s) commit(s) — hash court + branche — en disant explicitement à l'autre LLM d'aller les lire (`git show <hash>`) pour être à jour sur le détail.
+5. **Afficher le résumé** dans un bloc markdown copiable (``` entouré).
 
-2. **Worktree → parent branch.** If the current workspace is a git worktree:
-   - Identify the parent branch (the branch the worktree was created from).
-   - Push the worktree commits to the parent branch: `git push origin HEAD:<parent-branch>` (or cherry-pick if the history has diverged).
-   - Exit the worktree back to the parent workspace.
-   - Remove the worktree: `git worktree remove <path>`.
-   - Verify the commits landed on the parent branch: `git log --oneline -5`.
+## Règles de rédaction
 
-3. **Move the issue to Done** (optional). If an issue tracker is available (per `docs/contracts/issue-tracker-detection.md`) and a ticket ID is associated with the conversation, update its status to the tracker's "Done" equivalent. Skip silently if no tracker.
+- **Ne pas lister les fichiers modifiés.** Si l'autre LLM a besoin du détail, il lit le commit.
+- **Pas de section "Ce qui reste à faire".** Le handoff raconte l'état actuel, pas un backlog.
+- Rester factuel et dense : pas de remplissage, pas de reformulation du ticket.
 
-4. **Write the summary.** Keep it short and high-level. The goal is for the other LLM to understand **where we are** and **what we did**, not every file change. Cover:
-   - Context (what we were working on, associated ticket if any)
-   - Important decisions, trade-offs, and pitfalls avoided
-   - What we did (functional summary, not a file list)
-   - Pointer to commit(s) — short hash + branch — with an explicit instruction to `git show <hash>` to get the full detail.
+## Format de sortie
 
-5. **Display the summary** in a copy-pasteable markdown block (triple-backtick fenced).
+Toujours afficher le résumé dans un **bloc de code markdown** pour que l'utilisateur puisse le copier/coller en un clic. Exemple :
 
-## Writing rules
+````
+```markdown
+# Handoff — [titre du ticket ou sujet]
 
-- **Do not list modified files.** If the other LLM needs detail, it reads the commit.
-- **No "remaining work" section.** The handoff describes current state, not a backlog.
-- Factual and dense: no filler, no restating the ticket.
-- Respond in the conversation's language by default.
+## Contexte
+...
 
-## Output format
+## Décisions / points importants
+...
 
-Always wrap the summary in a fenced markdown block so the operator can one-click copy. Example:
+## Ce qu'on a fait
+...
 
+## Pour être à jour
+Lis le(s) commit(s) sur la branche `<branche>` :
+- `<hash>` — <sujet du commit>
+
+Fais `git show <hash>` pour voir le détail des changements.
 ```
-# Handoff — [ticket or topic]
-
-**Context.** …
-
-**Decisions / pitfalls.** …
-
-**What we did.** …
-
-**Pointers.** Commit `abc1234` on `feat/foo`. Run `git show abc1234` for the full diff.
-```
+````
