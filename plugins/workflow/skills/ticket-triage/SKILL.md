@@ -1,11 +1,15 @@
 ---
 name: ticket-triage
-description: Entry point for any ticket. Fetches the issue (if a tracker is available), evaluates scope, picks the path (one-shot / plan-then-execute / split-first), and emits a copy-pasteable prompt for the next step. Does not auto-chain.
+description: Entry point for any ticket. Fetches the issue (if a tracker is available), evaluates scope, picks the path (one-shot / plan-then-execute / split-first), and dispatches the next skill in the same session. Only plan-then-execute requires a fresh session for execution.
 ---
 
 # Ticket Triage
 
-Route a ticket toward the right workflow. **Does not write code.** **Does not auto-invoke downstream skills.**
+Route a ticket toward the right workflow **and dispatch it in the same session**.
+
+- **one-shot** → triage writes a minimal plan then auto-invokes `ticket-execute` here and now.
+- **plan-then-execute** → triage auto-invokes `ticket-plan` here and now. `ticket-plan` ends by printing a fresh-session prompt for `ticket-execute`. Operator runs that in a new session.
+- **split-first** → triage writes a split proposal and stops. No implementation.
 
 ## Steps
 
@@ -26,21 +30,69 @@ Route a ticket toward the right workflow. **Does not write code.** **Does not au
 
    If between two options, prefer the heavier one. Operator can downgrade.
 
-4. **Emit a next-step prompt.** Produce exactly one copy-pasteable block, matching the chosen path:
+4. **Emit the triage report** (block below), then dispatch.
 
-   - **one-shot** → a prompt like: "Implement <TICKET-ID>: <one-line summary>. Acceptance criteria: <list>. Work on a worktree/branch, commit after manual verification."
-   - **plan-then-execute** → a prompt like: "Run `/turkit-workflow:ticket-plan <TICKET-ID>`. Validate the plan, then run `/turkit-workflow:ticket-execute <TICKET-ID>`."
-   - **split-first** → a prompt like: "Before implementing <TICKET-ID>, split it into N sub-tickets: <bullet list of proposed splits>. Update the tracker, then re-triage each sub-ticket."
+   ```
+   Ticket : <TICKET-ID> — <short title>
+   Path   : <one-shot | plan-then-execute | split-first>
+   Reason : <1–2 sentences>
+   ```
 
-5. **Stop.** Do not invoke any other skill. Do not write any file except the next-step prompt in the conversation.
+5. **Dispatch** based on path:
 
-## Output format
+   - **one-shot** → write a minimal plan to `.claude/plans/<TICKET-ID>.md` (template below), then invoke the `ticket-execute` skill in this same session.
+   - **plan-then-execute** → invoke the `ticket-plan` skill in this same session. `ticket-plan` writes the full plan and ends with a fresh-session prompt for execution. **Do not** invoke `ticket-execute` yourself.
+   - **split-first** → write the split proposal to `.claude/plans/<TICKET-ID>-split.md` (template below), display it, and stop. The operator creates the sub-tickets and re-triages each one.
 
-Always emit the next-step prompt in a fenced block so the operator can one-click copy.
+## One-shot minimal plan template
 
-Respond in the conversation's language by default.
+Write to `.claude/plans/<TICKET-ID>.md` before invoking `ticket-execute`:
+
+```markdown
+# <TICKET-ID> — <short title>
+
+## Context
+<1–2 sentences>
+
+## Acceptance criteria
+- [ ] <criterion 1>
+- [ ] <criterion 2 if needed>
+
+## Approach
+<2–4 lines. One-shot scope means design is obvious.>
+
+## Files to touch
+- Modify: `path/to/file` — <change>
+
+## Quality contract
+- Reuse: <existing helper/module to use, or "none">
+- Ownership: <where new code lives if any>
+- Verification: <project check/lint/test command(s)>
+```
+
+## Split-first proposal template
+
+Write to `.claude/plans/<TICKET-ID>-split.md`:
+
+```markdown
+# <TICKET-ID> — Split proposal
+
+## Reason for split
+<why the ticket can't merge as one unit>
+
+## Proposed sub-tickets
+### <TICKET-ID>.1 — <title>
+Scope: ...
+Acceptance criteria:
+  1. ...
+
+### <TICKET-ID>.2 — <title>
+...
+```
 
 ## Guardrails
 
-- Never begin implementation. Never open a worktree. Never edit code. Triage only.
+- Never invoke any review skill (`pre-commit-review`, `pre-pr-review`, `ship`, `test-instructions`).
+- Split-first never auto-invokes anything.
 - If the ticket body is missing or trivially short, ask the operator to flesh it out before choosing a path.
+- Respond in the conversation's language by default.

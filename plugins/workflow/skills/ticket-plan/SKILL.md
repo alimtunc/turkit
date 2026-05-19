@@ -1,6 +1,6 @@
 ---
 name: ticket-plan
-description: Write a structured plan to `.claude/plans/<TICKET>.md` for operator review before any code. Scans the workspace for reuse opportunities. Does not modify code. Does not auto-invoke ticket-execute.
+description: Write a structured plan to `.claude/plans/<TICKET>.md` for operator review before any code. Scans the workspace for reuse opportunities. Does not modify code. Ends by emitting a fresh-session prompt for `ticket-execute`.
 disable-model-invocation: true
 allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git diff:*), Read, Grep, Glob, Write, Edit
 ---
@@ -66,10 +66,22 @@ Produce a written plan for a ticket so the operator can validate the approach **
    - <thing we deliberately aren't doing here>
    ```
 
-5. **Stop.** Do not implement. Do not invoke `ticket-execute`. Tell the operator the plan path and ask them to review.
+5. **Emit the fresh-session prompt and stop.** Do not implement. Do not invoke `ticket-execute`. The operator reviews the plan, then starts a new session and pastes the prompt below.
+
+   Print exactly this block (substituting the ticket id) as the final output:
+
+   ```
+   Plan écrit : .claude/plans/<TICKET-ID>.md
+
+   Reprends dans une nouvelle session avec :
+   ---
+   Invoque ticket-execute sur <TICKET-ID>. Le plan est dans .claude/plans/<TICKET-ID>.md.
+   ---
+   ```
 
 ## Guardrails
 
 - No code changes. Only `.claude/plans/<TICKET-ID>.md` is written.
 - If `.claude/plans/<TICKET-ID>.md` already exists, read it first, then propose updates as a diff rather than overwriting silently.
+- Never auto-invoke `ticket-execute`. The fresh-session boundary is intentional: it forces the operator to review the plan before code is written.
 - Respond in the conversation's language by default.

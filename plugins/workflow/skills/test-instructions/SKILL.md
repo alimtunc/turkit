@@ -1,47 +1,55 @@
 ---
 name: test-instructions
-description: Emit a concise manual-test checklist after an issue is implemented. Short and scannable — the operator should be able to run through it in a few minutes.
+description: Emit a copy-pasteable manual-test checklist after an issue is implemented. Sectioned (automated / live / edge cases / résumé), commands are runnable as-is.
 ---
 
 # Test Instructions
 
-Produce a **concise** manual-test checklist for the change, readable at a glance. No prose, no micro-steps.
+Emit a checklist the operator can copy-paste to verify the work.
 
-## Steps
+## Process
 
 1. **Identify the worktree.** Absolute path via `git rev-parse --show-toplevel`.
-2. **Analyze the changes.** Use `git diff --stat <base_branch>` for a high-level view. Base branch resolution: `docs/contracts/build-tool-detection.md#base_branch`. Don't read files in depth — the goal is to know which areas were touched.
-3. **Identify the ticket** via `docs/contracts/issue-tracker-detection.md`. If none, proceed without.
-4. **Write the checklist.** See rules below.
-5. **Display** the result as plain text (no outer fenced block — only the `cd` command is fenced).
+2. **Skim the diff.** `git diff --stat <base>` (base resolved via `docs/contracts/build-tool-detection.md#base_branch`) to know which areas were touched. No deep file reads.
+3. **Identify the ticket** via `docs/contracts/issue-tracker-detection.md`. Skip if none.
+4. **Pick test commands** from `.turkit.yaml → commands.test` / `commands.check`, or the project's build-tool defaults.
+5. **Emit the block below.** No prose around it.
 
-## Checklist rules
+## Output template
 
-- **Max 6–8 items.** If you overflow, group or cut.
-- **One line per item**, format: short action → expected result.
-- **Markdown checkbox**: `- [ ] …`.
-- **No sub-steps**, no implementation details (no network payload names, no internal variable names).
-- **Cover only**: the happy path + 1–2 critical edge cases + likely regressions in adjacent areas.
-- **User-facing language**, not technical ("create a template", not `PUT /template returns 200`).
-- No separate "Prerequisites" or "Expected result" sections — everything fits on the checkbox line.
-- Respond in the conversation's language by default.
-
-## Output format
-
-Plain text. Only the `cd` command is in a copy-able bash block.
-
-Example output:
-
----
-
+````
 Test Instructions — <TICKET-ID> <short title>
 
-Access the worktree:
-
+Worktree:
 ```bash
 cd <absolute-worktree-path>
 ```
 
-- [ ] <item 1>
-- [ ] <item 2>
-- [ ] …
+### 1. Automated
+```bash
+<test/check commands, copy-pasteable, no placeholders>
+```
+
+### 2. Live (omit if no runtime to exercise)
+```bash
+<server start command with env vars if needed>
+```
+Then:
+- <UI step or curl one-liner> → <expected result>
+
+### 3. Edge cases
+- [ ] <happy path — one line>
+- [ ] <critical edge case>
+- [ ] <likely adjacent regression>
+
+### Résumé
+<2–3 sentences: what changed, expected behaviour, what to pay attention to during the test>
+````
+
+## Rules
+
+- **Commands must run as-is.** No `<placeholder>` except secrets the operator must fill.
+- **Max ~3 items** in *Edge cases*. Happy path + 1–2 critical edges. If more, you're over-testing.
+- **Omit "Live"** if there's no runtime to exercise (pure refactor, types-only change, docs).
+- No "Prerequisites" section, no "Expected result" subsections — fold into the line.
+- Respond in the conversation's language by default. `Résumé` stays in the conversation's language too.
