@@ -38,10 +38,10 @@ Route a ticket toward the right workflow **and dispatch it in the same session**
    Reason : <1–2 sentences>
    ```
 
-5. **Dispatch** based on path:
+5. **Dispatch** based on path. The fresh-session boundary lives **only** between `ticket-plan` and `ticket-execute`. Triage never asks the operator to start a new session and never prints a copy-paste prompt for the next skill — it invokes it.
 
-   - **one-shot** → write a minimal plan to `.claude/plans/<TICKET-ID>.md` (template below), then invoke the `ticket-execute` skill in this same session.
-   - **plan-then-execute** → invoke the `ticket-plan` skill in this same session. `ticket-plan` writes the full plan and ends with a fresh-session prompt for execution. **Do not** invoke `ticket-execute` yourself.
+   - **one-shot** → write a minimal plan to `.claude/plans/<TICKET-ID>.md` (template below), then **invoke `ticket-execute` via the Skill tool in this same session**. Do not stop after the triage report.
+   - **plan-then-execute** → **invoke `ticket-plan` via the Skill tool in this same session**. Do not stop after the triage report. Do not print "copy-paste this" or "run `/ticket-plan` next" — that is a bug. `ticket-plan` itself writes the full plan and ends with the fresh-session prompt for `ticket-execute`. Triage never invokes `ticket-execute` directly.
    - **split-first** → write the split proposal to `.claude/plans/<TICKET-ID>-split.md` (template below), display it, and stop. The operator creates the sub-tickets and re-triages each one.
 
 ## One-shot minimal plan template
@@ -94,5 +94,6 @@ Acceptance criteria:
 
 - Never invoke any review skill (`pre-commit-review`, `pre-pr-review`, `ship`, `test-instructions`).
 - Split-first never auto-invokes anything.
+- **`one-shot` and `plan-then-execute` always auto-invoke the next skill in the same session.** Printing a copy-paste prompt like "`/turkit-workflow:ticket-plan SUP-14`" instead of invoking the skill is a bug — it breaks the workflow by forcing an unnecessary session boundary on the operator.
 - If the ticket body is missing or trivially short, ask the operator to flesh it out before choosing a path.
 - Respond in the conversation's language by default.
