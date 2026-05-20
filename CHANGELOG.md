@@ -2,6 +2,21 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit-workflow v1.1.0 — 2026-05-20
+
+### Added
+
+- `handoff` : exige l'état d'environnement (worktree, branche, Linear, PR) et le résultat des gates dans le template de résumé.
+- Resserrage des skills workflow autour des frontières de session.
+
+### Fixed
+
+- `ticket-triage` : interdit une frontière de session prématurée avant `ticket-plan`.
+
+### Changed
+
+- `handoff` aligné avec la version globale personnelle.
+
 ## turkit v1.0.0 — 2026-04-22
 
 ### Breaking
