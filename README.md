@@ -73,7 +73,8 @@ flowchart TD
 | `/turkit-workflow:pr-description` | Concise PR description from the branch diff. |
 | `/turkit-workflow:test-instructions` | Short manual-test checklist post-implementation. |
 | `/turkit-workflow:ship` | Commit + push + PR + close the ticket. |
-| `/turkit-workflow:handoff` | Summarize the current conversation for another LLM. |
+| `/turkit-workflow:handoff` | Summarize the current conversation for another LLM. Accepts `ship` to chain `ship` after the summary. |
+| `/turkit-workflow:shipoff` | Shortcut for `/handoff ship`: ship the branch and produce the handoff summary in one go. |
 | `/turkit-workflow:rules-refresh` | Audit a rules doc and propose Keep / Sharpen / Add-rationale / Redundant / Stale updates. |
 
 ## `turkit-react` skills
