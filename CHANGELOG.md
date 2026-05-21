@@ -2,6 +2,12 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit-workflow v1.2.0 — 2026-05-21
+
+### Added
+
+- `shipoff` : raccourci d'un seul mot pour `/handoff ship`. Délègue à `handoff` en mode `ship` — pas de duplication de logique.
+
 ## turkit-workflow v1.1.0 — 2026-05-20
 
 ### Added
