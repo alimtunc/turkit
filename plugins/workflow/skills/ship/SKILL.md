@@ -32,7 +32,28 @@ Finalize a validated change: commit → push → PR → close out the ticket.
 
 6. **Mark the ticket Done.** Via `docs/contracts/issue-tracker-detection.md`. If no tracker, skip silently.
 
-7. **Report.** Show the operator the PR URL, the commit short hash, and confirm the ticket transition (or state "no tracker detected").
+7. **Report.** Emit the [Output format](#output-format) block exactly — no prose before it, no prose after it. The bare `#<PR_NUMBER>` MUST be the very last line of the entire response so the operator (and other tools) can extract it without parsing.
+
+## Output format
+
+The final response of this skill MUST end with this exact block. Fill placeholders, keep field labels and order intact, keep the blank line before `#<PR_NUMBER>`, and emit nothing after the number:
+
+```
+✅ Shipped
+- Commit : <short-hash> — <subject>
+- Branch : <branch>
+- Ticket : <ID> → Done       (or: no tracker detected)
+- PR     : <url>
+
+#<PR_NUMBER>
+```
+
+Rules:
+
+- **No trailing prose.** The `#<PR_NUMBER>` line is the last line of the response. Do not add a recap, next steps, or commentary after it.
+- **No prefix prose.** Optionally one short status line before the block if a step needs explanation (e.g. pre-commit hook fix). Otherwise: jump straight to the block.
+- **Always include all four fields** (Commit, Branch, Ticket, PR), even if redundant. If the ticket field is "no tracker detected", keep the line.
+- **`#<PR_NUMBER>` is the bare PR number** prefixed by `#` (e.g. `#42`), on its own line. Not the URL, not a hash — the number.
 
 ## Guardrails
 
