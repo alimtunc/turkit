@@ -2,6 +2,17 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit-workflow v1.3.0 — 2026-05-22
+
+### Changed
+
+- `ship` : format de sortie final strict et obligatoire (`✅ Shipped` + 4 champs + ligne vide + bare `#<PR_NUMBER>`). Plus aucune prose après le numéro de PR — extractable sans parser.
+- `handoff` : règles de bloc markdown durcies (une seule paire de fences, rien avant la fence d'ouverture, rien après la fermeture sauf le trailer de `ship` en mode `ship`). Sections du gabarit toutes obligatoires.
+
+### Fixed
+
+- `handoff ship` : ordre corrigé — `ship` s'exécute **avant** l'affichage du résumé pour que l'URL et le numéro de PR figurent dans le bloc. Le `#<PR_NUMBER>` reste la toute dernière ligne de la réponse.
+
 ## turkit-workflow v1.2.0 — 2026-05-21
 
 ### Added
