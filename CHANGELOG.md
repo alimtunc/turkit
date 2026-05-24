@@ -2,6 +2,12 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit-workflow v1.3.1 — 2026-05-24
+
+### Fixed
+
+- `handoff` : section "Format de sortie" simplifiée pour mirror la référence personnelle. Les règles strictes qui noyaient l'instruction principale sont retirées ; le mode `ship` est isolé en sous-section "Variante". L'output reste fiablement wrappé dans une fence markdown copiable au lieu d'être rendu visuellement.
+
 ## turkit-workflow v1.3.0 — 2026-05-22
 
 ### Changed
