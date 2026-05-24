@@ -66,18 +66,28 @@ Produce a written plan for a ticket so the operator can validate the approach **
    - <thing we deliberately aren't doing here>
    ```
 
-5. **Emit the fresh-session prompt and stop.** Do not implement. Do not invoke `ticket-execute`. The operator reviews the plan, then starts a new session and pastes the prompt below.
+5. **Emit the fresh-session prompt and stop.** Do not implement. Do not invoke `ticket-execute`. The operator reviews the plan in `.claude/plans/<TICKET-ID>.md`, then starts a new session and pastes the prompt below.
 
-   Print exactly this block (substituting the ticket id) as the final output:
+## Format de sortie
 
-   ```
-   Plan écrit : .claude/plans/<TICKET-ID>.md
+La dernière sortie de ce skill doit être **exactement** ce bloc (en substituant l'ID), et **rien d'autre après** :
 
-   Reprends dans une nouvelle session avec :
-   ---
-   Invoque ticket-execute sur <TICKET-ID>. Le plan est dans .claude/plans/<TICKET-ID>.md.
-   ---
-   ```
+````
+✅ Plan écrit — `.claude/plans/<TICKET-ID>.md`
+
+Prochaine action : ouvre une nouvelle session et colle ce prompt :
+
+```
+Invoque ticket-execute sur <TICKET-ID>. Le plan est dans .claude/plans/<TICKET-ID>.md.
+```
+````
+
+Règles strictes :
+
+- **Pas de résumé du plan** ("architecture summary", "key decisions", "scope walkbacks resolved", liste des ACs, etc.). Le plan parle de lui-même — l'opérateur l'ouvre s'il veut le détail.
+- **Pas de phrase de transition** avant ou après la fence interne contenant le prompt. Le bloc de fence interne doit rester un copy/paste propre en un clic.
+- **Pas d'options alternatives** ("ou `/next-story`", "ou ré-invoque triage", etc.). Une seule prochaine action, une seule.
+- Si tu viens d'être dispatché par `ticket-triage`, la fin de la conversation se termine sur ce bloc — pas de narratif ajouté par triage après.
 
 ## Guardrails
 
