@@ -9,8 +9,8 @@ Produis un résumé markdown de **cette conversation**, prêt à coller dans un 
 
 ## Argument
 
-- **(aucun)** — comportement par défaut : commit + résumé.
-- **`ship`** — invoquer `ship` (commit + push + PR + ticket Done) **avant** d'afficher le résumé, pour que le résumé contienne l'URL et le numéro de la PR. Les étapes 1–3 sont déléguées à `ship`.
+- **(aucun)** — commit + résumé.
+- **`ship`** — déléguer commit + push + PR + ticket Done au skill `ship`, puis afficher le résumé avec l'URL de la PR.
 
 ## Étapes (mode défaut)
 
@@ -22,16 +22,21 @@ Produis un résumé markdown de **cette conversation**, prêt à coller dans un 
    - Supprimer le worktree (`git worktree remove <path>`).
    - Vérifier dans l'espace principal que les commits sont bien sur la branche mère (`git log --oneline -5`).
 3. **Passer l'issue Linear en Done** — Si une issue Linear est associée à la conversation (identifiant DEV-XXXX dans les commits ou le contexte), la passer au statut "Done" via le MCP Linear (`save_issue` avec `stateId` correspondant à "Done").
-4. **Rédiger le résumé** au format défini ci-dessous (section [Format de sortie](#format-de-sortie)). Pointeur final = commit(s) (hash court + branche).
-5. **Afficher le résumé.** Respecter strictement le format de sortie — bloc markdown fencé, rien après la fence de fermeture.
+4. **Rédiger le résumé** — court et haut niveau. Objectif : l'autre LLM voit **où on en est** et **ce qu'on a fait**, pas le détail des fichiers. Couvrir :
+   - Contexte (sur quoi on bossait, ticket associé)
+   - Ce qu'on s'est dit d'important (décisions, arbitrages, pièges évités)
+   - Ce qu'on a fait (résumé fonctionnel + résultat des gates : tests, lint, typecheck, vérif manuelle si applicable)
+   - État de l'environnement (worktree conservé ou supprimé, branche poussée ou pas, statut Linear, PR ouverte / bundle / pas de PR)
+   - Pointeur vers le(s) commit(s) — hash court + branche — en disant explicitement à l'autre LLM d'aller les lire (`git show <hash>`) pour être à jour sur le détail.
+5. **Afficher le résumé** dans un bloc markdown copiable (``` entouré).
 
 ## Étapes (mode `ship`)
 
 1. **Préparer le brouillon** du résumé à partir de `git diff` et `git diff --cached` (le commit n'existe pas encore).
-2. **Invoquer le skill `ship`** (commit + push + PR + ticket Done). Si `ship` échoue (hook pre-commit, push refusé, etc.), surfacer l'erreur telle quelle et **ne pas** afficher de résumé : le handoff n'est pas final tant que la PR n'est pas ouverte.
+2. **Invoquer le skill `ship`** (commit + push + PR + ticket Done). Si `ship` échoue (hook pre-commit, push refusé, etc.), surfacer l'erreur telle quelle et **ne pas** afficher de résumé.
 3. **Capturer l'URL et le numéro de PR** depuis la sortie de `ship` (dernière ligne `#<PR_NUMBER>`, ligne `PR : <url>`).
-4. **Afficher le résumé** avec le pointeur de PR (URL + numéro) à la place du pointeur de commit, dans le bloc markdown fencé.
-5. **Réémettre le bloc final de `ship`** juste après la fence de fermeture du résumé (cf. [Format de sortie — mode ship](#mode-ship)). Le bare `#<PR_NUMBER>` reste la toute dernière ligne de la réponse.
+4. **Afficher le résumé** avec le pointeur de PR (URL + numéro) à la place du pointeur de commit, dans le bloc markdown copiable.
+5. **Réémettre le bloc final de `ship`** juste après la fence de fermeture du résumé. Le bare `#<PR_NUMBER>` reste la toute dernière ligne de la réponse.
 
 ## Règles de rédaction
 
@@ -43,28 +48,20 @@ Produis un résumé markdown de **cette conversation**, prêt à coller dans un 
 
 ## Format de sortie
 
-Le résumé DOIT être émis dans un **bloc de code markdown fencé** pour rester copiable en un clic. Règles strictes :
-
-- **Une seule fence d'ouverture (` ```markdown `) et une seule fence de fermeture (` ``` `).** Pas de blocs imbriqués.
-- **Rien avant la fence d'ouverture.** Aucune phrase d'intro du genre "Voici le résumé :".
-- **Rien après la fence de fermeture** en mode défaut. En mode `ship`, seul le trailer de `ship` (voir ci-dessous) suit la fence — aucune autre prose.
-- **Toutes les sections du gabarit sont obligatoires**, dans l'ordre. Si une info manque, l'indiquer explicitement (ex. "Linear : aucun ticket associé"), ne pas omettre la section.
-
-### Gabarit (mode défaut)
+Toujours afficher le résumé dans un **bloc de code markdown** pour que l'utilisateur puisse le copier/coller en un clic. Pas de phrase d'intro avant la fence, rien après la fence de fermeture (sauf en mode `ship`, où le trailer de `ship` suit). Exemple :
 
 ````
 ```markdown
-# Handoff — <titre du ticket ou sujet>
+# Handoff — [titre du ticket ou sujet]
 
 ## Contexte
-<sur quoi on bossait, ticket associé>
+...
 
 ## Décisions / points importants
-- <décision 1>
-- <décision 2>
+...
 
 ## Ce qu'on a fait
-- <résumé fonctionnel>
+- ...
 - Gates : `<cmd tests>` X/X ✅ · `<cmd lint>` ✅ · `<cmd check>` ✅. **Vérif manuelle <surface> : faite / pas encore faite.**
 
 ## État de l'environnement
@@ -81,23 +78,11 @@ Fais `git show <hash>` pour voir le détail des changements.
 ```
 ````
 
-### Mode `ship`
+### Variante mode `ship`
 
-Mêmes sections, avec deux changements :
+Même gabarit, avec deux ajustements :
 
 - **`## État de l'environnement`** : la ligne `PR :` contient l'URL **et** le numéro (`<url> (#<PR_NUMBER>)`).
 - **`## Pour être à jour`** : pointer vers la PR au lieu des commits — `Lis la PR : <url>` puis `Fais \`gh pr view <PR_NUMBER>\` pour voir le détail`.
 
-Après la fence de fermeture, réémettre le trailer strict de `ship` :
-
-```
-✅ Shipped
-- Commit : <short-hash> — <subject>
-- Branch : <branch>
-- Ticket : <ID> → Done       (or: no tracker detected)
-- PR     : <url>
-
-#<PR_NUMBER>
-```
-
-Le bare `#<PR_NUMBER>` est la **toute dernière ligne** de la réponse. Rien après.
+Après la fence de fermeture, réémettre le trailer strict de `ship` (`✅ Shipped` … `#<PR_NUMBER>`). Le bare `#<PR_NUMBER>` est la toute dernière ligne de la réponse.
