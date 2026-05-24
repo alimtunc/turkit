@@ -2,6 +2,17 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit-workflow v1.4.0 — 2026-05-24
+
+### Added
+
+- `ticket-plan` : section "Format de sortie" obligatoire qui exige un trailer strict — `✅ Plan écrit` + ligne vide + fence interne copy/paste contenant le prompt `ticket-execute` pour la nouvelle session. Plus aucun résumé du plan, aucune liste d'ACs, aucune option alternative après la fence.
+- `ticket-triage` : trailer strict pour le path `split-first` (fence interne copy/paste avec `/turkit-workflow:ticket-triage <SOUS-TICKET-ID>`).
+
+### Changed
+
+- `ticket-triage` : nouveau guardrail "After dispatching, add nothing" — interdit explicitement le narratif post-dispatch ("Routing decision", "Architecture summary", "Key scope walkbacks resolved", récap des ACs) qui noyait le trailer de copy/paste du skill dispatché.
+
 ## turkit-workflow v1.3.1 — 2026-05-24
 
 ### Fixed
