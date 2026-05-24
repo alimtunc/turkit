@@ -2,6 +2,12 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit-workflow v1.5.0 — 2026-05-24
+
+### Changed
+
+- `ticket-plan` et `ticket-triage` : section "Format de sortie obligatoire" hissée tout en haut du skill (juste après l'intro), avant les steps, avec un anti-pattern concret extrait d'un cas réel de prod. v1.4.0 avait les règles correctes mais en bas du fichier — le modèle les lisait après avoir déjà mentalement préparé son résumé narratif. La nouvelle position et l'exemple littéral du mauvais output ("Plan summary (10 ACs)…", "Ready for operator review…", etc.) forcent le format strict avant que le modèle commence à exécuter les steps.
+
 ## turkit-workflow v1.4.0 — 2026-05-24
 
 ### Added
