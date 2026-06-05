@@ -109,8 +109,27 @@ Treat local skills/commands with these names as likely workflow duplicates:
      `docs/turkit-migration/legacy-claude-assets/`.
    - Leave `.claude/settings.json` plugin enablement intact.
 
-6. **Verify.**
+6. **Generate or merge `AGENTS.md` and `GEMINI.md`.**
+   Use the canonical body in `../../references/agents-md-template.md` and resolve
+   its three placeholders (`<PROJECT>`, `<RULES_DOCS>`, `<SKILLS_PATH>`) from
+   detection, pointing `<RULES_DOCS>` at wherever the adopted conventions ended
+   up after migration.
+
+   - If `AGENTS.md` does not exist, write the substituted body to `AGENTS.md`.
+   - If `AGENTS.md` already exists, **preserve the project-specific content**.
+     Keep the project's own sections verbatim and append (or refresh) only the
+     `## Workflow (operator-invoked)` section plus the one-line rules-docs
+     pointer if absent. Never overwrite an existing `AGENTS.md`.
+   - `GEMINI.md` uses the same body: default to a one-line pointer to `AGENTS.md`
+     when `AGENTS.md` is present; write the full body only when no `AGENTS.md`
+     exists.
+
+   Show the diff and get confirmation before writing either file.
+
+7. **Verify.**
    - Re-list `.claude/skills` and `.claude/commands`.
+   - Confirm `AGENTS.md` (and `GEMINI.md`) carry the workflow section and that
+     pre-existing project content is intact.
    - Show `git status --short`.
    - Recommend `/turkit-workflow:install` or the relevant review command next.
 
@@ -123,4 +142,8 @@ Treat local skills/commands with these names as likely workflow duplicates:
   duplicates cause drift.
 - Never overwrite docs with extracted content silently. If extraction is
   ambiguous, report the target doc and exact rule to add.
+- Never clobber an existing `AGENTS.md`. Preserve every project-specific section
+  and only append or refresh the workflow section; the body in
+  `../../references/agents-md-template.md` stays a thin pointer and carries no
+  project-specific hard rules.
 - Respond in the conversation's language by default.

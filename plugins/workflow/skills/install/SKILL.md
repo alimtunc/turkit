@@ -35,17 +35,29 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
    - If `.turkit.yaml` exists, read it and report whether required commands appear covered (`check`, `lint`, `fmt`, `test`, `build`, `base_branch`). For React projects, also report whether `commands.react_review` is configured or whether the React review will use its fallback.
    - Never overwrite or edit `.turkit.yaml` without showing the proposed content or diff and getting explicit confirmation.
 
-4. **Emit the setup summary.** Keep it short:
+4. **Generate `AGENTS.md` + `GEMINI.md` (multi-LLM entry points).** Give non-Claude agents (Codex, Gemini, …) a thin pointer at the turkit workflow without restating project rules. Use [`../../references/agents-md-template.md`](../../references/agents-md-template.md) as the source of truth for the body and merge rules.
+   - Resolve the three placeholders:
+     - `<PROJECT>` — a `name` field in the root manifest (`package.json`, `Cargo.toml`, `pyproject.toml`, …) if present, else the repo directory name (`git rev-parse --show-toplevel` basename).
+     - `<RULES_DOCS>` — `.turkit.yaml → rules.docs` if set; else whichever of `CLAUDE.md`, an existing separate `AGENTS.md`, or `docs/conventions/` actually exist. If none exist, write `the repo's conventions (none detected yet — see CLAUDE.md once added)`.
+     - `<SKILLS_PATH>` — the installed `turkit-workflow` plugin's `skills/` directory, or `.claude/skills/` if the repo has adopted the skills locally. **If it resolves to the plugin path** (no local copy), warn in the summary that this path is Claude-Code-local and machine-specific: a committed `AGENTS.md` pointing there will not resolve for Codex/Gemini on another machine or in CI. Recommend `/turkit-workflow:adopt-project` to vendor the skills into `.claude/skills/` for a portable in-repo path.
+   - Fill the template body with those values.
+   - Write `AGENTS.md` at the repo root with the substituted body **only if it does not already exist**. Never clobber an existing `AGENTS.md`: if one is present, append a clearly-marked `## Workflow (operator-invoked) — turkit` section instead, and skip entirely if that section is already present.
+   - Write `GEMINI.md` at the repo root. Default to the one-line pointer (`See [AGENTS.md](AGENTS.md). Same workflow guidance applies to Gemini.`) when `AGENTS.md` is present, to avoid two copies drifting; write the full body into `GEMINI.md` only when the repo has no `AGENTS.md`. Apply the same never-clobber/append-only merge semantics if a `GEMINI.md` already exists.
+   - Show the proposed file or diff and get explicit confirmation before writing. Never inject project-specific hard rules (React/i18n/import-alias/etc.) into the body — those stay in `<RULES_DOCS>`.
+
+5. **Emit the setup summary.** Keep it short:
    - Detected stack.
    - Recommended plugin install commands.
    - `.turkit.yaml` status: created / update proposed / already OK / skipped.
+   - `AGENTS.md` / `GEMINI.md` status: created / section appended / already OK / skipped.
+   - Available skills now reachable: `/ticket` and `/goal-review` (single-session orchestrators), plus the multi-session bricks (`ticket-triage`, `ticket-plan`, `ticket-execute`, `pre-commit-review`, `pre-pr-review`).
    - Suggested first quality command: `/turkit-workflow:pre-commit-review`, plus `/turkit-react:react-review` when React is detected.
    - If local Claude assets were detected, suggested migration command:
      `/turkit-workflow:adopt-project`.
 
 ## Guardrails
 
-- This skill may only write `.turkit.yaml`, and only after explicit confirmation.
+- This skill may only write `.turkit.yaml`, `AGENTS.md`, and `GEMINI.md`, and only after explicit confirmation. Never clobber an existing `AGENTS.md`/`GEMINI.md`; append a marked section instead.
 - Do not install plugins directly; output the `/plugin install ...` commands for the operator.
 - Do not add React-specific rules to `.turkit.yaml`; React behavior belongs in `turkit-react`.
 - Respond in the conversation's language by default.

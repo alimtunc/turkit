@@ -42,80 +42,26 @@ Use [`../../references/review-rubric.md`](../../references/review-rubric.md) for
 6. Run the project's lint command (`.turkit.yaml → commands.lint`, fallback per `docs/contracts/build-tool-detection.md`). If unavailable, continue and report it.
 7. Walk the shared rubric against the full branch diff, then apply any loaded
    project rules that are relevant to the branch. If `LOCAL_DIRTY`, walk the same rubric against the Local scope (changed hunks for staged/unstaged, full file for untracked). Label every finding with its scope (`Branch` or `Local`).
-8. Walk the branch-level checklist below. The checklist applies to the Branch scope; the Local scope is judged on per-diff rubric only.
+8. Walk the branch-level checklist and use the branch output sections in [`../../references/branch-review.md`](../../references/branch-review.md). The checklist applies to the Branch scope; the Local scope is judged on per-diff rubric only.
 9. Apply only the shared rubric's Auto-fix bucket. Auto-fixes land unstaged on current `HEAD`; do not create/amend commits or rewrite history.
 10. Re-run lint. If auto-fixes landed, the verdict cannot be `Ready for PR`; the operator must commit/amend and re-run this review.
 11. Report using the output format below.
 
 ## Branch-Level Checklist
 
-### B1. Per-Commit Coherence
-
-For each commit:
-
-- **P1** subject accurately describes the change
-- **P1** commit is self-contained and compiles conceptually without relying on the next commit
-- **P0** debug prints or commented-out code introduced and not removed by a later commit
-- **P1** subject violates documented project convention
-
-### B2. Cross-Commit Drift
-
-Flag:
-
-- **P0** renamed symbols still referenced in later commits, docs, fixtures, or tests
-- **P1** code added then deleted later without value; suggest squash
-- **P0** tests added for behavior later changed so they no longer assert what they imply
-- **P0** commits that pass individually but interact to break a contract
-- **P1** fixup/revert commits that should be squashed or dropped
-
-### B3. Branch Intent
-
-Flag:
-
-- **P1** branch changes do not match ticket/PR title/branch name
-- **P1** public API surface added without an in-branch consumer
-- **P0** added files never used anywhere in the branch
-- **P0** added dependencies never imported/used
-- **P1** rename/refactor/behavior change mixed in a way that harms reviewability
-
-### B4. Verification
-
-- Lint must run or be reported unavailable.
-- If executable code changed and tests were not run, list that under Residual Risks.
-- Recommend build/type-check when present; do not run tests/build beyond lint unless the operator asked or the project workflow requires it.
+Walk the branch-level checklist and use the branch output sections in [`../../references/branch-review.md`](../../references/branch-review.md). It owns the checklist (B1–B4) and the branch output sections (Branch summary, Per-Commit, Cross-Commit, Branch-Level, Verdict). The checklist applies to the Branch scope; the Local scope is judged on per-diff rubric only.
 
 ## Output Format
 
+> The Branch summary, Per-Commit, Cross-Commit, Branch-Level, and Verdict sections live in [`../../references/branch-review.md`](../../references/branch-review.md). The per-diff sections below are specific to this skill.
+
 ```markdown
-## Branch summary
-
-- Base: `<base>`
-- Commits: N (`<oldest>..<newest>`)
-- Files touched: N (Branch) / N (Local — only if dirty)
-- Lines: +N / -N (Branch)  | +N / -N (Local — only if dirty)
-- Local scope present: yes | no
-
 ## Mechanical Pre-pass (lint)
 
 - Ran: `<exact command>`
 - Findings kept: N
 - Findings dropped as false positives: N — list with reasons
 - Notable rules triggered: short list with file:line
-
-## Per-Commit
-
-- `<hash>` `<subject>`: OK | 1-line finding
-
-## Cross-Commit
-
-- [P0|P1] [Category] What | affected commits | suggested action
-
-## Branch-Level
-
-- Intent match: OK | comment
-- API surface: OK | comment
-- Dead files / dead deps: none | list
-- Commit granularity: OK | comment
 
 ## Local (uncommitted)
 
@@ -156,11 +102,6 @@ Flag:
 ## Residual Risks
 
 - Remaining uncertainty
-
-## Verdict
-
-- Ready for PR | Needs N fixes before PR | Reconsider branch structure
-- If `Local` scope present and non-empty, `Ready for PR` requires the operator to commit (or discard) the local diff. State this explicitly.
 
 ## Review Cost
 

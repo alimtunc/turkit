@@ -81,43 +81,7 @@ Trois lignes utiles, une fence copiable, fin. C'est tout.
 
    Prefer reusing over re-inventing. If reuse is unsuitable, say *why* in the plan.
 
-4. **Write the plan** to `.claude/plans/<TICKET-ID>.md` (create the directory if missing). Structure:
-
-   ```markdown
-   # <TICKET-ID> — <short title>
-
-   ## Context
-   <1–3 sentences: what the ticket asks for, in our words>
-
-   ## Acceptance criteria
-   - [ ] <criterion 1>
-   - [ ] <criterion 2>
-
-   ## Approach
-   <2–5 paragraphs: key design decisions, trade-offs considered>
-
-   ## Reuse
-   <list of existing code we'll leverage, or explicit "no reuse" with reason>
-
-   ## Quality contract
-   - Project rules: <docs/rules loaded and the highest-risk rule for this ticket>
-   - Reuse: <existing modules/helpers/components to reuse, or "none" with reason>
-   - Ownership: <where helpers/types/constants/schemas/components belong; call out what must not be colocated>
-   - Boundaries: <module/layer/import boundaries that must not be crossed>
-   - Verification: <check/lint/test/build/manual checks required before handoff>
-   - Stack-specific gates: <e.g. react-doctor/react-review when React files are touched, or "none">
-
-   ## Files to touch
-   - Create: `path/to/new.ext` — <responsibility>
-   - Modify: `path/to/existing.ext:L–L` — <change>
-
-   ## Risks / unknowns
-   - <risk 1>
-   - <risk 2>
-
-   ## Out of scope
-   - <thing we deliberately aren't doing here>
-   ```
+4. **Write the plan** to `.claude/plans/<TICKET-ID>.md` (create the directory if missing) using the `## Full plan` template in `../../references/plan-template.md`.
 
 5. **Émets le bloc de sortie strict défini en haut, puis arrête.** Rien d'autre. Pas de résumé, pas de "ready for review", pas de récap des ACs, pas d'alternative.
 

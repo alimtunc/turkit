@@ -92,49 +92,11 @@ Ton output correct après dispatch est exactement ce qu'a émis le sous-skill, p
 
 ## One-shot minimal plan template
 
-Write to `.claude/plans/<TICKET-ID>.md` before invoking `ticket-execute`:
-
-```markdown
-# <TICKET-ID> — <short title>
-
-## Context
-<1–2 sentences>
-
-## Acceptance criteria
-- [ ] <criterion 1>
-- [ ] <criterion 2 if needed>
-
-## Approach
-<2–4 lines. One-shot scope means design is obvious.>
-
-## Files to touch
-- Modify: `path/to/file` — <change>
-
-## Quality contract
-- Reuse: <existing helper/module to use, or "none">
-- Ownership: <where new code lives if any>
-- Verification: <project check/lint/test command(s)>
-```
+Use the `## One-shot mini-plan` section of `../../references/plan-template.md`. Write to `.claude/plans/<TICKET-ID>.md` before invoking `ticket-execute`.
 
 ## Split-first proposal template
 
-Write to `.claude/plans/<TICKET-ID>-split.md`:
-
-```markdown
-# <TICKET-ID> — Split proposal
-
-## Reason for split
-<why the ticket can't merge as one unit>
-
-## Proposed sub-tickets
-### <TICKET-ID>.1 — <title>
-Scope: ...
-Acceptance criteria:
-  1. ...
-
-### <TICKET-ID>.2 — <title>
-...
-```
+Use the `## Split sub-plan` section of `../../references/plan-template.md`. Write to `.claude/plans/<TICKET-ID>-split.md`.
 
 ## Guardrails
 

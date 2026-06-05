@@ -25,28 +25,14 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
    - `feature_branch` means work in the current workspace on a feature branch.
    - Missing value defaults to `feature_branch`.
 
-   - If `workflow.workspace: worktree_required`:
-     - Run `pwd` and verify the path already contains the configured
-       `workflow.worktree_dir` segment. If yes, continue.
-     - Otherwise create a worktree and switch into it before any edit:
-       ```bash
-       git worktree add .worktrees/<ticket-slug> -b <ticket-slug> <base-branch>
-       cd .worktrees/<ticket-slug>
-       ```
-       Use `.turkit.yaml → workflow.worktree_dir` instead of `.worktrees` when configured. After creating it, run `pwd` again and stop if the path is not inside that directory.
-   - If `workflow.workspace` is missing or `feature_branch`:
+   - If `workflow.workspace: worktree_required`, or `feature_branch`/missing **and the operator explicitly asks for isolation**, bootstrap a worktree by following the literal sequence in `../../references/worktree-bootstrap.md` (create/verify/copy-env/init), then root all subsequent edits at the worktree path.
+   - If `workflow.workspace` is missing or `feature_branch` and no isolation was requested:
      - If already on a non-base branch → continue.
      - If currently on the base branch, create a feature branch in the current workspace:
        ```bash
        git checkout -b <ticket-slug>
        ```
        Base branch resolved per `docs/contracts/build-tool-detection.md#base_branch`.
-     - If the operator explicitly asks for isolation, create a worktree instead:
-       ```bash
-       git worktree add .worktrees/<ticket-slug> -b <ticket-slug> <base-branch>
-       cd .worktrees/<ticket-slug>
-       ```
-       Use `.turkit.yaml → workflow.worktree_dir` instead of `.worktrees` when configured.
    - Use `.turkit.yaml → workflow.branch_template` when present. Supported placeholders are `{ticket_id}`, `{ticket_id_lower}`, and `{slug}`.
    - If `.turkit.yaml → workflow.init` is present, run each listed command exactly after branch/worktree setup and stop on the first failure. Otherwise, if the project has init steps documented in `CLAUDE.md` / `AGENTS.md`, run them regardless of in-place vs worktree.
 
@@ -69,7 +55,7 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
 
 8. **Do NOT commit.** The operator commits after manual verification (via `/turkit-workflow:ship`).
 
-9. **Emit a handoff** (structure matches `handoff` skill — context / decisions / what we did / pointer). Include the working path (branch name or worktree path), checks run, React gate result if applicable, and any contract deviations.
+9. **Emit a handoff** following the canonical block in `../../references/handoff-format.md`. Include the working path (branch name or worktree path), checks run, React gate result if applicable, and any contract deviations.
 
 ## Guardrails
 
