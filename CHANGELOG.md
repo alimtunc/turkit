@@ -2,6 +2,16 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit-workflow v1.6.0 — 2026-06-05
+
+### Added
+
+- `/ticket` + `/goal-review` : orchestrateurs Workflow-native en session unique, **additifs** — les skills multi-session (`ticket-triage` → `ticket-plan` → `ticket-execute`) et les reviews (`pre-commit-review` / `pre-pr-review`) restent disponibles et inchangés.
+    - `/ticket` : intake → route (one-shot / standard / split) → plan reuse-survey → **une seule** pause d'approbation → execute critère par critère → handoff. Ne commit jamais ; suggère `/goal-review`, ne le lance jamais.
+    - `/goal-review` : boucle review→fix (`--diff` / `--branch` / `--repo`, défaut `--branch` jusqu'à 2 rounds propres), fix policy à 3 niveaux (mécaniques appliqués · comportementaux appliqués+vérifiés · unsafe surfacés), vérif finale + check de régression adversariale.
+- Briques partagées `references/` (`plan-template`, `worktree-bootstrap`, `handoff-format`, `branch-review`, `agents-md-template`) qui dédupliquent les orchestrateurs contre les skills existants (source unique par brique).
+- `install` / `adopt-project` génèrent désormais `AGENTS.md` + `GEMINI.md` (points d'entrée multi-LLM : Codex, Gemini, …) pointant vers `/ticket` + `/goal-review`. Les skills dégradent gracieusement (Workflow → agents parallèles → séquentiel) — aucune dépendance à une primitive plateforme-spécifique.
+
 ## turkit-workflow v1.5.0 — 2026-05-24
 
 ### Changed
