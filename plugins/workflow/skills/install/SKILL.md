@@ -35,7 +35,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
    - If `.turkit.yaml` exists, read it and report whether required commands appear covered (`check`, `lint`, `fmt`, `test`, `build`, `base_branch`). For React projects, also report whether `commands.react_review` is configured or whether the React review will use its fallback.
    - Never overwrite or edit `.turkit.yaml` without showing the proposed content or diff and getting explicit confirmation.
 
-4. **Generate `AGENTS.md` + `GEMINI.md` (multi-LLM entry points).** Give non-Claude agents (Codex, Gemini, …) a thin pointer at the turkit workflow without restating project rules. Use [`../../references/agents-md-template.md`](../../references/agents-md-template.md) as the source of truth for the body and merge rules.
+4. **Generate `AGENTS.md` + `GEMINI.md` (multi-LLM entry points).** Give non-Claude agents (Codex, Gemini, …) a thin pointer at the turkit workflow without restating project rules. Use [`references/agents-md-template.md`](references/agents-md-template.md) as the source of truth for the body and merge rules.
    - Resolve the three placeholders:
      - `<PROJECT>` — a `name` field in the root manifest (`package.json`, `Cargo.toml`, `pyproject.toml`, …) if present, else the repo directory name (`git rev-parse --show-toplevel` basename).
      - `<RULES_DOCS>` — `.turkit.yaml → rules.docs` if set; else whichever of `CLAUDE.md`, an existing separate `AGENTS.md`, or `docs/conventions/` actually exist. If none exist, write `the repo's conventions (none detected yet — see CLAUDE.md once added)`.

@@ -11,7 +11,7 @@ Review the full branch before opening or updating a PR. This skill sees the bran
 
 ## Source of Truth
 
-Use [`../../references/review-rubric.md`](../../references/review-rubric.md) for the shared per-diff rubric: severity, categories, fix policy, and language-agnostic checklist.
+Use [`references/review-rubric.md`](references/review-rubric.md) for the shared per-diff rubric: severity, categories, fix policy, and language-agnostic checklist.
 
 ## When to Use
 
@@ -42,18 +42,18 @@ Use [`../../references/review-rubric.md`](../../references/review-rubric.md) for
 6. Run the project's lint command (`.turkit.yaml → commands.lint`, fallback per `docs/contracts/build-tool-detection.md`). If unavailable, continue and report it.
 7. Walk the shared rubric against the full branch diff, then apply any loaded
    project rules that are relevant to the branch. If `LOCAL_DIRTY`, walk the same rubric against the Local scope (changed hunks for staged/unstaged, full file for untracked). Label every finding with its scope (`Branch` or `Local`).
-8. Walk the branch-level checklist and use the branch output sections in [`../../references/branch-review.md`](../../references/branch-review.md). The checklist applies to the Branch scope; the Local scope is judged on per-diff rubric only.
+8. Walk the branch-level checklist and use the branch output sections in [`references/branch-review.md`](references/branch-review.md). The checklist applies to the Branch scope; the Local scope is judged on per-diff rubric only.
 9. Apply only the shared rubric's Auto-fix bucket. Auto-fixes land unstaged on current `HEAD`; do not create/amend commits or rewrite history.
 10. Re-run lint. If auto-fixes landed, the verdict cannot be `Ready for PR`; the operator must commit/amend and re-run this review.
 11. Report using the output format below.
 
 ## Branch-Level Checklist
 
-Walk the branch-level checklist and use the branch output sections in [`../../references/branch-review.md`](../../references/branch-review.md). It owns the checklist (B1–B4) and the branch output sections (Branch summary, Per-Commit, Cross-Commit, Branch-Level, Verdict). The checklist applies to the Branch scope; the Local scope is judged on per-diff rubric only.
+Walk the branch-level checklist and use the branch output sections in [`references/branch-review.md`](references/branch-review.md). It owns the checklist (B1–B4) and the branch output sections (Branch summary, Per-Commit, Cross-Commit, Branch-Level, Verdict). The checklist applies to the Branch scope; the Local scope is judged on per-diff rubric only.
 
 ## Output Format
 
-> The Branch summary, Per-Commit, Cross-Commit, Branch-Level, and Verdict sections live in [`../../references/branch-review.md`](../../references/branch-review.md). The per-diff sections below are specific to this skill.
+> The Branch summary, Per-Commit, Cross-Commit, Branch-Level, and Verdict sections live in [`references/branch-review.md`](references/branch-review.md). The per-diff sections below are specific to this skill.
 
 ```markdown
 ## Mechanical Pre-pass (lint)

@@ -25,7 +25,7 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
    - `feature_branch` means work in the current workspace on a feature branch.
    - Missing value defaults to `feature_branch`.
 
-   - If `workflow.workspace: worktree_required`, or `feature_branch`/missing **and the operator explicitly asks for isolation**, bootstrap a worktree by following the literal sequence in `../../references/worktree-bootstrap.md` (create/verify/copy-env/init), then root all subsequent edits at the worktree path.
+   - If `workflow.workspace: worktree_required`, or `feature_branch`/missing **and the operator explicitly asks for isolation**, bootstrap a worktree by following the literal sequence in `references/worktree-bootstrap.md` (create/verify/copy-env/init), then root all subsequent edits at the worktree path.
    - If `workflow.workspace` is missing or `feature_branch` and no isolation was requested:
      - If already on a non-base branch → continue.
      - If currently on the base branch, create a feature branch in the current workspace:
@@ -55,7 +55,7 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
 
 8. **Do NOT commit.** The operator commits after manual verification (via `/turkit-workflow:ship`).
 
-9. **Emit a handoff** following the canonical block in `../../references/handoff-format.md`. Include the working path (branch name or worktree path), checks run, React gate result if applicable, and any contract deviations.
+9. **Emit a handoff** following the canonical block in `references/handoff-format.md`. Include the working path (branch name or worktree path), checks run, React gate result if applicable, and any contract deviations.
 
 ## Guardrails
 

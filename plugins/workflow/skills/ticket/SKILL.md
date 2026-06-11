@@ -37,7 +37,7 @@ Single-session orchestrator for one ticket: intake → route → plan → ⏸ pl
 
 - **Load project rules** before planning. Read `.turkit.yaml → rules.docs`; if absent, fall back to `CLAUDE.md` / `AGENTS.md` / `docs/conventions/*.md`. These set ownership, boundaries, and conventions the plan's quality contract must encode.
 - **Reuse survey.** Fan out (degradable — see `## Orchestration & platform`) over the workspace to find reusable modules / components / helpers / schemas **before inventing new ones**. Cross-check the relevant contract or boundary if the ticket touches an API or shared surface. Synthesize the findings into the plan's `Reuse` / `Quality contract` sections.
-- Produce the plan from `../../references/plan-template.md` — do not inline a template, point to the matching section:
+- Produce the plan from `references/plan-template.md` — do not inline a template, point to the matching section:
     - **standard** → write `.claude/plans/<TICKET-ID>.md` using the **Full plan** section.
     - **one-shot** → keep an inline mini-plan using the **One-shot mini-plan** section; no plan file.
     - **split** → write one sub-plan file per piece, `.claude/plans/<TICKET-ID>-1.md`, `<TICKET-ID>-2.md`, …, using the **Split sub-plan** section, with `Depends on` set so the execution order is unambiguous.
@@ -50,7 +50,7 @@ Single-session orchestrator for one ticket: intake → route → plan → ⏸ pl
 ### 4. Execute
 
 - **Verify the environment first.** Resolve the workspace policy from `.turkit.yaml → workflow.workspace`:
-    - `worktree_required`, or the operator explicitly asked for isolation → bootstrap a worktree following `../../references/worktree-bootstrap.md` **literally** (create-if-absent → enter → `pwd` / `git rev-parse --show-toplevel` / `git branch --show-current` verification with stop-on-mismatch → env copy → init). Do not reorder or skip a step.
+    - `worktree_required`, or the operator explicitly asked for isolation → bootstrap a worktree following `references/worktree-bootstrap.md` **literally** (create-if-absent → enter → `pwd` / `git rev-parse --show-toplevel` / `git branch --show-current` verification with stop-on-mismatch → env copy → init). Do not reorder or skip a step.
     - Missing or `feature_branch` → work in the current tree on a feature branch; skip the worktree procedure.
 - **Implement criterion by criterion.** For each acceptance criterion: read the relevant files, make the change, verify it typechecks via the project's `check` command (resolved per `docs/contracts/build-tool-detection.md`), then mark the criterion `[x]` in the plan file (or track it inline for a one-shot).
 - Full project conventions apply at write time — honor the rules loaded in Phase 2 (ownership / boundaries / comment hygiene). When a guardrail or hook blocks a change, **fix the underlying type or logic — never bypass it** by commenting it out, masking the pattern, or adding a disable directive.
@@ -61,7 +61,7 @@ Single-session orchestrator for one ticket: intake → route → plan → ⏸ pl
 
 - **Self-check the diff** against the plan's quality contract: every acceptance criterion maps to a concrete change, no scope creep, no half-implementation. Quick pass on touched files for reuse (no duplicated helper/component/schema), ownership (helpers/types/constants in the planned module, not opportunistically inside entry points or render files), boundaries (no new cross-layer import or hidden public surface), and comment hygiene.
 - **Run the project gate** from the active working-tree root (the worktree root if one was bootstrapped). Resolve `check` / `lint` / `fmt` per `docs/contracts/build-tool-detection.md`. Run a **React gate only when** React files were changed **and** a gate is configured — `.turkit.yaml → commands.react_review`, or the `turkit-react` pack when installed. Never hardcode a specific React tool; if no gate is configured, skip it. Fix root causes or report them; do not bypass a guardrail to make a check pass.
-- **Emit the handoff** from `../../references/handoff-format.md` — fill every field. It **suggests** `/goal-review` (`--diff` before commit, `--branch` before PR) and the commit, prefixed "do NOT run these yourself", and never runs them.
+- **Emit the handoff** from `references/handoff-format.md` — fill every field. It **suggests** `/goal-review` (`--diff` before commit, `--branch` before PR) and the commit, prefixed "do NOT run these yourself", and never runs them.
 
 ## Orchestration & platform
 
@@ -74,7 +74,7 @@ When the **Workflow** tool is available, encode the Phase 2 reuse survey as a Wo
 - Routing without reading the ticket end-to-end — scope estimates become guesses.
 - Splitting a ticket that is merely large but coherent — split only for genuinely unrelated concerns; a big coherent ticket is a normal `standard` plan.
 - Freelancing past a `standard` route into execution without the Phase 3 plan-approval pause — the pause protects against ambiguous scope; it is not a suggestion.
-- Inlining a plan template instead of pointing at `../../references/plan-template.md` — the brick is the single source of truth.
+- Inlining a plan template instead of pointing at `references/plan-template.md` — the brick is the single source of truth.
 - Hardcoding a specific tracker MCP, build command, or React tool — resolve via the contracts (`issue-tracker-detection.md`, `build-tool-detection.md`) and `.turkit.yaml`.
 - Auto-invoking `/goal-review` or any reviewer subagent — review is always operator-gated.
 - Bypassing a guardrail or hook by commenting it out or masking the pattern with a disable directive — fix the underlying type/logic instead.

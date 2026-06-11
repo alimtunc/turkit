@@ -110,7 +110,7 @@ Treat local skills/commands with these names as likely workflow duplicates:
    - Leave `.claude/settings.json` plugin enablement intact.
 
 6. **Generate or merge `AGENTS.md` and `GEMINI.md`.**
-   Use the canonical body in `../../references/agents-md-template.md` and resolve
+   Use the canonical body in `references/agents-md-template.md` and resolve
    its three placeholders (`<PROJECT>`, `<RULES_DOCS>`, `<SKILLS_PATH>`) from
    detection, pointing `<RULES_DOCS>` at wherever the adopted conventions ended
    up after migration.
@@ -144,6 +144,6 @@ Treat local skills/commands with these names as likely workflow duplicates:
   ambiguous, report the target doc and exact rule to add.
 - Never clobber an existing `AGENTS.md`. Preserve every project-specific section
   and only append or refresh the workflow section; the body in
-  `../../references/agents-md-template.md` stays a thin pointer and carries no
+  `references/agents-md-template.md` stays a thin pointer and carries no
   project-specific hard rules.
 - Respond in the conversation's language by default.

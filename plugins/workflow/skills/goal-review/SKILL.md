@@ -15,8 +15,8 @@ Slow and multi-agent — **never auto-chained** by another skill. `/ticket` only
 
 This skill does **not** inline a rubric. The judgment pass forwards the shared rubric **verbatim** to every reviewer:
 
-- [`../../references/review-rubric.md`](../../references/review-rubric.md) — severity, categories, fix policy (2 buckets), language-agnostic checklist, output format. Forward it whole to each reviewer.
-- For `--branch` only, also forward [`../../references/branch-review.md`](../../references/branch-review.md) — the branch-level checklist (B1–B4) and branch output sections.
+- [`references/review-rubric.md`](references/review-rubric.md) — severity, categories, fix policy (2 buckets), language-agnostic checklist, output format. Forward it whole to each reviewer.
+- For `--branch` only, also forward [`references/branch-review.md`](references/branch-review.md) — the branch-level checklist (B1–B4) and branch output sections.
 
 The 3-tier fix policy below **supersedes** the rubric's 2-bucket policy **for this skill only** (the rubric's buckets still govern what each reviewer reports).
 
@@ -100,11 +100,11 @@ Three tiers, **extending** `review-rubric.md`'s Auto-fix / Required-Changes buck
 
 ## Output format
 
-Reuse the shared rubric's output format from [`../../references/review-rubric.md`](../../references/review-rubric.md) (Mechanical Pre-pass, Fixes Applied, Required Changes, Blocking Issues, Suggested Improvements, Positive Signals, Verification, Residual Risks). Use the rubric's categories and severity calibration; one tag per finding.
+Reuse the shared rubric's output format from [`references/review-rubric.md`](references/review-rubric.md) (Mechanical Pre-pass, Fixes Applied, Required Changes, Blocking Issues, Suggested Improvements, Positive Signals, Verification, Residual Risks). Use the rubric's categories and severity calibration; one tag per finding.
 
 Add to it, for this skill:
 
-- For `--branch`, the branch-level sections from [`../../references/branch-review.md`](../../references/branch-review.md): Branch summary, Per-Commit, Cross-Commit, Branch-Level, Verdict.
+- For `--branch`, the branch-level sections from [`references/branch-review.md`](references/branch-review.md): Branch summary, Per-Commit, Cross-Commit, Branch-Level, Verdict.
 - A `## Behavioral Fixes Applied (verify)` section — tier (b) fixes the operator should verify; the focus of the adversarial regression check.
 - A `## Required Changes` section — tier (c) findings the loop could not safely apply, plus any regression that survived the corrective round (P0/P1 only).
 

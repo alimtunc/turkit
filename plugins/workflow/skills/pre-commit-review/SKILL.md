@@ -11,7 +11,7 @@ Review the local diff before committing. This skill is operator-invoked and may 
 
 ## Source of Truth
 
-Before judging or fixing, read [`../../references/review-rubric.md`](../../references/review-rubric.md). It defines severity, categories, fix policy, checklist, and output format.
+Before judging or fixing, read [`references/review-rubric.md`](references/review-rubric.md). It defines severity, categories, fix policy, checklist, and output format.
 
 ## Reviewer Mindset
 

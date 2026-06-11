@@ -81,7 +81,7 @@ Trois lignes utiles, une fence copiable, fin. C'est tout.
 
    Prefer reusing over re-inventing. If reuse is unsuitable, say *why* in the plan.
 
-4. **Write the plan** to `.claude/plans/<TICKET-ID>.md` (create the directory if missing) using the `## Full plan` template in `../../references/plan-template.md`.
+4. **Write the plan** to `.claude/plans/<TICKET-ID>.md` (create the directory if missing) using the `## Full plan` template in `references/plan-template.md`.
 
 5. **Émets le bloc de sortie strict défini en haut, puis arrête.** Rien d'autre. Pas de résumé, pas de "ready for review", pas de récap des ACs, pas d'alternative.
 

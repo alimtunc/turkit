@@ -92,11 +92,11 @@ Ton output correct après dispatch est exactement ce qu'a émis le sous-skill, p
 
 ## One-shot minimal plan template
 
-Use the `## One-shot mini-plan` section of `../../references/plan-template.md`. Write to `.claude/plans/<TICKET-ID>.md` before invoking `ticket-execute`.
+Use the `## One-shot mini-plan` section of `references/plan-template.md`. Write to `.claude/plans/<TICKET-ID>.md` before invoking `ticket-execute`.
 
 ## Split-first proposal template
 
-Use the `## Split sub-plan` section of `../../references/plan-template.md`. Write to `.claude/plans/<TICKET-ID>-split.md`.
+Use the `## Split sub-plan` section of `references/plan-template.md`. Write to `.claude/plans/<TICKET-ID>-split.md`.
 
 ## Guardrails
 
