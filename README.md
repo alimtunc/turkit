@@ -133,13 +133,26 @@ Skills that touch tickets detect your tracker at runtime:
 
 See `docs/contracts/issue-tracker-detection.md` for the full detection rules.
 
-## Codex / other platforms
+## Install on Codex / Cursor / Gemini / any Agent-Skills host
 
-SKILL.md files under `plugins/<plugin>/skills/` follow the standard format. For standalone use outside Claude Code, copy the full plugin folder when a skill references shared `references/` files.
+Turkit skills use the open Agent-Skills format (`SKILL.md`), so they install on any agent that supports it via [`npx skills`](https://github.com/vercel-labs/skills) — no Claude Code required. Turkit's `.claude-plugin/marketplace.json` makes the skills discoverable directly from the repo, and each skill is **self-contained** (its `references/` travel with it), so per-skill install works on every host.
 
-`/turkit-workflow:install` also generates an `AGENTS.md` (Codex and other AGENTS-aware agents) and a `GEMINI.md` (Gemini) at the repo root, pointing those agents at the same skills and `.turkit.yaml` contracts. The skills degrade gracefully — Workflow-native execution where available, falling back to parallel and then sequential steps — so any agent can run them regardless of which orchestration primitives it supports.
+```bash
+npx skills add alimtunc/turkit -a codex          # Codex
+npx skills add alimtunc/turkit -a claude-code    # Claude Code (alternative to /plugin install)
+npx skills add alimtunc/turkit -a cursor         # Cursor
+npx skills add alimtunc/turkit -a gemini         # Gemini CLI
+```
 
-**For Codex/Gemini, make the skills readable in-repo.** The `SKILL.md` files ship inside the Claude Code plugin (`~/.claude/plugins/.../turkit-workflow/skills/`), which is machine-specific and invisible to non-Claude agents. A committed `AGENTS.md` that points there won't resolve on a teammate's machine or in CI. To make it portable, run `/turkit-workflow:adopt-project`, which vendors the workflow skills into the repo's `.claude/skills/`; the generated `AGENTS.md`/`GEMINI.md` then point at that in-repo path so Codex and Gemini can read the procedures anywhere. Without vendoring, `/ticket` and `/goal-review` still work in Claude Code (the plugin is loaded directly); the in-repo copy is what other agents need.
+| Agent | Skills land in | Update |
+|---|---|---|
+| Codex | the agent's skills dir (`.agents/skills` / `~/.codex/skills`) | re-run `npx skills add …` |
+| Claude Code | `~/.claude/skills/` (or use `/plugin install …@turkit`) | re-run, or `/plugin` update |
+| Cursor / Gemini / Copilot / … | each agent's own skills dir | re-run `npx skills add …` |
+
+After installing, run the `turkit-init` skill in your agent to generate `.turkit.yaml` (and optionally `AGENTS.md`) for the project. The Claude Code plugin marketplace flow (`/plugin install turkit-workflow@turkit`) remains the Claude-native option and is unchanged.
+
+**Maintainers:** shared rubrics live single-source in `plugins/<plugin>/references/`; `scripts/sync-references.sh` denormalizes them into each consumer skill so the skills stay self-contained, and `scripts/check-references.sh` guards against drift. Run sync before publishing a release.
 
 ## Contributing
 
