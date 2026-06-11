@@ -2,6 +2,13 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit-workflow v1.7.0 — 2026-06-11
+
+### Changed
+
+- Skills désormais **autonomes** : les références partagées (`review-rubric`, `branch-review`, `plan-template`, `handoff-format`, `worktree-bootstrap`, `agents-md-template`) sont colocalisées dans chaque skill qui les consomme. La source unique reste dans `plugins/workflow/references/` ; `scripts/sync-references.sh` les dénormalise (liens markdown **et** code-spans) et `scripts/check-references.sh` garde-fou contre la dérive. Rend les skills installables sur Codex / Cursor / Gemini et tout hôte Agent-Skills via `npx skills add alimtunc/turkit -a <agent>` — la découverte passe par le `marketplace.json` existant, sans restructuration.
+- `ticket-triage` : note de repli séquentiel quand l'agent n'a pas de Skill tool — le chaînage suit alors directement le `SKILL.md` du skill suivant dans la même session.
+
 ## turkit-workflow v1.6.0 — 2026-06-05
 
 ### Added
