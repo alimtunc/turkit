@@ -84,10 +84,10 @@ Ton output correct après dispatch est exactement ce qu'a émis le sous-skill, p
    Reason : <1–2 sentences>
    ```
 
-5. **Dispatch** based on path. The fresh-session boundary lives **only** between `ticket-plan` and `ticket-execute`. Triage never asks the operator to start a new session for `ticket-plan` and never prints a copy-paste prompt for the next skill — it invokes it.
+5. **Dispatch** based on path. The fresh-session boundary lives **only** between `ticket-plan` and `ticket-execute`. Triage never asks the operator to start a new session for `ticket-plan` and never prints a copy-paste prompt for the next skill — it invokes it. (No Skill tool? Continue in this same session by following the next skill's `SKILL.md` directly — the chaining is identical, only the invocation mechanism differs.)
 
-   - **one-shot** → write a minimal plan to `.claude/plans/<TICKET-ID>.md` (template below), then **invoke `ticket-execute` via the Skill tool in this same session**. Tu n'ajoutes rien après le retour du sous-skill — son handoff block est le dernier message.
-   - **plan-then-execute** → **invoke `ticket-plan` via the Skill tool in this same session**. `ticket-plan` writes the plan AND emits the fresh-session prompt. Tu n'ajoutes rien après son retour — son bloc fence est le dernier message. Pas de résumé du plan, pas de récap des ACs, pas de "scope walkbacks resolved".
+   - **one-shot** → write a minimal plan to `.claude/plans/<TICKET-ID>.md` (template below), then **invoke `ticket-execute` via the Skill tool (or follow its `SKILL.md`) in this same session**. Tu n'ajoutes rien après le retour du sous-skill — son handoff block est le dernier message.
+   - **plan-then-execute** → **invoke `ticket-plan` via the Skill tool (or follow its `SKILL.md`) in this same session**. `ticket-plan` writes the plan AND emits the fresh-session prompt. Tu n'ajoutes rien après son retour — son bloc fence est le dernier message. Pas de résumé du plan, pas de récap des ACs, pas de "scope walkbacks resolved".
    - **split-first** → write the split proposal to `.claude/plans/<TICKET-ID>-split.md` (template below), then émets le bloc de split-first défini en haut, puis arrête.
 
 ## One-shot minimal plan template
