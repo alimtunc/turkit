@@ -35,9 +35,11 @@ Argument reçu : $ARGUMENTS
 4. **Trouver le dernier tag du plugin** : `git describe --tags --abbrev=0 --match 'turkit-<plugin>--v*'`. Si aucun tag (premier release du plugin), utiliser le premier commit comme base.
 
 5. **Lister les commits depuis ce tag**, filtrés sur le plugin :
+
    ```
    git log <last-tag>..HEAD --pretty=format:'%h %s' -- plugins/<plugin>/
    ```
+
    Si vide, abort : "Aucun commit touchant `plugins/<plugin>/` depuis `<last-tag>`. Rien à publier."
 
 6. **Déduire le niveau** (uniquement si l'argument n'est pas fourni) en parcourant les sujets de commits :
@@ -55,6 +57,7 @@ Argument reçu : $ARGUMENTS
 9. **Mettre à jour `plugin.json`** : remplacer le champ `version` par la nouvelle valeur. Préserver le formatage exact du fichier (indentation, trailing newline).
 
 10. **Mettre à jour `CHANGELOG.md`** : insérer une nouvelle section **en tête** (après le titre `# Changelog` et le préambule, avant la section précédente la plus récente) :
+
     ```
     ## turkit-<plugin> v<new> — <YYYY-MM-DD>
 
@@ -67,18 +70,21 @@ Argument reçu : $ARGUMENTS
     ### Changed
     - <refactor / chore / docs commits qui apportent une modif fonctionnelle>
     ```
+
     Omettre les sous-sections vides. Si tous les commits sont purement `chore:` de maintenance interne (release prep, bump), mettre une seule ligne sous **Changed**.
 
 11. **Commiter** :
+
     ```
     git add plugins/<plugin>/.claude-plugin/plugin.json CHANGELOG.md
     git commit -m "chore(<plugin>): release v<new>"
     ```
+
     Subject only, pas de `Co-Authored-By`, pas de `--no-verify`.
 
-12. **Tag** : `git tag turkit-<plugin>--v<new>`.
+12. **Tag annoté** : `git tag -a turkit-<plugin>--v<new> -m "turkit-<plugin> v<new>"`. Le tag **doit** être annoté (`-a`) — `--follow-tags` ne pousse que les tags annotés, jamais les tags légers.
 
-13. **Push** : `git push --follow-tags origin main`. Le `--follow-tags` envoie le commit ET le tag annoté dans la même opération.
+13. **Push** : `git push --follow-tags origin main`. Le `--follow-tags` envoie le commit ET le tag annoté. Vérifier ensuite : `git ls-remote --tags origin 'turkit-<plugin>--v<new>'` doit retourner une ligne ; sinon `git push origin turkit-<plugin>--v<new>`.
 
 14. **Reporter** :
     - Nouveau tag publié, URL GitHub vers le tag (`https://github.com/alimtunc/turkit/releases/tag/turkit-<plugin>--v<new>`).
