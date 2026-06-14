@@ -1,6 +1,6 @@
 # turkit
 
-Project-agnostic Claude Code skills, shipped as a marketplace.
+Project-agnostic agent skills — ticket lifecycle, code review, ship, handoff. Authored as a Claude Code marketplace, but the skills use the open [Agent-Skills](https://github.com/vercel-labs/skills) format, so they also run on Codex, Cursor, Gemini, and any Agent-Skills host. See [Install on other agents](#install-on-codex--cursor--gemini--any-agent-skills-host).
 
 Two plugins today; more to come:
 
@@ -22,6 +22,8 @@ Two plugins today; more to come:
 # Per-project setup (detects stack packs + writes .turkit.yaml, opt-in)
 /turkit-workflow:install
 ```
+
+**Not on Claude Code?** Codex / Cursor / Gemini / any Agent-Skills host install with a single `npx skills add` command — see [Install on other agents](#install-on-codex--cursor--gemini--any-agent-skills-host).
 
 ## How the ticket flow fits together
 
