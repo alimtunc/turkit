@@ -2,6 +2,27 @@
 
 Use this rubric for language-agnostic reviews. It complements the project's own linter / formatter / type-checker; do not re-flag a line already covered by a mechanical rule unless extra context matters.
 
+## Strictness Profiles
+
+Reviews read optional knobs from `.turkit.yaml → review`. All are optional; the defaults reproduce this rubric's standard behavior. Resolve them once before judging, and state the resolved profile in the output (`Strictness: <profile> · Comments: <mode>`).
+
+| Key | Values | Default | Effect |
+|---|---|---|---|
+| `strictness` | `relaxed` \| `standard` \| `strict` | `standard` | Shifts how aggressively judgment-call findings are surfaced. |
+| `comments` | `allow` \| `allow-why-only` \| `zero-new-comments` | `allow-why-only` | Governs the Comments checklist (§5). |
+
+- **`standard`** (default) — apply this rubric exactly as written: P0/P1 as defined below, Suggested for true judgment calls.
+- **`relaxed`** — downgrade P1 *cleanup* findings (DRY duplication under 3 occurrences, Over-engineering §3, Complexity §6, Naming §4) to Suggested. **Never** downgrade P0 structural violations, behavioral regressions, broken contracts, swallowed errors, or unsafe type escapes — those stay blocking. The Auto-fix bucket is unchanged.
+- **`strict`** — promote borderline Suggested findings to P1, and treat the §3 Over-engineering and §6 Complexity thresholds as hard (any single-call-site abstraction or >~40-line function is P1, not a judgment call).
+
+Comments knob (§5):
+
+- **`allow-why-only`** (default) — a one-line *why* comment is acceptable; narrative / history / banner / commented-out / TODO-without-ticket comments introduced by the diff are P0.
+- **`zero-new-comments`** — any comment introduced by the diff is P0, including why-comments.
+- **`allow`** — only flag comments that are misleading or stale; do not flag an added comment solely because it is new.
+
+If `.turkit.yaml` is absent or omits `review`, use the defaults. Projects opt down or up here instead of editing this rubric.
+
 ## Fix Policy
 
 Reviews fix mechanical problems and surface judgment calls. Two buckets only.
@@ -45,6 +66,8 @@ Surface these; do not auto-fix:
 - **Suggested**: true judgment calls only. Structural issues do not go here.
 
 If unsure between Suggested and P1, choose P1. If unsure between P1 and P0, ask whether the issue is structural or contract-breaking; if yes, P0.
+
+These severities describe the `standard` profile. `.turkit.yaml → review.strictness` shifts judgment-call findings (not P0 structural/behavioral) — see [Strictness Profiles](#strictness-profiles).
 
 ## Categories
 
@@ -96,9 +119,9 @@ Flag **P1**:
 
 ### 5. Comments and Dead Weight
 
-Default is zero new comments. A comment is acceptable only when it explains a non-obvious why in one line.
+Default is zero new comments. A comment is acceptable only when it explains a non-obvious why in one line. The severity of *new* comments follows the `review.comments` knob (default `allow-why-only`) — see [Strictness Profiles](#strictness-profiles).
 
-Introduced by the diff = **P0**:
+Introduced by the diff = **P0** (under `allow-why-only`; under `zero-new-comments` a why-comment is P0 too, under `allow` only misleading/stale comments are flagged):
 
 - narrative comments, history comments, task/review references, decorative banners
 - internal doc-comments, multiline comment blocks, commented-out code
@@ -151,6 +174,10 @@ After auto-fixes, re-run the mechanical command. If checks were unavailable, rep
 ## Pre-Commit Output Format
 
 ```markdown
+## Profile
+
+- Strictness: `<relaxed|standard|strict>` · Comments: `<allow|allow-why-only|zero-new-comments>` (resolved from `.turkit.yaml → review`, defaults when absent)
+
 ## Mechanical Pre-pass (lint)
 
 - Ran: `<exact command>`

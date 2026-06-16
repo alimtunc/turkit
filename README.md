@@ -86,9 +86,8 @@ flowchart TD
 | `/turkit-workflow:pre-pr-review` | Strict full-branch review vs. the base branch before opening or updating a PR. Same per-diff rubric as `pre-commit-review`, plus branch-level checks (per-commit coherence, cross-commit drift, dead intermediate files, intent). Auto-fixes mechanical violations. |
 | `/turkit-workflow:pr-description` | Concise PR description from the branch diff. |
 | `/turkit-workflow:test-instructions` | Short manual-test checklist post-implementation. |
-| `/turkit-workflow:ship` | Commit + push + PR + close the ticket. |
-| `/turkit-workflow:handoff` | Summarize the current conversation for another LLM. Accepts `ship` to chain `ship` after the summary. |
-| `/turkit-workflow:shipoff` | Shortcut for `/handoff ship`: ship the branch and produce the handoff summary in one go. |
+| `/turkit-workflow:ship` | Commit + push + PR + close the ticket. Host-agnostic: resolves the PR command via `.turkit.yaml → vcs`, then `gh`, then `glab`, then a manual fallback. |
+| `/turkit-workflow:handoff` | Summarize the current conversation for another LLM. **Read-only by default** (never commits, pushes, removes worktrees, or touches the tracker). Accepts `ship` to delegate shipping to `ship` after the summary. `/shipoff` is a thin command alias for `/handoff ship`. |
 | `/turkit-workflow:rules-refresh` | Audit a rules doc and propose Keep / Sharpen / Add-rationale / Redundant / Stale updates. |
 
 ## `turkit-react` skills
@@ -121,9 +120,21 @@ rules:
   docs:
     - CLAUDE.md
     - docs/conventions/*.md
+# Optional: override the PR host (otherwise gh → glab → manual fallback).
+vcs:
+  pr_create: gh pr create --title "$TITLE" --body-file "$BODY_FILE"
+  pr_view: gh pr view "$PR_NUMBER"
+# Optional: review strictness knobs (defaults shown).
+review:
+  strictness: standard # relaxed | standard | strict
+  comments: allow-why-only # allow | allow-why-only | zero-new-comments
+  react:
+    min_version: 19
 ```
 
 All fields optional. See `.turkit.yaml.example` for the full shape and `docs/contracts/build-tool-detection.md` for the resolution order (pnpm, bun, yarn, npm, just, make, cargo, poetry, uv, go).
+
+**Review strictness.** The review skills/rubrics default to the current strict behavior (`strictness: standard`, `comments: allow-why-only`, React 19+). Projects can opt down — `relaxed` downgrades P1 cleanup findings to suggestions (P0 structural/behavioral findings always stay blocking), `zero-new-comments` forbids any added comment — without editing the skill files. `review.react.min_version` keeps React 19+ as the `turkit-react` default while making the rule configurable.
 
 ## Issue tracker support
 
@@ -134,6 +145,17 @@ Skills that touch tickets detect your tracker at runtime:
 3. **No tracker** — skills degrade gracefully and operate without one.
 
 See `docs/contracts/issue-tracker-detection.md` for the full detection rules.
+
+## VCS host support
+
+`ship` (PR create) and `handoff` (PR view) are not tied to GitHub. They resolve the host command in this order:
+
+1. **`.turkit.yaml → vcs.pr_create` / `vcs.pr_view`** — explicit override (variables: `$TITLE`, `$BODY_FILE`, `$PR_NUMBER`).
+2. **GitHub CLI** (`gh`) when available.
+3. **GitLab CLI** (`glab`) when available.
+4. **Manual fallback** — prints the PR title/body and the pushed branch so you can open it in your host UI. No hard failure when no CLI is installed.
+
+PR body generation stays delegated to `pr-description`. See `docs/contracts/vcs-host-detection.md` for the full resolution and config shape.
 
 ## Install on Codex / Cursor / Gemini / any Agent-Skills host
 
@@ -154,7 +176,12 @@ npx skills add alimtunc/turkit -a gemini         # Gemini CLI
 
 After installing, run the `turkit-init` skill in your agent to generate `.turkit.yaml` (and optionally `AGENTS.md`) for the project. The Claude Code plugin marketplace flow (`/plugin install turkit-workflow@turkit`) remains the Claude-native option and is unchanged.
 
-**Maintainers:** shared rubrics live single-source in `plugins/<plugin>/references/`; `scripts/sync-references.sh` denormalizes them into each consumer skill so the skills stay self-contained, and `scripts/check-references.sh` guards against drift. Run sync before publishing a release.
+**Maintainers — canonical sources vs. denormalized copies.** Two kinds of shared content are single-sourced and vendored into each consumer skill so per-skill installs stay self-contained:
+
+- **Shared rubrics/templates** — canonical under `plugins/<plugin>/references/` (e.g. `review-rubric.md`, `branch-review.md`, `worktree-bootstrap.md`).
+- **Detection contracts** — canonical under `docs/contracts/` (`build-tool-detection.md`, `issue-tracker-detection.md`, `vcs-host-detection.md`). Skills cite them as `references/<contract>.md`, never the repo-root path.
+
+`scripts/sync-references.sh` copies both into each skill's own `references/` (rewriting any `../../references/` sibling links to `references/`); `scripts/check-references.sh` fails on drift — a colocated copy that differs from its canonical source, a leftover `../../references/` link, or a skill that still cites repo-root `docs/contracts/*` directly. `react-rubric.md` has no canonical under either root, so it is its own source and is left untouched. Run `scripts/sync-references.sh` before publishing a release; the React rubric is edited in place.
 
 ## Contributing
 

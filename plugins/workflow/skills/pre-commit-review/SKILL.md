@@ -38,7 +38,7 @@ The bar is clean, minimal, DRY, SOC-respecting code. "Works" is the floor.
      and `docs/conventions/*.md`.
 5. Run the project's lint command:
    - `.turkit.yaml → commands.lint`
-   - fallback per `docs/contracts/build-tool-detection.md`
+   - fallback per `references/build-tool-detection.md`
    - if unavailable, continue and report "lint unavailable"
 6. Review changed hunks first. For untracked files, review the full file.
 7. Walk the shared rubric checklist in order, then apply any loaded project

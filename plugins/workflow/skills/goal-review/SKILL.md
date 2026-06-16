@@ -30,7 +30,7 @@ The 3-tier fix policy below **supersedes** the rubric's 2-bucket policy **for th
 
 Parse the mode from the skill argument. No argument → `--branch`. A bare path argument (e.g. `src/features/billing`) implies a scoped `--repo`-style sweep of that path.
 
-Resolve the base branch (`--branch`) per `docs/contracts/build-tool-detection.md#base_branch`:
+Resolve the base branch (`--branch`) per `references/build-tool-detection.md#base_branch`:
 
 1. `.turkit.yaml → base_branch`
 2. `git symbolic-ref refs/remotes/origin/HEAD` (strip the `refs/remotes/origin/` prefix)
@@ -54,7 +54,7 @@ Resolve the base branch (`--branch`) per `docs/contracts/build-tool-detection.md
     - Read `.turkit.yaml` if present; if it defines `rules.docs`, read the listed docs.
     - Otherwise read repo defaults when present: `CLAUDE.md`, `AGENTS.md`, `docs/conventions/*.md`.
 4. **Mechanical pre-pass** = the **project's lint**, not a hardcoded tool:
-    - Resolve `lint` via `.turkit.yaml → commands.lint`, fallback per `docs/contracts/build-tool-detection.md`. If unavailable, note "lint unavailable" and continue.
+    - Resolve `lint` via `.turkit.yaml → commands.lint`, fallback per `references/build-tool-detection.md`. If unavailable, note "lint unavailable" and continue.
     - **React gate (only when React files are in scope and a gate is configured).** If the scope contains React files (`*.tsx` / `*.jsx` / `*.ts` with hooks or JSX) and either `.turkit.yaml → commands.react_review` is set or the `turkit-react` pack is installed, run that React gate too (delegate to the `turkit-react` `react-review` skill when the pack is present; otherwise run `commands.react_review`). If neither is configured, skip it — never hardcode a specific React linter.
 5. **Review→fix loop** (single pass for `--diff` and `--repo`; `--repo` runs steps a–d per package; `--branch` repeats them):
    a. **Review fan-out.** Launch generic reviewer agents in parallel, each on its scoped subset, each seeded with `review-rubric.md` **verbatim** (plus `branch-review.md` for `--branch`) and its slice of the mechanical pre-pass output. Delegate any React surface to the `turkit-react` pack when present; otherwise a generic reviewer covers it with the shared rubric. **Subagents are read-only — they report findings only.** The orchestrator applies fixes.

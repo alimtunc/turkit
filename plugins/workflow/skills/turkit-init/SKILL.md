@@ -37,7 +37,7 @@ Scan the current repo and propose a `.turkit.yaml` matching its build tool, pack
      - `build`: prefer `build`, `vite build`, `tsc --build`.
    - **Justfile / Makefile** — look for targets named `check`, `lint`, `fmt`, `test`, `build`. Use `just <target>` / `make <target>` verbatim.
    - **cargo** — `cargo check`, `cargo clippy`, `cargo fmt`, `cargo test`, `cargo build`.
-   - **poetry / uv / go** — canonical commands per `docs/contracts/build-tool-detection.md`.
+   - **poetry / uv / go** — canonical commands per `references/build-tool-detection.md`.
 
    Omit any command you cannot resolve with confidence. Do not invent scripts. The runtime fallback in the build-tool contract will pick up the rest.
 
@@ -45,7 +45,7 @@ Scan the current repo and propose a `.turkit.yaml` matching its build tool, pack
    - `git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null` (strip `refs/remotes/origin/`).
    - Fallback: `main`. Never default to `master` — if the repo uses `master` you'll detect that via the symbolic-ref.
 
-5. **Detect the issue tracker.** Report findings per `docs/contracts/issue-tracker-detection.md`:
+5. **Detect the issue tracker.** Report findings per `references/issue-tracker-detection.md`:
    - MCP match (name + how to invoke)
    - Branch-name pattern only (show the current branch + extracted ticket ID if any)
    - Nothing

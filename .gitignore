@@ -4,3 +4,6 @@
 
 # Local operator overrides
 /.turkit.yaml
+
+# Local tracker/runtime state
+superkick.db*

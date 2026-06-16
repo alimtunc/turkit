@@ -30,8 +30,9 @@ The bar is clean, minimal, DRY, SOC-respecting React 19+ code.
    - plus `git ls-files --others --exclude-standard -- '*.tsx' '*.jsx' '*.ts'`
    - for branch scope: `git diff --name-only <base>..HEAD -- '*.tsx' '*.jsx' '*.ts'`
 2. If no React/TS files are in scope, stop and recommend `pre-commit-review` for non-React files.
-3. Verify React version from `package.json` when available:
-   - React < 19: stop unless this is explicitly a React 19 migration review
+3. Resolve the target React major: `.turkit.yaml → review.react.min_version` if set, else the version from `package.json`, else default `19`. Then:
+   - installed React < the target (default 19): stop unless this is explicitly a migration review
+   - `review.react.min_version` set below 19: keep structural/hooks/data-flow checks but do not apply the React-19-only API auto-fixes (see the rubric's Strictness Profiles)
    - unknown version: continue generic review but do not apply React 19-only auto-fixes; report uncertainty
 4. Resolve the React mechanical gate:
    - `.turkit.yaml → commands.react_review`
