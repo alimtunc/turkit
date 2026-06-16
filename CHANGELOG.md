@@ -2,6 +2,31 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit-workflow v1.8.0 — 2026-06-17
+
+### Added
+
+- VCS host detection contract with `.turkit.yaml`, `gh`, `glab`, and manual PR fallback paths.
+- Per-skill vendored copies of `docs/contracts/` detection rules so installed skills stay self-contained.
+- Configurable review strictness profiles through `.turkit.yaml` (`relaxed`, `standard`, `strict`) and comment policy controls.
+
+### Changed
+
+- `handoff` is read-only by default, with `ship` delegated instead of reimplemented.
+- `ship` no longer hard-requires GitHub CLI and reports a manual PR fallback when no supported host CLI is available.
+- `shipoff` is now a thin slash-command alias for `handoff ship` instead of a standalone skill.
+- French load-bearing instructions in the ticket/handoff workflow were translated to English.
+
+### Fixed
+
+- Local `superkick.db*` runtime files are ignored to avoid accidental publication.
+
+## turkit-react v0.2.0 — 2026-06-17
+
+### Changed
+
+- `react-review` now reads the shared review strictness/comment controls and exposes `review.react.min_version` for projects below React 19.
+
 ## turkit-workflow v1.7.0 — 2026-06-11
 
 ### Changed
