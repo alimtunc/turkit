@@ -10,8 +10,8 @@ Emit a checklist the operator can copy-paste to verify the work.
 ## Process
 
 1. **Identify the worktree.** Absolute path via `git rev-parse --show-toplevel`.
-2. **Skim the diff.** `git diff --stat <base>` (base resolved via `docs/contracts/build-tool-detection.md#base_branch`) to know which areas were touched. No deep file reads.
-3. **Identify the ticket** via `docs/contracts/issue-tracker-detection.md`. Skip if none.
+2. **Skim the diff.** `git diff --stat <base>` (base resolved via `references/build-tool-detection.md#base_branch`) to know which areas were touched. No deep file reads.
+3. **Identify the ticket** via `references/issue-tracker-detection.md`. Skip if none.
 4. **Pick test commands** from `.turkit.yaml → commands.test` / `commands.check`, or the project's build-tool defaults.
 5. **Emit the block below.** No prose around it.
 

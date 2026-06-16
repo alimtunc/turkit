@@ -11,57 +11,57 @@ Route a ticket toward the right workflow **and dispatch it in the same session**
 - **plan-then-execute** → triage auto-invokes `ticket-plan` here and now. `ticket-plan` ends by printing a fresh-session prompt for `ticket-execute`. Operator runs that in a new session.
 - **split-first** → triage writes a split proposal and stops. No implementation.
 
-## Format de sortie obligatoire — LIS CECI EN PREMIER
+## Required output format — READ THIS FIRST
 
-Triage est un dispatcher. Sa sortie n'est **jamais** un résumé du travail à venir — c'est soit le bloc de sortie du skill dispatché (one-shot / plan-then-execute), soit le bloc strict de split-first.
+Triage is a dispatcher. Its output is **never** a summary of the work to come — it is either the output block of the dispatched skill (one-shot / plan-then-execute), or the strict split-first block.
 
-### Pour `one-shot` et `plan-then-execute`
+### For `one-shot` and `plan-then-execute`
 
-Le dernier bloc visible à l'opérateur est celui émis par `ticket-execute` (handoff) ou `ticket-plan` (fresh-session prompt). **Triage n'ajoute rien après.** Pas de récap, pas de "scope walkbacks resolved", pas de "architecture summary", pas de "ready for review". Le triage report (étape 4) sort avant le dispatch ; ensuite tu laisses le skill dispatché parler en dernier.
+The last block the operator sees is the one emitted by `ticket-execute` (handoff) or `ticket-plan` (fresh-session prompt). **Triage adds nothing after it.** No recap, no "scope walkbacks resolved", no "architecture summary", no "ready for review". The triage report (step 4) is emitted before the dispatch; after that you let the dispatched skill have the last word.
 
-### Pour `split-first`
+### For `split-first`
 
-Le dernier message est **exactement** ce bloc, et **rien d'autre après** :
+The last message is **exactly** this block, and **nothing after it**:
 
 ````
-✅ Split proposé — `.claude/plans/<TICKET-ID>-split.md`
+✅ Split proposed — `.claude/plans/<TICKET-ID>-split.md`
 
-Prochaine action — crée les sous-tickets dans le tracker, puis re-triage chacun avec ce prompt :
+Next action — create the sub-tickets in the tracker, then re-triage each with this prompt:
 
 ```
-/turkit-workflow:ticket-triage <SOUS-TICKET-ID>
+/turkit-workflow:ticket-triage <SUB-TICKET-ID>
 ```
 ````
 
-Pas de résumé du split dans le chat — le fichier parle de lui-même. Une seule fence interne, copy/paste en un clic.
+No summary of the split in the chat — the file speaks for itself. One inner fence, one-click copy/paste.
 
-### Anti-pattern observé (NE JAMAIS reproduire)
+### Observed anti-pattern (NEVER reproduce)
 
-Tu viens de dispatcher `ticket-plan` et tu vas avoir envie de résumer le plan que ton sous-skill vient d'écrire. Ne le fais pas. Voici exactement le type d'output qui a déjà cassé ce skill en prod après dispatch et qui ne doit jamais revenir :
+You just dispatched `ticket-plan` and you will be tempted to summarize the plan your sub-skill just wrote. Do not. Here is exactly the kind of post-dispatch output that has already broken this skill in production and must never come back:
 
-> Plan written to .claude/plans/SUP-28.md.
+> Plan written to .claude/plans/PROJ-42.md.
 > Triage decision: plan-then-execute.
 > Plan summary (10 ACs):
-> - Append a second SettingsItem ("Delete my account")…
-> - Build DeleteAccountWarning.tsx…
+> - Append a second item to the existing settings section…
+> - Build a new confirmation component…
 > - …
 > Key walkback decisions: …
 > Risks flagged: …
 > Ready for operator review. Next step is ticket-execute once you approve.
 
-Quatre violations :
-1. **Résume le plan** au lieu de pointer vers le fichier que `ticket-plan` vient d'écrire.
-2. **Ne propose aucun prompt copy/paste** pour la nouvelle session — `ticket-plan` est censé l'avoir fait, et si tu ajoutes ce narratif derrière, tu détruis son bloc copiable.
-3. **Finit par une phrase** ("Ready for operator review…") au lieu de laisser la fence interne du sous-skill en dernier.
-4. **Propose une condition** ("once you approve") au lieu d'une action directe et copiable.
+Four violations:
+1. **Summarizes the plan** instead of pointing to the file `ticket-plan` just wrote.
+2. **Proposes no copy/paste prompt** for the new session — `ticket-plan` is supposed to have done that, and appending this narrative behind it destroys its copy-pasteable block.
+3. **Ends with a sentence** ("Ready for operator review…") instead of leaving the sub-skill's inner fence last.
+4. **Proposes a condition** ("once you approve") instead of a direct, copy-pasteable action.
 
-Ton output correct après dispatch est exactement ce qu'a émis le sous-skill, point. Tu ne touches à rien après.
+Your correct output after dispatch is exactly what the sub-skill emitted, full stop. You touch nothing after it.
 
 ## Steps
 
 1. **Resolve the ticket.**
    - Accept an explicit ticket ID as argument, **or**
-   - Detect via `docs/contracts/issue-tracker-detection.md`.
+   - Detect via `references/issue-tracker-detection.md`.
    - If no tracker is available, ask the operator for the ticket ID or a short description of the work.
 
 2. **Fetch issue context** if a tracker is available. Read title + body. If not, use the operator-provided description.
@@ -86,9 +86,9 @@ Ton output correct après dispatch est exactement ce qu'a émis le sous-skill, p
 
 5. **Dispatch** based on path. The fresh-session boundary lives **only** between `ticket-plan` and `ticket-execute`. Triage never asks the operator to start a new session for `ticket-plan` and never prints a copy-paste prompt for the next skill — it invokes it. (No Skill tool? Continue in this same session by following the next skill's `SKILL.md` directly — the chaining is identical, only the invocation mechanism differs.)
 
-   - **one-shot** → write a minimal plan to `.claude/plans/<TICKET-ID>.md` (template below), then **invoke `ticket-execute` via the Skill tool (or follow its `SKILL.md`) in this same session**. Tu n'ajoutes rien après le retour du sous-skill — son handoff block est le dernier message.
-   - **plan-then-execute** → **invoke `ticket-plan` via the Skill tool (or follow its `SKILL.md`) in this same session**. `ticket-plan` writes the plan AND emits the fresh-session prompt. Tu n'ajoutes rien après son retour — son bloc fence est le dernier message. Pas de résumé du plan, pas de récap des ACs, pas de "scope walkbacks resolved".
-   - **split-first** → write the split proposal to `.claude/plans/<TICKET-ID>-split.md` (template below), then émets le bloc de split-first défini en haut, puis arrête.
+   - **one-shot** → write a minimal plan to `.claude/plans/<TICKET-ID>.md` (template below), then **invoke `ticket-execute` via the Skill tool (or follow its `SKILL.md`) in this same session**. Add nothing after the sub-skill returns — its handoff block is the last message.
+   - **plan-then-execute** → **invoke `ticket-plan` via the Skill tool (or follow its `SKILL.md`) in this same session**. `ticket-plan` writes the plan AND emits the fresh-session prompt. Add nothing after it returns — its fence block is the last message. No plan summary, no AC recap, no "scope walkbacks resolved".
+   - **split-first** → write the split proposal to `.claude/plans/<TICKET-ID>-split.md` (template below), then emit the split-first block defined at the top, then stop.
 
 ## One-shot minimal plan template
 
@@ -102,7 +102,7 @@ Use the `## Split sub-plan` section of `references/plan-template.md`. Write to `
 
 - Never invoke any review skill (`pre-commit-review`, `pre-pr-review`, `ship`, `test-instructions`).
 - Split-first never auto-invokes anything.
-- **`one-shot` and `plan-then-execute` always auto-invoke the next skill in the same session.** Printing a copy-paste prompt like "`/turkit-workflow:ticket-plan SUP-14`" instead of invoking the skill is a bug — it breaks the workflow by forcing an unnecessary session boundary on the operator.
-- **After dispatching `ticket-plan` or `ticket-execute`, add nothing.** Voir la section "Format de sortie obligatoire" en haut et l'anti-pattern qui suit. La dernière fence interne de la conversation doit être un copy/paste propre en un clic, émise par le sous-skill.
+- **`one-shot` and `plan-then-execute` always auto-invoke the next skill in the same session.** Printing a copy-paste prompt like "`/turkit-workflow:ticket-plan PROJ-14`" instead of invoking the skill is a bug — it breaks the workflow by forcing an unnecessary session boundary on the operator.
+- **After dispatching `ticket-plan` or `ticket-execute`, add nothing.** See the "Required output format" section at the top and the anti-pattern that follows it. The last inner fence of the conversation must be a clean one-click copy/paste, emitted by the sub-skill.
 - If the ticket body is missing or trivially short, ask the operator to flesh it out before choosing a path.
 - Respond in the conversation's language by default.

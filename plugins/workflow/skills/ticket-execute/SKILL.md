@@ -32,16 +32,16 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
        ```bash
        git checkout -b <ticket-slug>
        ```
-       Base branch resolved per `docs/contracts/build-tool-detection.md#base_branch`.
+       Base branch resolved per `references/build-tool-detection.md#base_branch`.
    - Use `.turkit.yaml → workflow.branch_template` when present. Supported placeholders are `{ticket_id}`, `{ticket_id_lower}`, and `{slug}`.
    - If `.turkit.yaml → workflow.init` is present, run each listed command exactly after branch/worktree setup and stop on the first failure. Otherwise, if the project has init steps documented in `CLAUDE.md` / `AGENTS.md`, run them regardless of in-place vs worktree.
 
-4. **Move the ticket to In Progress** if a tracker is available (per `docs/contracts/issue-tracker-detection.md`).
+4. **Move the ticket to In Progress** if a tracker is available (per `references/issue-tracker-detection.md`).
 
 5. **Implement criterion by criterion.** For each acceptance criterion in the plan:
    - Read the relevant files.
    - Make the change.
-   - Verify it compiles / typechecks using the project's `check` command (resolved per `docs/contracts/build-tool-detection.md`).
+   - Verify it compiles / typechecks using the project's `check` command (resolved per `references/build-tool-detection.md`).
    - Mark the criterion `[x]` in `.claude/plans/<TICKET-ID>.md`.
 
 6. **Self-review before handoff.** Read `git diff` and compare the implementation against the plan's `Quality contract`:

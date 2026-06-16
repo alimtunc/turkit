@@ -2,6 +2,18 @@
 
 Use this rubric for React 19+ reviews. It complements `react-doctor`; do not duplicate a `react-doctor` finding on the same line unless extra context matters.
 
+## Strictness Profiles
+
+This rubric reads the same optional `.turkit.yaml → review` knobs as the shared rubric (`strictness`, `comments`), plus one React-specific knob. Defaults reproduce the standard React 19+ behavior. Resolve them once before judging and state the resolved profile in the output (`Strictness: <profile> · Comments: <mode> · React: >=<min_version>`).
+
+| Key | Values | Default | Effect |
+|---|---|---|---|
+| `strictness` | `relaxed` \| `standard` \| `strict` | `standard` | Same shift as the shared rubric — `relaxed` downgrades P1 cleanups (DRY under 3 occurrences, Over-engineering §4, premature memoization, JSX hygiene §6) to Suggested; `strict` promotes borderline Suggested to P1. P0 structural / behavioral / React-19-ban findings always stay blocking. |
+| `comments` | `allow` \| `allow-why-only` \| `zero-new-comments` | `allow-why-only` | Governs §5 Comments, same semantics as the shared rubric. |
+| `react.min_version` | integer | `19` | The React major this rubric targets. At `19` (default) the §6 React-19 bans apply. Set lower (e.g. `18`) to keep the structural / hooks / data-flow checks but **not** auto-fix or flag the React-19-only API rules (`React.FC`, `forwardRef`, `defaultProps`, namespace import, `JSX.Element`). |
+
+`turkit-react` defaults to React 19+; the version rule is configurable here rather than hardcoded. If `.turkit.yaml` is absent or omits `review`, use the defaults.
+
 ## Fix Policy
 
 ### Auto-fix
@@ -116,7 +128,7 @@ Introduced by the diff = **P0**:
 
 ### 6. React 19 and JSX Hygiene
 
-Flag:
+The React-19 API bans below apply when `review.react.min_version >= 19` (the default). Below 19, keep the JSX-hygiene and a11y checks but do not flag or auto-fix the React-19-only API rules. Flag:
 
 - **P0** `React.FC`, `forwardRef`, `defaultProps`, `JSX.Element`, namespace React import, component default export outside allowlist
 - **P1** `cond && <X />`, chained ternaries, empty fragments returned as UI
@@ -161,6 +173,10 @@ After auto-fixes, re-run the resolved React gate and lint. If the React gate is 
 ## Output Format
 
 ```markdown
+## Profile
+
+- Strictness: `<relaxed|standard|strict>` · Comments: `<allow|allow-why-only|zero-new-comments>` · React: `>=<min_version>` (resolved from `.turkit.yaml → review`, defaults when absent)
+
 ## Mechanical Pre-pass (react-doctor)
 
 - Ran: `<resolved React gate command>`

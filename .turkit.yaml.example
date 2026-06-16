@@ -28,3 +28,18 @@ rules:
     - CLAUDE.md
     - AGENTS.md
     - docs/conventions/*.md
+
+# Optional VCS host commands used by /turkit-workflow:ship (PR create) and handoff (PR view).
+# If unset, ship auto-detects `gh`, then `glab`, then falls back to printing the PR
+# title/body for you to open manually. Supported variables: $TITLE, $BODY_FILE, $PR_NUMBER.
+# See docs/contracts/vcs-host-detection.md for the resolution order.
+vcs:
+  pr_create: gh pr create --title "$TITLE" --body-file "$BODY_FILE"
+  pr_view: gh pr view "$PR_NUMBER"
+
+# Optional review strictness knobs read by the review skills/rubrics. Defaults shown.
+review:
+  strictness: standard # relaxed | standard | strict
+  comments: allow-why-only # allow | allow-why-only | zero-new-comments
+  react:
+    min_version: 19

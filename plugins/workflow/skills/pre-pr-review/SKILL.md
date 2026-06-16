@@ -39,7 +39,7 @@ Use [`references/review-rubric.md`](references/review-rubric.md) for the shared 
    - If it defines `rules.docs`, read the relevant listed docs.
    - Otherwise read relevant defaults when present: `CLAUDE.md`, `AGENTS.md`,
      and `docs/conventions/*.md`.
-6. Run the project's lint command (`.turkit.yaml → commands.lint`, fallback per `docs/contracts/build-tool-detection.md`). If unavailable, continue and report it.
+6. Run the project's lint command (`.turkit.yaml → commands.lint`, fallback per `references/build-tool-detection.md`). If unavailable, continue and report it.
 7. Walk the shared rubric against the full branch diff, then apply any loaded
    project rules that are relevant to the branch. If `LOCAL_DIRTY`, walk the same rubric against the Local scope (changed hunks for staged/unstaged, full file for untracked). Label every finding with its scope (`Branch` or `Local`).
 8. Walk the branch-level checklist and use the branch output sections in [`references/branch-review.md`](references/branch-review.md). The checklist applies to the Branch scope; the Local scope is judged on per-diff rubric only.

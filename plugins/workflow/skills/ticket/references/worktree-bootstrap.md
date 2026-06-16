@@ -33,8 +33,9 @@ replace a step.
 - `<branch>` — `.turkit.yaml → workflow.branch_template` rendered with the available
   placeholders `{ticket_id}`, `{ticket_id_lower}`, `{slug}`. If no template is configured, use
   `<slug>`.
-- `<base>` — the base branch, resolved per
-  `docs/contracts/build-tool-detection.md#base_branch`.
+- `<base>` — the base branch, resolved in order: `.turkit.yaml → base_branch`, else
+  `git symbolic-ref refs/remotes/origin/HEAD` (strip the `refs/remotes/origin/` prefix), else
+  `main`.
 - `<repo-root>` — the absolute path of the current (main) working copy, from
   `git rev-parse --show-toplevel` before you `cd`.
 

@@ -1,88 +1,106 @@
 ---
 name: handoff
-description: Résume la conversation en cours pour l'envoyer à un autre LLM. Accepte un argument optionnel `ship` pour enchaîner le skill `ship` après le résumé. Usage - /handoff ou /handoff ship
+description: Summarize the current conversation as a markdown block another LLM can paste in to pick up the thread. Read-only by default. Pass `ship` to delegate commit + push + PR to the `ship` skill, then append the PR pointer. Usage - /handoff or /handoff ship
+disable-model-invocation: true
+allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(git worktree list:*), Read, Grep, Glob, Skill
 ---
 
 # Handoff
 
-Produis un résumé markdown de **cette conversation**, prêt à coller dans un autre LLM pour qu'il reprenne le fil.
+Produce a markdown summary of **this conversation**, ready to paste into another LLM so it can resume the work.
 
 ## Argument
 
-- **(aucun)** — commit + résumé.
-- **`ship`** — déléguer commit + push + PR + ticket Done au skill `ship`, puis afficher le résumé avec l'URL de la PR.
+- **(none)** — summary only. Read-only: never commits, pushes, creates or removes a worktree, or updates tracker state.
+- **`ship`** — delegate commit + push + PR + ticket update to the `ship` skill, then show the summary with the PR pointer.
 
-## Étapes (mode défaut)
+## Default mode (summary only)
 
-1. **Commiter** tous les changements non commités avant de résumer. Suivre les règles de commit du projet (message concis, pas de `Co-Authored-By`). Si rien à commiter, passer à l'étape suivante.
-2. **Worktree → branche mère** — Si on est dans un git worktree :
-   - Identifier la branche mère (celle depuis laquelle le worktree a été créé).
-   - Pousser les commits du worktree vers la branche mère avec `git push origin HEAD:<branche-mère>` ou cherry-pick selon le cas.
-   - Sortir du worktree (`ExitWorktree`) pour revenir à l'espace principal.
-   - Supprimer le worktree (`git worktree remove <path>`).
-   - Vérifier dans l'espace principal que les commits sont bien sur la branche mère (`git log --oneline -5`).
-3. **Passer l'issue Linear en Done** — Si une issue Linear est associée à la conversation (identifiant DEV-XXXX dans les commits ou le contexte), la passer au statut "Done" via le MCP Linear (`save_issue` avec `stateId` correspondant à "Done").
-4. **Rédiger le résumé** — court et haut niveau. Objectif : l'autre LLM voit **où on en est** et **ce qu'on a fait**, pas le détail des fichiers. Couvrir :
-   - Contexte (sur quoi on bossait, ticket associé)
-   - Ce qu'on s'est dit d'important (décisions, arbitrages, pièges évités)
-   - Ce qu'on a fait (résumé fonctionnel + résultat des gates : tests, lint, typecheck, vérif manuelle si applicable)
-   - État de l'environnement (worktree conservé ou supprimé, branche poussée ou pas, statut Linear, PR ouverte / bundle / pas de PR)
-   - Pointeur vers le(s) commit(s) — hash court + branche — en disant explicitement à l'autre LLM d'aller les lire (`git show <hash>`) pour être à jour sur le détail.
-5. **Afficher le résumé** dans un bloc markdown copiable (``` entouré).
+This mode is **read-only**. It inspects state with read-only git commands and writes nothing. It does **not** commit, push, create or remove worktrees, delete branches, or change tracker state — those are the operator's call (or `/handoff ship`).
 
-## Étapes (mode `ship`)
+1. **Gather state** with read-only commands: `git status --short`, `git branch --show-current`, `git log --oneline -5`, `git worktree list`, `git diff --stat`. Resolve the ticket (if any) via `references/issue-tracker-detection.md` — read only; do **not** update it.
+2. **Write the summary** — short and high-level. The other LLM should see **where we are** and **what we did**, not a file-by-file diff. Cover:
+   - Context (what we were working on, associated ticket if any).
+   - Important decisions / trade-offs / pitfalls avoided.
+   - What we did (functional summary + gate results: tests, lint, typecheck, and manual verification if applicable).
+   - Environment state (worktree present or not, branch pushed or not, tracker status if known, PR open / bundled / none).
+   - Pointer to the commit(s) — short hash + branch — telling the other LLM to read them (`git show <hash>`) for the detail.
+3. **Print the summary** in a copy-pasteable markdown block (fenced).
 
-1. **Préparer le brouillon** du résumé à partir de `git diff` et `git diff --cached` (le commit n'existe pas encore).
-2. **Invoquer le skill `ship`** (commit + push + PR + ticket Done). Si `ship` échoue (hook pre-commit, push refusé, etc.), surfacer l'erreur telle quelle et **ne pas** afficher de résumé.
-3. **Capturer l'URL et le numéro de PR** depuis la sortie de `ship` (dernière ligne `#<PR_NUMBER>`, ligne `PR : <url>`).
-4. **Afficher le résumé** avec le pointeur de PR (URL + numéro) à la place du pointeur de commit, dans le bloc markdown copiable.
-5. **Réémettre le bloc final de `ship`** juste après la fence de fermeture du résumé. Le bare `#<PR_NUMBER>` reste la toute dernière ligne de la réponse.
+### Optional cleanup (report, never execute)
 
-## Règles de rédaction
+If a worktree is no longer needed, **do not remove it.** Report the safe manual steps for the operator to run themselves once the branch is merged, e.g.:
 
-- **Ne pas lister les fichiers modifiés.** Si l'autre LLM a besoin du détail, il lit le commit.
-- **Pas de section "Ce qui reste à faire".** Le handoff raconte l'état actuel, pas un backlog.
-- **Toujours inclure l'état de l'environnement** : worktree (path / supprimé), branche (poussée ou pas), Linear (statut courant), PR (ouverte avec URL / bundlée / aucune). C'est ce qui dit à l'autre LLM où reprendre.
-- **Toujours inclure le résultat des gates** dans "Ce qu'on a fait" : tests (n/n), lint, typecheck, et explicitement noter si la vérif manuelle UI n'a pas été faite.
-- Rester factuel et dense : pas de remplissage, pas de reformulation du ticket.
+```
+Worktree <path> can be removed manually once its branch is merged:
+  git worktree remove <path>
+```
 
-## Format de sortie
+Never run worktree removal, branch deletion, or any state-changing git command as part of handoff.
 
-Toujours afficher le résumé dans un **bloc de code markdown** pour que l'utilisateur puisse le copier/coller en un clic. Pas de phrase d'intro avant la fence, rien après la fence de fermeture (sauf en mode `ship`, où le trailer de `ship` suit). Exemple :
+## Ship mode (`/handoff ship`)
+
+Shipping is delegated entirely to the `ship` skill — handoff does **not** reimplement commit, push, PR creation, or tracker updates.
+
+1. **Draft the summary** from `git diff` and `git diff --cached` (the commit does not exist yet).
+2. **Invoke the `ship` skill.** It handles commit + push + PR + ticket update. If `ship` fails (pre-commit hook, rejected push, no PR host, etc.), surface its error verbatim and do **not** print a summary.
+3. **Capture the PR URL and number** from ship's output (the `PR :` line and the bare `#<PR_NUMBER>` last line).
+4. **Print the summary** with the PR pointer instead of a commit pointer, in the copy-pasteable block.
+5. **Re-emit ship's final block** right after the summary's closing fence. The bare `#<PR_NUMBER>` stays the very last line of the response.
+
+## Writing rules
+
+- **Do not list changed files.** If the other LLM needs detail, it reads the commit.
+- **No "remaining work" section.** The handoff describes the current state, not a backlog.
+- **Always include environment state**: worktree (path / none), branch (pushed or not), tracker (current status if known, or "no tracker"), PR (open with URL / bundled / none). That is what tells the other LLM where to resume.
+- **Always include gate results** under "What we did": tests (n/n), lint, typecheck, and explicitly note if manual UI verification was not done.
+- Stay factual and dense: no filler, no restating the ticket.
+
+## Output format
+
+Always print the summary in a **markdown code block** so the user can copy it in one click. No intro sentence before the fence, nothing after the closing fence (except in `ship` mode, where ship's trailer follows). Example:
 
 ````
 ```markdown
-# Handoff — [titre du ticket ou sujet]
+# Handoff — [ticket title or subject]
 
-## Contexte
+## Context
 ...
 
-## Décisions / points importants
+## Decisions / key points
 ...
 
-## Ce qu'on a fait
+## What we did
 - ...
-- Gates : `<cmd tests>` X/X ✅ · `<cmd lint>` ✅ · `<cmd check>` ✅. **Vérif manuelle <surface> : faite / pas encore faite.**
+- Gates: `<test cmd>` X/X ✅ · `<lint cmd>` ✅ · `<check cmd>` ✅. **Manual verification <surface>: done / not yet done.**
 
-## État de l'environnement
-- Worktree `<path>` conservé / supprimé.
-- Branche `<branche>` poussée sur origin / non poussée.
-- Linear `<ID>` : **<statut>** (raison si pas Done).
-- PR : `<url>` / bundlée avec `<autre PR>` / aucune.
+## Environment state
+- Worktree `<path>` present / none.
+- Branch `<branch>` pushed to origin / not pushed.
+- Tracker `<ID>`: **<status>** (reason if not Done), or "no tracker".
+- PR: `<url>` / bundled with `<other PR>` / none.
 
-## Pour être à jour
-Lis le(s) commit(s) sur la branche `<branche>` :
-- `<hash>` — <sujet du commit>
+## To get up to date
+Read the commit(s) on branch `<branch>`:
+- `<hash>` — <commit subject>
 
-Fais `git show <hash>` pour voir le détail des changements.
+Run `git show <hash>` to see the detail.
 ```
 ````
 
-### Variante mode `ship`
+### `ship` mode variant
 
-Même gabarit, avec deux ajustements :
+Same template, with two adjustments:
 
-- **`## État de l'environnement`** : la ligne `PR :` contient l'URL **et** le numéro (`<url> (#<PR_NUMBER>)`).
-- **`## Pour être à jour`** : pointer vers la PR au lieu des commits — `Lis la PR : <url>` puis `Fais \`gh pr view <PR_NUMBER>\` pour voir le détail`.
+- **`## Environment state`**: the `PR:` line carries the URL **and** number (`<url> (#<PR_NUMBER>)`).
+- **`## To get up to date`**: point to the PR instead of the commits — `Read the PR: <url>`, then "view it with your host's PR-view command (resolved per `references/vcs-host-detection.md`, e.g. `gh pr view <PR_NUMBER>` or `glab mr view <PR_NUMBER>`)".
 
-Après la fence de fermeture, réémettre le trailer strict de `ship` (`✅ Shipped` … `#<PR_NUMBER>`). Le bare `#<PR_NUMBER>` est la toute dernière ligne de la réponse.
+After the closing fence, re-emit ship's strict trailer (`✅ Shipped` … `#<PR_NUMBER>`). The bare `#<PR_NUMBER>` is the very last line of the response.
+
+## Guardrails
+
+- Default mode is **read-only**: never stage, commit, push, amend, create/remove worktrees, delete branches, or update tracker state.
+- All tracker interaction goes through `references/issue-tracker-detection.md` and is **read-only** in default mode; tracker status changes happen only inside `ship` (ship mode).
+- Worktree cleanup is reported as an optional manual step, never executed.
+- Do not assume a specific PR host. Resolve PR viewing via `references/vcs-host-detection.md`.
+- Respond in the conversation's language by default — the summary content follows the conversation language; the field labels above are a template.

@@ -19,7 +19,7 @@ Single-session orchestrator for one ticket: intake → route → plan → ⏸ pl
 
 ### 1. Intake + route
 
-- Resolve the ticket per `docs/contracts/issue-tracker-detection.md`: an explicit id passed as an argument wins; otherwise scan the active MCP tracker tools (`get_issue` / `search_issue`), then fall back to the branch-name regex, then to an operator-provided description. Never hardcode a specific tracker MCP.
+- Resolve the ticket per `references/issue-tracker-detection.md`: an explicit id passed as an argument wins; otherwise scan the active MCP tracker tools (`get_issue` / `search_issue`), then fall back to the branch-name regex, then to an operator-provided description. Never hardcode a specific tracker MCP.
 - Read the title and body **verbatim** — do not paraphrase away detail. If the ticket references a product brief or mockup, resolve it through the repo's rules docs; never guess a machine-specific path. If no tracker and no description is available, ask the operator for a short description before routing.
 - Classify the scope:
 
@@ -52,7 +52,7 @@ Single-session orchestrator for one ticket: intake → route → plan → ⏸ pl
 - **Verify the environment first.** Resolve the workspace policy from `.turkit.yaml → workflow.workspace`:
     - `worktree_required`, or the operator explicitly asked for isolation → bootstrap a worktree following `references/worktree-bootstrap.md` **literally** (create-if-absent → enter → `pwd` / `git rev-parse --show-toplevel` / `git branch --show-current` verification with stop-on-mismatch → env copy → init). Do not reorder or skip a step.
     - Missing or `feature_branch` → work in the current tree on a feature branch; skip the worktree procedure.
-- **Implement criterion by criterion.** For each acceptance criterion: read the relevant files, make the change, verify it typechecks via the project's `check` command (resolved per `docs/contracts/build-tool-detection.md`), then mark the criterion `[x]` in the plan file (or track it inline for a one-shot).
+- **Implement criterion by criterion.** For each acceptance criterion: read the relevant files, make the change, verify it typechecks via the project's `check` command (resolved per `references/build-tool-detection.md`), then mark the criterion `[x]` in the plan file (or track it inline for a one-shot).
 - Full project conventions apply at write time — honor the rules loaded in Phase 2 (ownership / boundaries / comment hygiene). When a guardrail or hook blocks a change, **fix the underlying type or logic — never bypass it** by commenting it out, masking the pattern, or adding a disable directive.
 - For **split**, execute each sub-plan in dependency order, in this same session.
 - Execution stays in the main session. **Never commit.**
@@ -60,7 +60,7 @@ Single-session orchestrator for one ticket: intake → route → plan → ⏸ pl
 ### 5. Verify + handoff
 
 - **Self-check the diff** against the plan's quality contract: every acceptance criterion maps to a concrete change, no scope creep, no half-implementation. Quick pass on touched files for reuse (no duplicated helper/component/schema), ownership (helpers/types/constants in the planned module, not opportunistically inside entry points or render files), boundaries (no new cross-layer import or hidden public surface), and comment hygiene.
-- **Run the project gate** from the active working-tree root (the worktree root if one was bootstrapped). Resolve `check` / `lint` / `fmt` per `docs/contracts/build-tool-detection.md`. Run a **React gate only when** React files were changed **and** a gate is configured — `.turkit.yaml → commands.react_review`, or the `turkit-react` pack when installed. Never hardcode a specific React tool; if no gate is configured, skip it. Fix root causes or report them; do not bypass a guardrail to make a check pass.
+- **Run the project gate** from the active working-tree root (the worktree root if one was bootstrapped). Resolve `check` / `lint` / `fmt` per `references/build-tool-detection.md`. Run a **React gate only when** React files were changed **and** a gate is configured — `.turkit.yaml → commands.react_review`, or the `turkit-react` pack when installed. Never hardcode a specific React tool; if no gate is configured, skip it. Fix root causes or report them; do not bypass a guardrail to make a check pass.
 - **Emit the handoff** from `references/handoff-format.md` — fill every field. It **suggests** `/goal-review` (`--diff` before commit, `--branch` before PR) and the commit, prefixed "do NOT run these yourself", and never runs them.
 
 ## Orchestration & platform

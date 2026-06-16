@@ -9,62 +9,62 @@ allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git diff:*), Read, G
 
 Produce a written plan for a ticket so the operator can validate the approach **before** any code is written.
 
-## Format de sortie obligatoire — LIS CECI EN PREMIER
+## Required output format — READ THIS FIRST
 
-Ton message final, après avoir écrit le plan, est **exactement** ce bloc, et **rien d'autre** :
+After writing the plan, your final message is **exactly** this block, and **nothing else**:
 
 ````
-✅ Plan écrit — `.claude/plans/<TICKET-ID>.md`
+✅ Plan written — `.claude/plans/<TICKET-ID>.md`
 
-Prochaine action — ouvre une nouvelle session et colle ce prompt :
+Next action — open a new session and paste this prompt:
 
 ```
-Invoque ticket-execute sur <TICKET-ID>. Le plan est dans .claude/plans/<TICKET-ID>.md.
+Invoke ticket-execute on <TICKET-ID>. The plan is in .claude/plans/<TICKET-ID>.md.
 ```
 ````
 
-Pas de phrase d'intro avant. Pas de phrase de conclusion après. Pas de résumé du plan. Le plan écrit dans `.claude/plans/<TICKET-ID>.md` parle de lui-même — l'opérateur l'ouvre s'il veut le détail.
+No intro sentence before. No closing sentence after. No summary of the plan. The plan written to `.claude/plans/<TICKET-ID>.md` speaks for itself — the operator opens it if they want the detail.
 
-### Anti-pattern observé (NE JAMAIS reproduire)
+### Observed anti-pattern (NEVER reproduce)
 
-Tu viens d'écrire un gros plan et tu vas avoir envie de le résumer dans le chat. Ne le fais pas. Voici exactement le type d'output qui a déjà cassé ce skill en prod et qui ne doit jamais revenir :
+You just wrote a large plan and you will be tempted to summarize it in the chat. Do not. Here is exactly the kind of output that has already broken this skill in production and must never come back:
 
-> Plan written to .claude/plans/SUP-28.md.
+> Plan written to .claude/plans/PROJ-42.md.
 > Triage decision: plan-then-execute.
 > Plan summary (10 ACs):
-> - Append a second SettingsItem ("Delete my account") to the existing PrivacySection…
-> - Build DeleteAccountWarning.tsx as the UX-DR26-named sheet…
-> - New personal-data-wipe.ts orchestrator that cancels the scheduled commitment notification…
+> - Append a second item to the existing settings section…
+> - Build a new confirmation component…
+> - New orchestrator module that cancels the scheduled job…
 > - …
 > Key walkback decisions (documented):
-> - "Deletion window" → immediate device-local wipe…
+> - "Deletion window" → immediate local wipe…
 > - …
-> Risks flagged: Turkish locale-aware uppercase, bodyList i18next array typing…
+> Risks flagged: locale-aware casing, array typing…
 > Ready for operator review. Next step is ticket-execute once you approve.
 
-Ce format viole quatre règles :
-1. Il **résume le plan** au lieu de pointer vers le fichier (l'opérateur peut lire `.claude/plans/SUP-28.md` lui-même).
-2. Il **ne fournit aucun prompt copy/paste** pour la nouvelle session — l'opérateur doit demander "donne-moi le prompt" à la main.
-3. Il **finit par une phrase** ("Ready for operator review…") au lieu d'un bloc fence copiable.
-4. Il **propose plusieurs prochaines actions** ("once you approve") au lieu d'une seule action concrète.
+This format violates four rules:
+1. It **summarizes the plan** instead of pointing to the file (the operator can read `.claude/plans/PROJ-42.md` themselves).
+2. It **provides no copy/paste prompt** for the new session — the operator has to ask for one by hand.
+3. It **ends with a sentence** ("Ready for operator review…") instead of a copy-pasteable fence.
+4. It **proposes multiple next actions** ("once you approve") instead of one concrete action.
 
-Ton output correct, pour le même plan, est exactement :
+Your correct output, for the same plan, is exactly:
 
 ````
-✅ Plan écrit — `.claude/plans/SUP-28.md`
+✅ Plan written — `.claude/plans/PROJ-42.md`
 
-Prochaine action — ouvre une nouvelle session et colle ce prompt :
+Next action — open a new session and paste this prompt:
 
 ```
-Invoque ticket-execute sur SUP-28. Le plan est dans .claude/plans/SUP-28.md.
+Invoke ticket-execute on PROJ-42. The plan is in .claude/plans/PROJ-42.md.
 ```
 ````
 
-Trois lignes utiles, une fence copiable, fin. C'est tout.
+Three useful lines, one copy-pasteable fence, done. That is all.
 
 ## Steps
 
-1. **Resolve the ticket.** Via `docs/contracts/issue-tracker-detection.md`, or accept an explicit ID as argument. Fetch title + body.
+1. **Resolve the ticket.** Via `references/issue-tracker-detection.md`, or accept an explicit ID as argument. Fetch title + body.
 
 2. **Load project rules.** Read `.turkit.yaml` when present. If it defines
    `rules.docs`, read the listed docs relevant to this ticket. Otherwise use the
@@ -83,11 +83,11 @@ Trois lignes utiles, une fence copiable, fin. C'est tout.
 
 4. **Write the plan** to `.claude/plans/<TICKET-ID>.md` (create the directory if missing) using the `## Full plan` template in `references/plan-template.md`.
 
-5. **Émets le bloc de sortie strict défini en haut, puis arrête.** Rien d'autre. Pas de résumé, pas de "ready for review", pas de récap des ACs, pas d'alternative.
+5. **Emit the strict output block defined at the top, then stop.** Nothing else. No summary, no "ready for review", no AC recap, no alternatives.
 
 ## Guardrails
 
 - No code changes. Only `.claude/plans/<TICKET-ID>.md` is written.
 - If `.claude/plans/<TICKET-ID>.md` already exists, read it first, then propose updates as a diff rather than overwriting silently.
 - Never auto-invoke `ticket-execute`. The fresh-session boundary is intentional: it forces the operator to review the plan before code is written.
-- Respond in the conversation's language by default — sauf pour le bloc de sortie qui reste tel quel (le format est universel et copy/pasteable).
+- Respond in the conversation's language by default — except the output block, which stays as written (the format is universal and copy-pasteable).
