@@ -1,72 +1,84 @@
 # turkit
 
-Project-agnostic agent workflow skills for AI-assisted development. Turkit helps developers keep control of what the agent plans, changes, reviews, ships, hands off, and releases, without tying the workflow to one model, tracker, stack, or repo layout.
+Project-agnostic Agent-Skills for AI-assisted development. Turkit adds a reusable workflow around coding agents: ticket planning, review, shipping, handoff, and small human-understanding gates before commits, merges, and releases.
 
-It ships as Claude Code marketplace plugins, but every skill uses the open [Agent-Skills](https://github.com/vercel-labs/skills) `SKILL.md` format with colocated references. Install through Claude Code, or use `npx skills add` on Codex, Cursor, Gemini, and any Agent-Skills host. See [Install on other agents](#install-on-codex--cursor--gemini--any-agent-skills-host).
+The skills use the open [Agent-Skills](https://github.com/vercel-labs/skills) `SKILL.md` format with colocated references. They run on Codex, Claude Code, Cursor, Gemini, and any Agent-Skills host. Claude Code plugin install is supported, but the simplest path is `npx skills add`.
 
-Two installable packs:
-
-- **`turkit`** — core workflow skills: project setup, ticket lifecycle, reviews, shipping, handoff, rules maintenance, and compact human-understanding gates.
-- **`turkit-react`** — optional React review pack. Modern React 19+ only, strict component boundaries, disciplined hooks.
-
-## Skills at a glance
-
-| Area | Skills | Use when |
-|---|---|---|
-| Setup and adoption | `/turkit:install`, `/turkit:turkit-init`, `/turkit:adopt-project` | You want Turkit configured in a new or existing repo without losing project-specific rules. |
-| Ticket workflow | `/turkit:ticket` (`--triage`, `--plan`, `--execute`, `--grill`) | You want one ticket command, with flags when you only need a narrower slice. |
-| Understanding gates | `/turkit:grill-me`, `/turkit:zoom-out`, `/turkit:explain-diff`, `/turkit:teachback-gate`, `/turkit:merge-brief`, `/turkit:release-brief` | You want to slow down before coding, committing, merging, or releasing so the human can explain what is happening. |
-| Review and quality | `/turkit:goal-review`, `/turkit:pre-commit-review`, `/turkit:pre-pr-review`, `/turkit-react:react-review` | You want a scoped review loop, a pre-commit check, a branch review, or React-specific judgment. |
-| Shipping and continuity | `/turkit:pr-description`, `/turkit:test-instructions`, `/turkit:ship`, `/turkit:handoff`, `/turkit:rules-refresh` | You want concise PR/test docs, host-agnostic shipping, session handoff, or rules maintenance. |
-
-## Install (Claude Code)
+## Install
 
 ```bash
-# One-time: register the marketplace
-/plugin marketplace add alimtunc/turkit
+npx skills add alimtunc/turkit -a codex          # Codex
+npx skills add alimtunc/turkit -a claude-code    # Claude Code
+npx skills add alimtunc/turkit -a cursor         # Cursor
+npx skills add alimtunc/turkit -a gemini         # Gemini CLI
+```
 
-# Install the core workflow (everyone)
-/plugin install turkit@turkit
+Then run the `install` skill in your agent. In Claude Code, that is:
 
-# Optional: add the React pack
-/plugin install turkit-react@turkit
-
-# Per-project setup (detects stack packs + writes .turkit.yaml, opt-in)
+```bash
 /turkit:install
 ```
 
-`turkit` replaces the old `turkit-workflow` plugin name. Existing commands move from `/turkit-workflow:<skill>` to `/turkit:<skill>`. Existing Claude Code users should install the new plugin name with `/plugin install turkit@turkit`; the old namespace remains a v1.x install and is not auto-renamed by Claude Code.
+`install` detects the project, recommends stack packs such as `turkit-react`, and can propose a `.turkit.yaml` only when useful. It does not overwrite project files without confirmation.
 
-**Not on Claude Code?** Codex / Cursor / Gemini / any Agent-Skills host install with a single `npx skills add` command — see [Install on other agents](#install-on-codex--cursor--gemini--any-agent-skills-host).
+### Claude Code Plugin Alternative
 
-## Recommended workflow
+Claude Code users can install through the plugin marketplace instead of `npx`:
+
+```bash
+/plugin marketplace add alimtunc/turkit
+/plugin install turkit@turkit
+
+# Optional React pack
+/plugin install turkit-react@turkit
+```
+
+`turkit` replaces the old `turkit-workflow` plugin name. Existing v1 commands moved from `/turkit-workflow:<skill>` to `/turkit:<skill>`.
+
+## Recommended Workflow
 
 ```mermaid
 flowchart LR
-    T["/turkit:ticket"] --> A["Plan approval"]
-    A --> E["Execute<br/>never commits"]
-    E --> R["Review<br/>goal-review or pre-commit-review"]
-    R --> S["/turkit:ship"]
+    T["ticket"] --> A["plan approval"]
+    A --> E["execute<br/>never commits"]
+    E --> R["review"]
+    R --> S["ship"]
 
     T -. "focused modes" .-> F["--triage<br/>--plan<br/>--execute<br/>--grill"]
-    E -. "need to pause" .-> H["/turkit:handoff"]
-    S -. "release context" .-> B["merge-brief<br/>release-brief"]
+    E -. "pause/resume" .-> H["handoff"]
+    S -. "understand before irreversible steps" .-> B["merge-brief<br/>release-brief"]
 ```
 
-**Ticket is one command.** Use `/turkit:ticket` by default. It reads the ticket, chooses one-shot / standard / split, produces the plan, pauses once for approval, then executes without committing. Use flags only when you want a narrower slice:
+Use `/turkit:ticket` by default. It reads the ticket, chooses one-shot / standard / split, produces a plan, pauses once for approval, then executes without committing.
 
-| Command | Stops after |
+| Command | Use when |
 |---|---|
-| `/turkit:ticket --triage <ticket>` | route + recommendation |
-| `/turkit:ticket --plan <ticket>` | plan + optional `--grill` checkpoint |
-| `/turkit:ticket --execute <ticket>` | execution + handoff from an approved plan |
-| `/turkit:ticket --grill <ticket>` | default flow, with a `grill-me` checkpoint before approval |
+| `/turkit:ticket <ticket>` | Default ticket flow: plan -> approval -> execute -> handoff. |
+| `/turkit:ticket --triage <ticket>` | Classify scope and stop. |
+| `/turkit:ticket --plan <ticket>` | Write/present the plan and stop before edits. |
+| `/turkit:ticket --execute <ticket>` | Execute an already-approved `.claude/plans/<TICKET>.md`. |
+| `/turkit:ticket --grill <ticket>` | Add a `grill-me` challenge before plan approval. |
 
-`ticket-triage`, `ticket-plan`, and `ticket-execute` were folded into these flags in `turkit` v3.0.0. The old behavior is still available; the public command surface is smaller.
+`ticket-triage`, `ticket-plan`, and `ticket-execute` were folded into these flags in `turkit` v3.0.0. Same behavior, smaller public command surface.
 
-**Review stays operator-gated.** Pick `/turkit:goal-review` when you want a review -> fix loop over `--diff`, `--branch`, or `--repo`. Pick `pre-commit-review` / `pre-pr-review` for a single strict pass tied to a commit or PR. Pair with `/turkit-react:react-review` when React-specific judgment matters.
+## Skills
 
-**Human understanding gates.** When AI speed makes the change hard to hold in your head, use these read-only gates before irreversible steps:
+Names below are skill names. In Claude Code, use `/turkit:<skill>` for core workflow skills and `/turkit-react:react-review` for the React pack. On other Agent-Skills hosts, invoke the same skill by name.
+
+| Area | Skills | What they are for |
+|---|---|---|
+| Setup | `install`, `turkit-init`, `adopt-project` | Configure Turkit, generate optional project config, or migrate existing local Claude skills/rules. |
+| Ticket workflow | `ticket` | One ticket entrypoint with `--triage`, `--plan`, `--execute`, and `--grill` modes. |
+| Review | `goal-review`, `pre-commit-review`, `pre-pr-review`, `react-review` | Review/fix loops, strict pre-commit or pre-PR review, and optional React-specific review. |
+| Understand the change | `grill-me`, `zoom-out`, `explain-diff`, `teachback-gate` | Slow down before coding, recover context, explain a diff, or force a short human teachback. |
+| Ship and continue | `pr-description`, `test-instructions`, `ship`, `handoff` | Generate PR/test notes, commit/push/open PR, or hand work to another session. |
+| Merge/release/rules | `merge-brief`, `release-brief`, `rules-refresh` | Understand what is entering the base branch, what is being released, or refresh project rules. |
+
+The optional `turkit-react` pack currently contains `react-review`, a strict React 19+ review skill focused on component boundaries, hooks discipline, JSX hygiene, types, and unnecessary effects.
+
+## Human-Control Gates
+
+These are intentionally compact and read-only. They are meant to help the operator understand and decide, not produce another long audit.
 
 ```text
 Before coding      /turkit:grill-me
@@ -77,123 +89,58 @@ Before merge       /turkit:merge-brief
 Before release     /turkit:release-brief
 ```
 
-These skills are intentionally compact. They should help the operator decide, not produce another long audit.
+## Optional Project Config
 
-## `turkit` skills
+You do **not** need `.turkit.yaml` to try Turkit. The skills detect common package managers, base branches, issue trackers, and PR hosts at runtime, then degrade to manual fallbacks when something is missing.
 
-| Skill | What it does |
-|---|---|
-| `/turkit:install` | Bootstraps Turkit in a repo: detects stack-specific packs (React when applicable), prints plugin install commands, and sets up `.turkit.yaml` via the init workflow. |
-| `/turkit:adopt-project` | Migrates an existing repo that already has local `.claude/skills` or `.claude/commands`: keeps project-specific knowledge, updates `.turkit.yaml`, and archives workflow duplicates outside the active skill path. |
-| `/turkit:turkit-init` | Detects the project's build tool, package manager, base branch, tracker, proposes `.turkit.yaml`. |
-| `/turkit:ticket` | Main ticket entrypoint. Default runs intake/route -> plan -> approval -> execute -> handoff. Flags: `--triage`, `--plan`, `--execute`, `--grill`. |
-| `/turkit:goal-review` | Operator-invoked review+fix loop over `--diff` / `--branch` / `--repo`. Loops review → fix until clean (on `--branch`) then runs a final verification pass. Never commits. The looping alternative to the single-shot `pre-commit-review` / `pre-pr-review`. |
-| `/turkit:grill-me` | Challenges a ticket, plan, or design before implementation. Asks one question at a time, with a recommended answer and reasoning. |
-| `/turkit:zoom-out` | Gives a compact map of a confusing code area, diff, branch, feature, or module. |
-| `/turkit:explain-diff` | Explains the staged/unstaged/branch diff in a short operator-readable brief before commit or review. |
-| `/turkit:teachback-gate` | Before commit, merge, PR, push, or release: asks the operator to explain the change back in three bullets before continuing. |
-| `/turkit:merge-brief` | Pre-merge brief: what enters the base branch, risk, verification, rollback, and files to reread. |
-| `/turkit:release-brief` | Pre-release brief: target, version/tag, public delta, risk, verification, and rollback. |
-| `/turkit:pre-commit-review` | Strict review of the current diff. Mechanical pre-pass via the project's lint, judgment pass against an opinionated checklist (SOC, DRY, over-engineering, comments, types, error handling). Auto-fixes mechanical violations (unstaged), surfaces judgment calls as required changes. |
-| `/turkit:pre-pr-review` | Strict full-branch review vs. the base branch before opening or updating a PR. Same per-diff rubric as `pre-commit-review`, plus branch-level checks (per-commit coherence, cross-commit drift, dead intermediate files, intent). Auto-fixes mechanical violations. |
-| `/turkit:pr-description` | Concise PR description from the branch diff. |
-| `/turkit:test-instructions` | Short manual-test checklist post-implementation. |
-| `/turkit:ship` | Commit + push + PR + close the ticket. Host-agnostic: resolves the PR command via `.turkit.yaml → vcs`, then `gh`, then `glab`, then a manual fallback. |
-| `/turkit:handoff` | Summarize the current conversation for another LLM. **Read-only by default** (never commits, pushes, removes worktrees, or touches the tracker). Accepts `ship` to delegate shipping to `ship` after the summary. `/turkit:shipoff` is a thin command alias for `/turkit:handoff ship`. |
-| `/turkit:rules-refresh` | Audit a rules doc and propose Keep / Sharpen / Add-rationale / Redundant / Stale updates. |
+Add `.turkit.yaml` only when you want to pin project-specific behavior:
 
-## `turkit-react` skills
+- commands such as `check`, `lint`, `test`, `build`, or `react_review`
+- rule docs to load before planning/reviewing
+- branch/worktree policy
+- PR host overrides for GitHub, GitLab, Bitbucket, Gerrit, etc.
+- review strictness knobs
 
-| Skill | What it does |
-|---|---|
-| `/turkit-react:react-review` | Strict React review (React 19+). Mechanical pre-pass via [`react-doctor`](https://www.npmjs.com/package/react-doctor) (oxlint-based), judgment pass against an opinionated checklist (useless `useEffect`, SOC inside `.tsx`, JSX hygiene, hooks discipline, types). Auto-fixes mechanical violations (unstaged), surfaces judgment calls as required changes. |
-
-## Configuration
-
-Run `/turkit:install` for full setup (stack pack recommendations + `.turkit.yaml`). Run `/turkit:turkit-init` when you only want to generate or update `.turkit.yaml`. Example output on a pnpm + TypeScript repo:
+Minimal example:
 
 ```yaml
 commands:
   check: pnpm typecheck
   lint: pnpm lint
-  fmt: pnpm format
   test: pnpm test
-  build: pnpm build
-  # Optional, used by /turkit-react:react-review when present.
-  react_review: pnpm react-review
 base_branch: main
-workflow:
-  workspace: feature_branch # or worktree_required
-  worktree_dir: .worktrees
-  branch_template: "{ticket_id_lower}-{slug}"
-  init:
-    - pnpm install
 rules:
   docs:
     - CLAUDE.md
+    - AGENTS.md
     - docs/conventions/*.md
-# Optional: override the PR host (otherwise gh → glab → manual fallback).
-vcs:
-  pr_create: gh pr create --title "$TITLE" --body-file "$BODY_FILE"
-  pr_view: gh pr view "$PR_NUMBER"
-# Optional: review strictness knobs (defaults shown).
-review:
-  strictness: standard # relaxed | standard | strict
-  comments: allow-why-only # allow | allow-why-only | zero-new-comments
-  react:
-    min_version: 19
 ```
 
-All fields optional. See `.turkit.yaml.example` for the full shape and `docs/contracts/build-tool-detection.md` for the resolution order (pnpm, bun, yarn, npm, just, make, cargo, poetry, uv, go).
+Run `/turkit:install` for guided setup, or `/turkit:turkit-init` when you only want a proposed `.turkit.yaml`. See [.turkit.yaml.example](.turkit.yaml.example) for the full schema.
 
-**Review strictness.** The review skills/rubrics default to the current strict behavior (`strictness: standard`, `comments: allow-why-only`, React 19+). Projects can opt down — `relaxed` downgrades P1 cleanup findings to suggestions (P0 structural/behavioral findings always stay blocking), `zero-new-comments` forbids any added comment — without editing the skill files. `review.react.min_version` keeps React 19+ as the `turkit-react` default while making the rule configurable.
+## Portability Notes
 
-## Issue tracker support
+- **Issue trackers are optional.** Turkit resolves tickets from MCP tracker tools when available, then branch names, then operator-provided descriptions. No tracker is a supported mode.
+- **PR hosts are optional.** `ship` resolves PR creation through `.turkit.yaml`, then `gh`, then `glab`, then prints a manual fallback.
+- **Parallel orchestration is optional.** When a host has Workflow/Task/Agent tools, Turkit uses them for faster surveys and reviews. Without them, skills run the same steps sequentially.
+- **References are self-contained.** Shared rubrics and detection contracts are vendored into each skill so per-skill installs work outside this repo.
 
-Skills that touch tickets detect your tracker at runtime:
+## Maintainers
 
-1. **MCP tools** whose names match `*issue*get*`, `*issue*save*`, etc. — known-good: Linear MCP.
-2. **Branch-name fallback** — `sup-80-xxx` → `SUP-80`.
-3. **No tracker** — skills degrade gracefully and operate without one.
+Canonical shared files live in two places:
 
-See `docs/contracts/issue-tracker-detection.md` for the full detection rules.
+- `plugins/<plugin>/references/` for shared rubrics/templates
+- `docs/contracts/` for detection contracts
 
-## VCS host support
-
-`ship` (PR create) and `handoff` (PR view) are not tied to GitHub. They resolve the host command in this order:
-
-1. **`.turkit.yaml → vcs.pr_create` / `vcs.pr_view`** — explicit override (variables: `$TITLE`, `$BODY_FILE`, `$PR_NUMBER`).
-2. **GitHub CLI** (`gh`) when available.
-3. **GitLab CLI** (`glab`) when available.
-4. **Manual fallback** — prints the PR title/body and the pushed branch so you can open it in your host UI. No hard failure when no CLI is installed.
-
-PR body generation stays delegated to `pr-description`. See `docs/contracts/vcs-host-detection.md` for the full resolution and config shape.
-
-## Install on Codex / Cursor / Gemini / any Agent-Skills host
-
-Turkit skills use the open Agent-Skills format (`SKILL.md`), so they install on any agent that supports it via [`npx skills`](https://github.com/vercel-labs/skills) — no Claude Code required. Turkit's `.claude-plugin/marketplace.json` makes the skills discoverable directly from the repo, and each skill is **self-contained** (its `references/` travel with it), so per-skill install works on every host.
+Run these before publishing:
 
 ```bash
-npx skills add alimtunc/turkit -a codex          # Codex
-npx skills add alimtunc/turkit -a claude-code    # Claude Code (alternative to /plugin install)
-npx skills add alimtunc/turkit -a cursor         # Cursor
-npx skills add alimtunc/turkit -a gemini         # Gemini CLI
+scripts/sync-references.sh
+scripts/check-references.sh
+scripts/test-sync-references.sh
 ```
 
-| Agent | Skills land in | Update |
-|---|---|---|
-| Codex | the agent's skills dir (`.agents/skills` / `~/.codex/skills`) | re-run `npx skills add …` |
-| Claude Code | `~/.claude/skills/` (or use `/plugin install …@turkit`) | re-run, or `/plugin` update |
-| Cursor / Gemini / Copilot / … | each agent's own skills dir | re-run `npx skills add …` |
-
-After installing, run the `turkit-init` skill in your agent to generate `.turkit.yaml` (and optionally `AGENTS.md`) for the project. The Claude Code plugin marketplace flow (`/plugin install turkit@turkit`) is the Claude-native option.
-
-**Maintainers — canonical sources vs. denormalized copies.** Two kinds of shared content are single-sourced and vendored into each consumer skill so per-skill installs stay self-contained:
-
-- **Shared rubrics/templates** — canonical under `plugins/<plugin>/references/` (e.g. `review-rubric.md`, `branch-review.md`, `worktree-bootstrap.md`).
-- **Detection contracts** — canonical under `docs/contracts/` (`build-tool-detection.md`, `issue-tracker-detection.md`, `vcs-host-detection.md`). Skills cite them as `references/<contract>.md`, never the repo-root path.
-
-`scripts/sync-references.sh` copies both into each skill's own `references/` (rewriting any `../../references/` sibling links to `references/`); `scripts/check-references.sh` fails on drift — a colocated copy that differs from its canonical source, a leftover `../../references/` link, or a skill that still cites repo-root `docs/contracts/*` directly. `react-rubric.md` has no canonical under either root, so it is its own source and is left untouched. Run `scripts/sync-references.sh` before publishing a release; the React rubric is edited in place.
+`scripts/sync-references.sh` vendors canonical references into each consuming skill. `scripts/check-references.sh` fails on drift, leftover `../../references/` links, or direct `docs/contracts/*` citations from skill files.
 
 ## Contributing
 
