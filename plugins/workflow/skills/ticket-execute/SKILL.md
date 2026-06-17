@@ -16,7 +16,7 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
 
 ## Steps
 
-1. **Read the plan** at `.claude/plans/<TICKET-ID>.md`. If missing, stop and tell the operator to run `/turkit-workflow:ticket-plan <TICKET-ID>` first.
+1. **Read the plan** at `.claude/plans/<TICKET-ID>.md`. If missing, stop and tell the operator to run `/turkit:ticket-plan <TICKET-ID>` first.
 
 2. **Verify plan alignment with current code.** Since the plan was written, the codebase may have moved. Read `.turkit.yaml` if present and load relevant `rules.docs` entries. For each "Files to touch" entry, verify the file still exists (for Modify) or the target path is still free (for Create). Verify the plan has a `Quality contract`; if it is missing, synthesize one from the current code and update the plan before coding. If file ownership or boundaries no longer match the plan, stop and propose a plan update.
 
@@ -53,7 +53,7 @@ Execute a validated plan. The operator has reviewed the plan and approved its ap
 
 7. **Run the check/lint/fmt/test suite** at the end. Resolve commands per the build-tool contract. If React files changed, also run the React gate from the plan's stack-specific gates when available (`commands.react_review`, a package script, or the fallback described by `turkit-react`). If any fail, fix or escalate.
 
-8. **Do NOT commit.** The operator commits after manual verification (via `/turkit-workflow:ship`).
+8. **Do NOT commit.** The operator commits after manual verification (via `/turkit:ship`).
 
 9. **Emit a handoff** following the canonical block in `references/handoff-format.md`. Include the working path (branch name or worktree path), checks run, React gate result if applicable, and any contract deviations.
 

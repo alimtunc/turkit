@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Summarize the current conversation as a markdown block another LLM can paste in to pick up the thread. Read-only by default. Pass `ship` to delegate commit + push + PR to the `ship` skill, then append the PR pointer. Usage - /handoff or /handoff ship
+description: Summarize the current conversation as a markdown block another LLM can paste in to pick up the thread. Read-only by default. Pass `ship` to delegate commit + push + PR to the `ship` skill, then append the PR pointer. Usage - /turkit:handoff or /turkit:handoff ship
 disable-model-invocation: true
 allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(git worktree list:*), Read, Grep, Glob, Skill
 ---
@@ -16,7 +16,7 @@ Produce a markdown summary of **this conversation**, ready to paste into another
 
 ## Default mode (summary only)
 
-This mode is **read-only**. It inspects state with read-only git commands and writes nothing. It does **not** commit, push, create or remove worktrees, delete branches, or change tracker state — those are the operator's call (or `/handoff ship`).
+This mode is **read-only**. It inspects state with read-only git commands and writes nothing. It does **not** commit, push, create or remove worktrees, delete branches, or change tracker state — those are the operator's call (or `/turkit:handoff ship`).
 
 1. **Gather state** with read-only commands: `git status --short`, `git branch --show-current`, `git log --oneline -5`, `git worktree list`, `git diff --stat`. Resolve the ticket (if any) via `references/issue-tracker-detection.md` — read only; do **not** update it.
 2. **Write the summary** — short and high-level. The other LLM should see **where we are** and **what we did**, not a file-by-file diff. Cover:
@@ -38,7 +38,7 @@ Worktree <path> can be removed manually once its branch is merged:
 
 Never run worktree removal, branch deletion, or any state-changing git command as part of handoff.
 
-## Ship mode (`/handoff ship`)
+## Ship mode (`/turkit:handoff ship`)
 
 Shipping is delegated entirely to the `ship` skill — handoff does **not** reimplement commit, push, PR creation, or tracker updates.
 

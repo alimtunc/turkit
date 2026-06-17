@@ -1,10 +1,10 @@
 # turkit
 
-Project-agnostic agent skills — ticket lifecycle, code review, ship, handoff. Authored as a Claude Code marketplace, but the skills use the open [Agent-Skills](https://github.com/vercel-labs/skills) format, so they also run on Codex, Cursor, Gemini, and any Agent-Skills host. See [Install on other agents](#install-on-codex--cursor--gemini--any-agent-skills-host).
+Project-agnostic agent skills — ticket lifecycle, code review, ship, handoff, and operator understanding gates. Authored as a Claude Code marketplace, but the skills use the open [Agent-Skills](https://github.com/vercel-labs/skills) format, so they also run on Codex, Cursor, Gemini, and any Agent-Skills host. See [Install on other agents](#install-on-codex--cursor--gemini--any-agent-skills-host).
 
 Two plugins today; more to come:
 
-- **`turkit-workflow`** — ticket lifecycle, code review, ship, handoff, rules-refresh. The workflow backbone that works in any repo.
+- **`turkit`** — ticket lifecycle, code review, ship, handoff, rules-refresh, and compact operator-understanding gates. The workflow backbone that works in any repo.
 - **`turkit-react`** — opinionated React review. Modern React 19+ only, strict component boundaries, disciplined hooks.
 
 ## Install (Claude Code)
@@ -14,14 +14,16 @@ Two plugins today; more to come:
 /plugin marketplace add alimtunc/turkit
 
 # Install the core workflow (everyone)
-/plugin install turkit-workflow@turkit
+/plugin install turkit@turkit
 
 # Optional: add the React pack
 /plugin install turkit-react@turkit
 
 # Per-project setup (detects stack packs + writes .turkit.yaml, opt-in)
-/turkit-workflow:install
+/turkit:install
 ```
+
+`turkit` replaces the old `turkit-workflow` plugin name. Existing commands move from `/turkit-workflow:<skill>` to `/turkit:<skill>`.
 
 **Not on Claude Code?** Codex / Cursor / Gemini / any Agent-Skills host install with a single `npx skills add` command — see [Install on other agents](#install-on-codex--cursor--gemini--any-agent-skills-host).
 
@@ -31,11 +33,11 @@ Two plugins today; more to come:
 flowchart TD
     A["📋 New ticket"] --> CHOICE{"single-session<br/>or multi-session?"}
 
-    CHOICE -->|"single-session (Workflow-native)"| TK["/turkit-workflow:ticket<br/>intake → reuse-survey plan →<br/>one approval pause → execute → handoff"]
-    CHOICE -->|"multi-session"| T["/turkit-workflow:ticket-triage"]
+    CHOICE -->|"single-session (Workflow-native)"| TK["/turkit:ticket<br/>intake → reuse-survey plan →<br/>one approval pause → execute → handoff"]
+    CHOICE -->|"multi-session"| T["/turkit:ticket-triage"]
 
-    T -->|"one-shot — under 1h"| E["/turkit-workflow:ticket-execute"]
-    T -->|"plan-then-execute — 1h to 1d"| P["/turkit-workflow:ticket-plan"]
+    T -->|"one-shot — under 1h"| E["/turkit:ticket-execute"]
+    T -->|"plan-then-execute — 1h to 1d"| P["/turkit:ticket-plan"]
     T -->|"split-first — multi-day"| S["🔀 Split into sub-tickets<br/>re-triage each"]
 
     P -->|"operator validates the plan"| E
@@ -43,17 +45,17 @@ flowchart TD
     TK --> W
     W --> V["🧪 Operator manually verifies"]
 
-    V -. "operator-invoked review+fix loop<br/>review → fix until clean, then verify" .-> GR["/turkit-workflow:goal-review<br/>--diff / --branch / --repo"]
-    V --> PCR["/turkit-workflow:pre-commit-review"]
-    PCR -. "branch has multiple commits" .-> PPR["/turkit-workflow:pre-pr-review"]
-    PCR --> SHIP["/turkit-workflow:ship"]
+    V -. "operator-invoked review+fix loop<br/>review → fix until clean, then verify" .-> GR["/turkit:goal-review<br/>--diff / --branch / --repo"]
+    V --> PCR["/turkit:pre-commit-review"]
+    PCR -. "branch has multiple commits" .-> PPR["/turkit:pre-pr-review"]
+    PCR --> SHIP["/turkit:ship"]
     PPR --> SHIP
     GR -. "back to the operator" .-> SHIP
     SHIP --> DONE["🚀 PR opened + ticket Done"]
 
-    V -. "helper" .-> TI["/turkit-workflow:test-instructions"]
-    SHIP -. "delegates to" .-> PRD["/turkit-workflow:pr-description"]
-    V -. "escape hatch" .-> HO["/turkit-workflow:handoff<br/>resume in another session"]
+    V -. "helper" .-> TI["/turkit:test-instructions"]
+    SHIP -. "delegates to" .-> PRD["/turkit:pr-description"]
+    V -. "escape hatch" .-> HO["/turkit:handoff<br/>resume in another session"]
 ```
 
 **Typical usage:**
@@ -63,32 +65,51 @@ flowchart TD
 - **Long branches**: `pre-pr-review` instead of (or in addition to) `pre-commit-review`.
 - **Running out of context**: `handoff` at any point.
 - **Stack-specific review**: pair `pre-commit-review` with `/turkit-react:react-review` for React-specific findings.
-- **Rules drifting**: `/turkit-workflow:rules-refresh <path>` to re-audit a rules doc against the current Claude version.
-- **Existing local Claude skills**: `/turkit-workflow:adopt-project` to migrate project-specific rules into `.turkit.yaml`/docs and archive duplicated local workflow skills.
+- **Rules drifting**: `/turkit:rules-refresh <path>` to re-audit a rules doc against the current Claude version.
+- **Existing local Claude skills**: `/turkit:adopt-project` to migrate project-specific rules into `.turkit.yaml`/docs and archive duplicated local workflow skills.
 
-**Two ways to run the ticket flow.** The multi-session `ticket-triage` → `ticket-plan` → `ticket-execute` chain (each a discrete step, ideal across separate sessions) stays the default. New and **additive**: the single-session `/turkit-workflow:ticket` orchestrator, which runs intake/route → reuse-survey plan → **one approval pause** → execute → handoff in a single Workflow-native session. Pick `/ticket` when you want one continuous run with a single checkpoint; pick the three-step chain when you want explicit hand-offs between sessions.
+**Two ways to run the ticket flow.** The multi-session `ticket-triage` → `ticket-plan` → `ticket-execute` chain (each a discrete step, ideal across separate sessions) stays the default. New and **additive**: the single-session `/turkit:ticket` orchestrator, which runs intake/route → reuse-survey plan → **one approval pause** → execute → handoff in a single Workflow-native session. Pick `/ticket` when you want one continuous run with a single checkpoint; pick the three-step chain when you want explicit hand-offs between sessions.
 
-**Two review entry points.** The single-shot `pre-commit-review` / `pre-pr-review` skills stay the default. New and **additive**: the operator-invoked `/turkit-workflow:goal-review` loop, which iterates review → fix until clean (on `--branch`) before a final verification pass. Pick `/goal-review` when you want it to keep fixing until the diff/branch/repo is clean; pick `pre-commit-review` / `pre-pr-review` for a single pass tied to a commit or PR.
+**Two review entry points.** The single-shot `pre-commit-review` / `pre-pr-review` skills stay the default. New and **additive**: the operator-invoked `/turkit:goal-review` loop, which iterates review → fix until clean (on `--branch`) before a final verification pass. Pick `/goal-review` when you want it to keep fixing until the diff/branch/repo is clean; pick `pre-commit-review` / `pre-pr-review` for a single pass tied to a commit or PR.
 
-## `turkit-workflow` skills
+**Reprendre la main.** When AI speed makes the change hard to hold in your head, use the understanding gates before irreversible steps:
+
+```text
+Before coding      /turkit:grill-change
+When lost          /turkit:zoom-out
+Before commit      /turkit:explain-diff
+Before ship        /turkit:teachback-gate
+Before merge       /turkit:merge-brief
+Before release     /turkit:release-brief
+```
+
+These skills are intentionally read-only and compact. They should help the operator decide, not produce another long audit.
+
+## `turkit` skills
 
 | Skill | What it does |
 |---|---|
-| `/turkit-workflow:install` | Bootstraps Turkit in a repo: detects stack-specific packs (React when applicable), prints plugin install commands, and sets up `.turkit.yaml` via the init workflow. |
-| `/turkit-workflow:adopt-project` | Migrates an existing repo that already has local `.claude/skills` or `.claude/commands`: keeps project-specific knowledge, updates `.turkit.yaml`, and archives workflow duplicates outside the active skill path. |
-| `/turkit-workflow:turkit-init` | Detects the project's build tool, package manager, base branch, tracker, proposes `.turkit.yaml`. |
-| `/turkit-workflow:ticket` | Single-session orchestrator: intake/route → reuse-survey plan → one plan-approval pause → execute → handoff. Never commits; suggests `/goal-review` at the end. The Workflow-native alternative to the multi-session `ticket-triage` → `ticket-plan` → `ticket-execute` chain. |
-| `/turkit-workflow:ticket-triage` | Routes a ticket to one-shot / plan-then-execute / split-first. |
-| `/turkit-workflow:ticket-plan` | Writes a structured plan to `.claude/plans/<TICKET>.md` for operator review. |
-| `/turkit-workflow:ticket-execute` | Executes a validated plan on a feature branch (worktree opt-in). Never commits. |
-| `/turkit-workflow:goal-review` | Operator-invoked review+fix loop over `--diff` / `--branch` / `--repo`. Loops review → fix until clean (on `--branch`) then runs a final verification pass. Never commits. The looping alternative to the single-shot `pre-commit-review` / `pre-pr-review`. |
-| `/turkit-workflow:pre-commit-review` | Strict review of the current diff. Mechanical pre-pass via the project's lint, judgment pass against an opinionated checklist (SOC, DRY, over-engineering, comments, types, error handling). Auto-fixes mechanical violations (unstaged), surfaces judgment calls as required changes. |
-| `/turkit-workflow:pre-pr-review` | Strict full-branch review vs. the base branch before opening or updating a PR. Same per-diff rubric as `pre-commit-review`, plus branch-level checks (per-commit coherence, cross-commit drift, dead intermediate files, intent). Auto-fixes mechanical violations. |
-| `/turkit-workflow:pr-description` | Concise PR description from the branch diff. |
-| `/turkit-workflow:test-instructions` | Short manual-test checklist post-implementation. |
-| `/turkit-workflow:ship` | Commit + push + PR + close the ticket. Host-agnostic: resolves the PR command via `.turkit.yaml → vcs`, then `gh`, then `glab`, then a manual fallback. |
-| `/turkit-workflow:handoff` | Summarize the current conversation for another LLM. **Read-only by default** (never commits, pushes, removes worktrees, or touches the tracker). Accepts `ship` to delegate shipping to `ship` after the summary. `/shipoff` is a thin command alias for `/handoff ship`. |
-| `/turkit-workflow:rules-refresh` | Audit a rules doc and propose Keep / Sharpen / Add-rationale / Redundant / Stale updates. |
+| `/turkit:install` | Bootstraps Turkit in a repo: detects stack-specific packs (React when applicable), prints plugin install commands, and sets up `.turkit.yaml` via the init workflow. |
+| `/turkit:adopt-project` | Migrates an existing repo that already has local `.claude/skills` or `.claude/commands`: keeps project-specific knowledge, updates `.turkit.yaml`, and archives workflow duplicates outside the active skill path. |
+| `/turkit:turkit-init` | Detects the project's build tool, package manager, base branch, tracker, proposes `.turkit.yaml`. |
+| `/turkit:ticket` | Single-session orchestrator: intake/route → reuse-survey plan → one plan-approval pause → execute → handoff. Never commits; suggests `/goal-review` at the end. The Workflow-native alternative to the multi-session `ticket-triage` → `ticket-plan` → `ticket-execute` chain. |
+| `/turkit:ticket-triage` | Routes a ticket to one-shot / plan-then-execute / split-first. |
+| `/turkit:ticket-plan` | Writes a structured plan to `.claude/plans/<TICKET>.md` for operator review. |
+| `/turkit:ticket-execute` | Executes a validated plan on a feature branch (worktree opt-in). Never commits. |
+| `/turkit:goal-review` | Operator-invoked review+fix loop over `--diff` / `--branch` / `--repo`. Loops review → fix until clean (on `--branch`) then runs a final verification pass. Never commits. The looping alternative to the single-shot `pre-commit-review` / `pre-pr-review`. |
+| `/turkit:grill-change` | Stress-tests a ticket, plan, or design before implementation. Asks one question at a time, with a recommended answer and reasoning. |
+| `/turkit:zoom-out` | Gives a compact map of a confusing code area, diff, branch, feature, or module. |
+| `/turkit:explain-diff` | Explains the staged/unstaged/branch diff in a short operator-readable brief before commit or review. |
+| `/turkit:teachback-gate` | Before commit, merge, PR, push, or release: asks the operator to explain the change back in three bullets before continuing. |
+| `/turkit:merge-brief` | Pre-merge brief: what enters the base branch, risk, verification, rollback, and files to reread. |
+| `/turkit:release-brief` | Pre-release brief: target, version/tag, public delta, risk, verification, and rollback. |
+| `/turkit:pre-commit-review` | Strict review of the current diff. Mechanical pre-pass via the project's lint, judgment pass against an opinionated checklist (SOC, DRY, over-engineering, comments, types, error handling). Auto-fixes mechanical violations (unstaged), surfaces judgment calls as required changes. |
+| `/turkit:pre-pr-review` | Strict full-branch review vs. the base branch before opening or updating a PR. Same per-diff rubric as `pre-commit-review`, plus branch-level checks (per-commit coherence, cross-commit drift, dead intermediate files, intent). Auto-fixes mechanical violations. |
+| `/turkit:pr-description` | Concise PR description from the branch diff. |
+| `/turkit:test-instructions` | Short manual-test checklist post-implementation. |
+| `/turkit:ship` | Commit + push + PR + close the ticket. Host-agnostic: resolves the PR command via `.turkit.yaml → vcs`, then `gh`, then `glab`, then a manual fallback. |
+| `/turkit:handoff` | Summarize the current conversation for another LLM. **Read-only by default** (never commits, pushes, removes worktrees, or touches the tracker). Accepts `ship` to delegate shipping to `ship` after the summary. `/turkit:shipoff` is a thin command alias for `/turkit:handoff ship`. |
+| `/turkit:rules-refresh` | Audit a rules doc and propose Keep / Sharpen / Add-rationale / Redundant / Stale updates. |
 
 ## `turkit-react` skills
 
@@ -98,7 +119,7 @@ flowchart TD
 
 ## Configuration
 
-Run `/turkit-workflow:install` for full setup (stack pack recommendations + `.turkit.yaml`). Run `/turkit-workflow:turkit-init` when you only want to generate or update `.turkit.yaml`. Example output on a pnpm + TypeScript repo:
+Run `/turkit:install` for full setup (stack pack recommendations + `.turkit.yaml`). Run `/turkit:turkit-init` when you only want to generate or update `.turkit.yaml`. Example output on a pnpm + TypeScript repo:
 
 ```yaml
 commands:
@@ -174,7 +195,7 @@ npx skills add alimtunc/turkit -a gemini         # Gemini CLI
 | Claude Code | `~/.claude/skills/` (or use `/plugin install …@turkit`) | re-run, or `/plugin` update |
 | Cursor / Gemini / Copilot / … | each agent's own skills dir | re-run `npx skills add …` |
 
-After installing, run the `turkit-init` skill in your agent to generate `.turkit.yaml` (and optionally `AGENTS.md`) for the project. The Claude Code plugin marketplace flow (`/plugin install turkit-workflow@turkit`) remains the Claude-native option and is unchanged.
+After installing, run the `turkit-init` skill in your agent to generate `.turkit.yaml` (and optionally `AGENTS.md`) for the project. The Claude Code plugin marketplace flow (`/plugin install turkit@turkit`) is the Claude-native option.
 
 **Maintainers — canonical sources vs. denormalized copies.** Two kinds of shared content are single-sourced and vendored into each consumer skill so per-skill installs stay self-contained:
 

@@ -29,7 +29,7 @@ The last message is **exactly** this block, and **nothing after it**:
 Next action — create the sub-tickets in the tracker, then re-triage each with this prompt:
 
 ```
-/turkit-workflow:ticket-triage <SUB-TICKET-ID>
+/turkit:ticket-triage <SUB-TICKET-ID>
 ```
 ````
 
@@ -102,7 +102,7 @@ Use the `## Split sub-plan` section of `references/plan-template.md`. Write to `
 
 - Never invoke any review skill (`pre-commit-review`, `pre-pr-review`, `ship`, `test-instructions`).
 - Split-first never auto-invokes anything.
-- **`one-shot` and `plan-then-execute` always auto-invoke the next skill in the same session.** Printing a copy-paste prompt like "`/turkit-workflow:ticket-plan PROJ-14`" instead of invoking the skill is a bug — it breaks the workflow by forcing an unnecessary session boundary on the operator.
+- **`one-shot` and `plan-then-execute` always auto-invoke the next skill in the same session.** Printing a copy-paste prompt like "`/turkit:ticket-plan PROJ-14`" instead of invoking the skill is a bug — it breaks the workflow by forcing an unnecessary session boundary on the operator.
 - **After dispatching `ticket-plan` or `ticket-execute`, add nothing.** See the "Required output format" section at the top and the anti-pattern that follows it. The last inner fence of the conversation must be a clean one-click copy/paste, emitted by the sub-skill.
 - If the ticket body is missing or trivially short, ask the operator to flesh it out before choosing a path.
 - Respond in the conversation's language by default.

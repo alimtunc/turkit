@@ -29,7 +29,9 @@ Treat local skills/commands with these names as likely workflow duplicates:
 
 `install`, `turkit-init`, `ticket-triage`, `ticket-plan`, `ticket-execute`,
 `pre-commit-review`, `pre-pr-review`, `pr-description`, `test-instructions`,
-`ship`, `handoff`, `rules-refresh`, `react-review`.
+`ship`, `handoff`, `rules-refresh`, `grill-change`, `zoom-out`,
+`explain-diff`, `teachback-gate`, `merge-brief`, `release-brief`,
+`react-review`.
 
 ## Steps
 
@@ -131,7 +133,7 @@ Treat local skills/commands with these names as likely workflow duplicates:
    - Confirm `AGENTS.md` (and `GEMINI.md`) carry the workflow section and that
      pre-existing project content is intact.
    - Show `git status --short`.
-   - Recommend `/turkit-workflow:install` or the relevant review command next.
+   - Recommend `/turkit:install` or the relevant review command next.
 
 ## Guardrails
 

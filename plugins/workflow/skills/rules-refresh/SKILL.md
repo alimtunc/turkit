@@ -77,5 +77,5 @@ Respond in the conversation's language by default.
 - **Read-only until confirmation.** Never write before the operator says yes.
 - **Self-audit footgun.** If the operator points `rules-refresh` at its own `SKILL.md` (the file you are reading now), refuse and ask for an explicit confirmation naming the file. Auditing the auditor risks breaking the audit logic.
 - **No partial apply.** All or nothing. If the operator wants a subset, they rerun.
-- **Commit discipline.** Do not commit the rewrite. Leave it for the operator to verify and commit via `/turkit-workflow:ship` or manually.
+- **Commit discipline.** Do not commit the rewrite. Leave it for the operator to verify and commit via `/turkit:ship` or manually.
 - **Never invent rules** that weren't in the input file. `rules-refresh` only proposes changes to existing rules, not net-new ones.

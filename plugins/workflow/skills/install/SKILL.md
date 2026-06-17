@@ -16,7 +16,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
    - Inspect `git status --short`.
    - If `.claude/skills/*` or `.claude/commands/*` exists, note that the repo
      already has local Claude assets. Recommend
-     `/turkit-workflow:adopt-project` after install so generic workflow skills
+     `/turkit:adopt-project` after install so generic workflow skills
      do not stay duplicated locally.
    - If the tree has unrelated user changes, continue read-only until the operator approves writing `.turkit.yaml`.
 
@@ -27,7 +27,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
      /plugin install turkit-react@turkit
      ```
    - If React is detected, also inspect `package.json` for a pinned React gate script (`react-review`, `react:review`, or `react-doctor`). If found, recommend adding it to `.turkit.yaml` as `commands.react_review`.
-   - If no stack-specific pack matches, say that only `turkit-workflow` is recommended for now.
+   - If no stack-specific pack matches, say that only `turkit` is recommended for now.
    - Do not claim a plugin is installed unless the runtime exposes that fact. Phrase recommendations as "install if not already installed".
 
 3. **Set up project config.**
@@ -39,7 +39,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
    - Resolve the three placeholders:
      - `<PROJECT>` — a `name` field in the root manifest (`package.json`, `Cargo.toml`, `pyproject.toml`, …) if present, else the repo directory name (`git rev-parse --show-toplevel` basename).
      - `<RULES_DOCS>` — `.turkit.yaml → rules.docs` if set; else whichever of `CLAUDE.md`, an existing separate `AGENTS.md`, or `docs/conventions/` actually exist. If none exist, write `the repo's conventions (none detected yet — see CLAUDE.md once added)`.
-     - `<SKILLS_PATH>` — the installed `turkit-workflow` plugin's `skills/` directory, or `.claude/skills/` if the repo has adopted the skills locally. **If it resolves to the plugin path** (no local copy), warn in the summary that this path is Claude-Code-local and machine-specific: a committed `AGENTS.md` pointing there will not resolve for Codex/Gemini on another machine or in CI. Recommend `/turkit-workflow:adopt-project` to vendor the skills into `.claude/skills/` for a portable in-repo path.
+     - `<SKILLS_PATH>` — the installed `turkit` plugin's `skills/` directory, or `.claude/skills/` if the repo has adopted the skills locally. **If it resolves to the plugin path** (no local copy), warn in the summary that this path is Claude-Code-local and machine-specific: a committed `AGENTS.md` pointing there will not resolve for Codex/Gemini on another machine or in CI. Recommend `/turkit:adopt-project` to vendor the skills into `.claude/skills/` for a portable in-repo path.
    - Fill the template body with those values.
    - Write `AGENTS.md` at the repo root with the substituted body **only if it does not already exist**. Never clobber an existing `AGENTS.md`: if one is present, append a clearly-marked `## Workflow (operator-invoked) — turkit` section instead, and skip entirely if that section is already present.
    - Write `GEMINI.md` at the repo root. Default to the one-line pointer (`See [AGENTS.md](AGENTS.md). Same workflow guidance applies to Gemini.`) when `AGENTS.md` is present, to avoid two copies drifting; write the full body into `GEMINI.md` only when the repo has no `AGENTS.md`. Apply the same never-clobber/append-only merge semantics if a `GEMINI.md` already exists.
@@ -51,9 +51,10 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
    - `.turkit.yaml` status: created / update proposed / already OK / skipped.
    - `AGENTS.md` / `GEMINI.md` status: created / section appended / already OK / skipped.
    - Available skills now reachable: `/ticket` and `/goal-review` (single-session orchestrators), plus the multi-session bricks (`ticket-triage`, `ticket-plan`, `ticket-execute`, `pre-commit-review`, `pre-pr-review`).
-   - Suggested first quality command: `/turkit-workflow:pre-commit-review`, plus `/turkit-react:react-review` when React is detected.
+   - Understanding gates now reachable: `/turkit:grill-change`, `/turkit:explain-diff`, `/turkit:teachback-gate`, `/turkit:merge-brief`, `/turkit:release-brief`.
+   - Suggested first quality command: `/turkit:pre-commit-review`, plus `/turkit-react:react-review` when React is detected.
    - If local Claude assets were detected, suggested migration command:
-     `/turkit-workflow:adopt-project`.
+     `/turkit:adopt-project`.
 
 ## Guardrails
 

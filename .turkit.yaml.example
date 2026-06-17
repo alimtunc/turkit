@@ -1,5 +1,5 @@
 # Copy to .turkit.yaml at your repo root to override build tool detection.
-# All fields optional. Run /turkit-workflow:turkit-init to auto-generate one tailored to your project.
+# All fields optional. Run /turkit:turkit-init to auto-generate one tailored to your project.
 
 commands:
   check: pnpm typecheck
@@ -29,7 +29,7 @@ rules:
     - AGENTS.md
     - docs/conventions/*.md
 
-# Optional VCS host commands used by /turkit-workflow:ship (PR create) and handoff (PR view).
+# Optional VCS host commands used by /turkit:ship (PR create) and handoff (PR view).
 # If unset, ship auto-detects `gh`, then `glab`, then falls back to printing the PR
 # title/body for you to open manually. Supported variables: $TITLE, $BODY_FILE, $PR_NUMBER.
 # See docs/contracts/vcs-host-detection.md for the resolution order.
