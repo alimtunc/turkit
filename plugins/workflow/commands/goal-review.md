@@ -1,5 +1,5 @@
 ---
-description: Review-and-fix loop for staged changes, a branch, or the whole repo. Modes: --diff (staged+unstaged, single pass), --branch (committed diff vs base, loop-until-clean — default), --repo (whole codebase, single pass per package). Loops review→fix until clean, then a final verification pass. Never commits.
+description: "Review-and-fix loop for staged changes, a branch, or the whole repo. Modes: --diff (staged+unstaged, single pass), --branch (committed diff vs base, loop-until-clean — default), --repo (whole codebase, single pass per package). Loops review→fix until clean, then a final verification pass. Never commits."
 argument-hint: "[--diff|--branch|--repo] [base-branch]"
 allowed-tools: Skill, Bash(git status:*), Bash(git branch:*), Bash(git diff:*), Bash(git merge-base:*), Bash(git log:*), Bash(git rev-list:*), Bash(git symbolic-ref:*), Bash(git ls-files:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(just:*), Bash(make:*), Bash(cargo:*), Bash(poetry:*), Bash(uv:*), Bash(go:*), Bash(mix:*), Read, Edit, MultiEdit, Write, Grep, Glob, Task
 ---
