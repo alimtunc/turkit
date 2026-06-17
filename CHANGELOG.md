@@ -2,6 +2,20 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v2.0.0 — 2026-06-17
+
+### Breaking
+
+- Main plugin renamed from `turkit-workflow` to `turkit`. Claude Code install and slash commands now use `/plugin install turkit@turkit` and `/turkit:<skill>`.
+
+### Added
+
+- Operator-understanding skills: `grill-me`, `zoom-out`, `explain-diff`, `teachback-gate`, `merge-brief`, and `release-brief`.
+
+### Changed
+
+- README, generated AGENTS/GEMINI guidance, and bootstrap skills now point at the shorter `/turkit:*` namespace.
+
 ## turkit-workflow v1.8.0 — 2026-06-17
 
 ### Added

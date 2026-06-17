@@ -1,19 +1,33 @@
 ---
 name: ticket
-description: Single-session ticket orchestrator (intake → route → plan → ⏸ approval → execute → verify + handoff), all in one session. Invoke when the operator types `/ticket` or explicitly asks to run a ticket through its full lifecycle. Do NOT invoke just because a message carries a ticket id, a tracker link, a pasted issue, or "implémente cette issue" — handle those per the repo's rules docs unless `/ticket` is explicit. Never commits; suggests `/goal-review`, never auto-runs it.
-allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git checkout:*), Bash(git switch:*), Bash(git worktree:*), Bash(git diff:*), Bash(git ls-files:*), Bash(pwd:*), Bash(cp:*), Bash(mkdir:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(just:*), Bash(make:*), Bash(cargo:*), Bash(poetry:*), Bash(uv:*), Bash(go:*), Bash(mix:*), Bash(npx:*), Read, Grep, Glob, Edit, MultiEdit, Write, Task
+description: Single-session ticket orchestrator with optional modes (`--plan`, `--execute`, `--grill`). Invoke when the operator types `/ticket` or explicitly asks to run a ticket through its lifecycle. Do NOT invoke just because a message carries a ticket id, a tracker link, a pasted issue, or "implémente cette issue" — handle those per repo rules unless `/ticket` is explicit. Never commits; suggests `/goal-review`, never auto-runs it.
+allowed-tools: Skill, Bash(git status:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git checkout:*), Bash(git switch:*), Bash(git worktree:*), Bash(git diff:*), Bash(git ls-files:*), Bash(pwd:*), Bash(cp:*), Bash(mkdir:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(just:*), Bash(make:*), Bash(cargo:*), Bash(poetry:*), Bash(uv:*), Bash(go:*), Bash(mix:*), Bash(npx:*), Read, Grep, Glob, Edit, MultiEdit, Write, Task
 ---
 
 # Ticket
 
-Single-session orchestrator for one ticket: intake → route → plan → ⏸ plan approval → execute → verify, all in this session. An alternative to the multi-session path (`ticket-triage → ticket-plan → ticket-execute`) for operators who want the one-session flow. No fresh-session handoff, no auto-continue gate.
+Single-session orchestrator for one ticket. Default flow: intake → route → plan → ⏸ plan approval → execute → verify, all in this session. Optional flags expose the same workflow as smaller slices without forcing the operator into separate skills.
+
+## Modes
+
+Parse flags before resolving the ticket:
+
+| Flag | Behavior |
+|---|---|
+| none | Default full flow: plan, pause for approval, execute, verify, handoff. |
+| `--grill` | Same as default, but runs `grill-me` against the plan before approval. Not default. |
+| `--plan` | Plan only: intake, route, reuse survey, write/present the plan, then stop before edits. |
+| `--execute` | Execute only: resolve the ticket id, read an existing `.claude/plans/<TICKET-ID>.md`, verify it still matches the code, then execute. |
+
+If multiple flags are passed, apply the narrowest mode: `--execute` wins over `--plan`; `--plan --grill` means plan, grill, then stop.
 
 ## Invocation boundary
 
 - **Operator-invoked.** Never self-trigger on a bare ticket mention — a tracker link, a ticket id, a pasted issue, or "implémente cette issue" do **not** invoke this skill. Handle those per the repo's rules docs unless `/ticket` is explicit.
-- **One internal forward chain:** intake → route → plan → execute. There is no separate triage/plan/execute skill to dispatch; this skill owns the whole flow.
+- **One internal forward chain:** intake → route → plan → execute. Flags may stop after planning or start from an existing plan, but the operator still uses `/ticket` as the main entrypoint.
 - **Never auto-invoke `/goal-review`** or any reviewer subagent. The handoff suggests `/goal-review`; the operator runs it.
 - **Never commit.**
+- **Never make `--grill` implicit.** Some operators want speed; `grill-me` is opt-in.
 
 ## Phases
 
@@ -45,10 +59,17 @@ Single-session orchestrator for one ticket: intake → route → plan → ⏸ pl
 ### 3. ⏸ Plan approval — the only human checkpoint
 
 - Print the plan (the full plan, the inline mini-plan, or the split decomposition) and **stop for operator validation before any edit.** This is the cheapest moment to catch a scope misunderstanding.
-- On approval, proceed to execute. On amendment, revise the plan and re-present. Do not start editing until the plan is approved.
+- If `--grill` was passed, invoke `grill-me` on the plan before asking for approval. If no Skill tool is available, follow `grill-me`'s `SKILL.md` directly in this session. The grill is part of the approval checkpoint, not a separate implementation step.
+- If `--plan` was passed, stop after the plan/grill checkpoint and print the next command:
+  ```text
+  /turkit:ticket --execute <TICKET-ID>
+  ```
+  Do not execute even if the operator says the plan looks good in the same turn.
+- In default and `--grill` modes: on approval, proceed to execute. On amendment, revise the plan and re-present. Do not start editing until the plan is approved.
 
 ### 4. Execute
 
+- If `--execute` was passed, start here: read `.claude/plans/<TICKET-ID>.md`; if it is missing, stop and tell the operator to run `/turkit:ticket --plan <TICKET-ID>` first.
 - **Verify the environment first.** Resolve the workspace policy from `.turkit.yaml → workflow.workspace`:
     - `worktree_required`, or the operator explicitly asked for isolation → bootstrap a worktree following `references/worktree-bootstrap.md` **literally** (create-if-absent → enter → `pwd` / `git rev-parse --show-toplevel` / `git branch --show-current` verification with stop-on-mismatch → env copy → init). Do not reorder or skip a step.
     - Missing or `feature_branch` → work in the current tree on a feature branch; skip the worktree procedure.
@@ -77,6 +98,8 @@ When the **Workflow** tool is available, encode the Phase 2 reuse survey as a Wo
 - Inlining a plan template instead of pointing at `references/plan-template.md` — the brick is the single source of truth.
 - Hardcoding a specific tracker MCP, build command, or React tool — resolve via the contracts (`issue-tracker-detection.md`, `build-tool-detection.md`) and `.turkit.yaml`.
 - Auto-invoking `/goal-review` or any reviewer subagent — review is always operator-gated.
+- Running `grill-me` by default — it is useful friction only when explicitly requested with `--grill`.
+- Treating `--plan` as permission to continue into edits — `--plan` always stops before implementation.
 - Bypassing a guardrail or hook by commenting it out or masking the pattern with a disable directive — fix the underlying type/logic instead.
 - Editing files under the original repo root when a worktree was bootstrapped — the diff lands on the wrong working copy and silently disappears from source control on the feature branch.
 - Committing inside this skill — commits are operator-gated.

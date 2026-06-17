@@ -6,12 +6,12 @@
   },
   "metadata": {
     "description": "Project-agnostic Claude Code workflow + stack-specific review skills.",
-    "version": "1.0.2"
+    "version": "2.0.0"
   },
   "plugins": [
     {
-      "name": "turkit-workflow",
-      "description": "Ticket lifecycle, reviews, ship, handoff, rules-refresh, project adoption.",
+      "name": "turkit",
+      "description": "Ticket lifecycle, reviews, ship, handoff, release understanding, project adoption.",
       "source": "./plugins/workflow",
       "strict": false
     },

@@ -33,6 +33,11 @@ Multi-session alternative (same building blocks, separate sessions):
 - ticket-triage → ticket-plan → ticket-execute.
 - Reviews: pre-commit-review (working tree) / pre-pr-review (committed branch).
 
+Understanding gates:
+
+- grill-me before coding, zoom-out when lost, explain-diff before commit,
+  teachback-gate before ship, merge-brief before merge, release-brief before release.
+
 Read each skill's SKILL.md under <SKILLS_PATH> for the full procedure. No Workflow
 tool? The skills degrade to parallel agents, then to sequential steps — same behavior,
 only the mechanism differs. Never commit without an explicit request.
@@ -50,12 +55,12 @@ only the mechanism differs. Never commit without an explicit request.
   none exist, write `the repo's conventions (none detected yet — see CLAUDE.md once added)`.
 - `<SKILLS_PATH>` — where the turkit skills live so the agent can read each `SKILL.md`.
   The skills ship inside the **installed plugin**, not the target repo, so point at the
-  installed `turkit-workflow` plugin's `skills/` directory (resolve from the plugin
+  installed `turkit` plugin's `skills/` directory (resolve from the plugin
   install location). If the repo has adopted the skills locally (`.claude/skills/`), point
   there instead — **strongly prefer this for Codex/Gemini.** The plugin path is
   Claude-Code-local and machine-specific: a committed `AGENTS.md` pointing at it will not
   resolve for a non-Claude agent on another machine or in CI. When the only available path
-  is the plugin path, the generator should recommend `/turkit-workflow:adopt-project` (which
+  is the plugin path, the generator should recommend `/turkit:adopt-project` (which
   vendors the skills into `.claude/skills/`) so this pointer becomes a portable, committable
   in-repo path.
 

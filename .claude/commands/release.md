@@ -1,29 +1,36 @@
 ---
 description: Bump la version d'un plugin du marketplace turkit (commit + tag + push). Outil maintainer — ne ship pas aux utilisateurs.
 argument-hint: "[plugin] [patch|minor|major]"
-allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git tag:*), Bash(git push:*), Bash(git add:*), Bash(git commit:*), Bash(git rev-parse:*), Bash(git describe:*), Bash(git fetch:*), Bash(git rev-list:*), Read, Edit
+allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git tag:*), Bash(git push:*), Bash(git add:*), Bash(git commit:*), Bash(git rev-parse:*), Bash(git describe:*), Bash(git fetch:*), Bash(git rev-list:*), Bash(git ls-remote:*), Read, Edit
 ---
 
 # Release
 
 Publie une nouvelle version d'un plugin du marketplace turkit : bump `plugin.json` → entrée CHANGELOG → commit → tag → push.
 
-Le tag suit le format `turkit-<plugin>--v<semver>` (ex : `turkit-workflow--v1.0.3`). C'est ce que lit Claude Code pour proposer la mise à jour aux installations existantes.
+Le tag suit le format du plugin publié :
+- plugin principal `turkit` → `turkit--v<semver>` ;
+- packs spécialisés → `turkit-<pack>--v<semver>` (ex : `turkit-react--v0.2.0`).
+
+C'est ce que lit Claude Code pour proposer la mise à jour aux installations existantes.
 
 **Contexte** : commande maintainer locale au repo turkit. Pas distribuée via le marketplace.
 
 ## Arguments
 
-- **plugin** — `workflow` (défaut) ou `react`. Détermine le `plugin.json` et le préfixe du tag.
+- **plugin** — `turkit` (défaut, alias legacy: `workflow`) ou `react`. Détermine le `plugin.json` et le préfixe du tag.
 - **level** — `patch` (défaut), `minor`, ou `major`. Si absent, déduit depuis les commits depuis le dernier tag du plugin.
 
-Exemples : `/release`, `/release react`, `/release workflow minor`.
+Exemples : `/release`, `/release turkit major`, `/release react minor`.
 
 Argument reçu : $ARGUMENTS
 
 ## Étapes
 
-1. **Résoudre le plugin.** Premier argument ou `workflow` par défaut. Le chemin du `plugin.json` est `plugins/<plugin>/.claude-plugin/plugin.json`. Abort si le fichier n'existe pas.
+1. **Résoudre le plugin.** Premier argument ou `turkit` par défaut.
+   - `turkit` ou `workflow` → `PLUGIN_DIR=plugins/workflow`, `TAG_PREFIX=turkit`, `CHANGELOG_NAME=turkit`.
+   - `react` → `PLUGIN_DIR=plugins/react`, `TAG_PREFIX=turkit-react`, `CHANGELOG_NAME=turkit-react`.
+   Abort si le `plugin.json` résolu n'existe pas.
 
 2. **Vérifier l'état git.**
    - Branche courante = `main` (`git rev-parse --abbrev-ref HEAD`). Sinon abort.
@@ -32,12 +39,14 @@ Argument reçu : $ARGUMENTS
 
 3. **Lire la version courante** depuis `plugin.json` (champ `version`).
 
-4. **Trouver le dernier tag du plugin** : `git describe --tags --abbrev=0 --match 'turkit-<plugin>--v*'`. Si aucun tag (premier release du plugin), utiliser le premier commit comme base.
+4. **Trouver le dernier tag du plugin** : `git describe --tags --abbrev=0 --match '<TAG_PREFIX>--v*'`.
+   - Migration legacy : pour `turkit`, si aucun tag `turkit--v*` n'existe encore, utiliser le dernier tag `turkit-workflow--v*` comme base.
+   - Si aucun tag n'existe (première release réelle du plugin), utiliser le premier commit comme base.
 
 5. **Lister les commits depuis ce tag**, filtrés sur le plugin :
 
    ```
-   git log <last-tag>..HEAD --pretty=format:'%h %s' -- plugins/<plugin>/
+   git log <last-tag>..HEAD --pretty=format:'%h %s' -- <PLUGIN_DIR>/
    ```
 
    Si vide, abort : "Aucun commit touchant `plugins/<plugin>/` depuis `<last-tag>`. Rien à publier."
@@ -47,7 +56,7 @@ Argument reçu : $ARGUMENTS
    - Un sujet préfixé `feat(` ou `feat:` → **minor**.
    - Sinon → **patch**.
 
-7. **Calculer la nouvelle version** depuis la courante via SemVer. Major reset minor/patch à 0 ; minor reset patch à 0.
+7. **Calculer la nouvelle version** depuis la courante via SemVer. Major reset minor/patch à 0 ; minor reset patch à 0. Si `plugin.json` contient déjà une version supérieure au dernier tag et que `CHANGELOG.md` contient déjà la section correspondante, traiter cette version comme le candidat à publier au lieu de la bumper une seconde fois.
 
 8. **Afficher le résumé et demander confirmation** :
    - Plugin, ancien tag, version courante → nouvelle version, niveau (et "auto-détecté" ou "forcé").
@@ -59,7 +68,7 @@ Argument reçu : $ARGUMENTS
 10. **Mettre à jour `CHANGELOG.md`** : insérer une nouvelle section **en tête** (après le titre `# Changelog` et le préambule, avant la section précédente la plus récente) :
 
     ```
-    ## turkit-<plugin> v<new> — <YYYY-MM-DD>
+    ## <CHANGELOG_NAME> v<new> — <YYYY-MM-DD>
 
     ### Added
     - <feat commits, sans le préfixe `feat(scope):`>
@@ -76,18 +85,18 @@ Argument reçu : $ARGUMENTS
 11. **Commiter** :
 
     ```
-    git add plugins/<plugin>/.claude-plugin/plugin.json CHANGELOG.md
+    git add <PLUGIN_DIR>/.claude-plugin/plugin.json CHANGELOG.md
     git commit -m "chore(<plugin>): release v<new>"
     ```
 
     Subject only, pas de `Co-Authored-By`, pas de `--no-verify`.
 
-12. **Tag annoté** : `git tag -a turkit-<plugin>--v<new> -m "turkit-<plugin> v<new>"`. Le tag **doit** être annoté (`-a`) — `--follow-tags` ne pousse que les tags annotés, jamais les tags légers.
+12. **Tag annoté** : `git tag -a <TAG_PREFIX>--v<new> -m "<CHANGELOG_NAME> v<new>"`. Le tag **doit** être annoté (`-a`) — `--follow-tags` ne pousse que les tags annotés, jamais les tags légers.
 
-13. **Push** : `git push --follow-tags origin main`. Le `--follow-tags` envoie le commit ET le tag annoté. Vérifier ensuite : `git ls-remote --tags origin 'turkit-<plugin>--v<new>'` doit retourner une ligne ; sinon `git push origin turkit-<plugin>--v<new>`.
+13. **Push** : `git push --follow-tags origin main`. Le `--follow-tags` envoie le commit ET le tag annoté. Vérifier ensuite : `git ls-remote --tags origin '<TAG_PREFIX>--v<new>'` doit retourner une ligne ; sinon `git push origin <TAG_PREFIX>--v<new>`.
 
 14. **Reporter** :
-    - Nouveau tag publié, URL GitHub vers le tag (`https://github.com/alimtunc/turkit/releases/tag/turkit-<plugin>--v<new>`).
+    - Nouveau tag publié, URL GitHub vers le tag (`https://github.com/alimtunc/turkit/releases/tag/<TAG_PREFIX>--v<new>`).
     - Rappel : les installations existantes se mettent à jour au prochain démarrage de Claude Code (le marketplace turkit a `autoUpdate: true`). Pour forcer maintenant : `/plugin` → update.
 
 ## Guardrails
