@@ -10,13 +10,7 @@ The skills use the open [Agent-Skills](https://github.com/vercel-labs/skills) `S
 npx skills add alimtunc/turkit
 ```
 
-The CLI lets you choose one or more target agents interactively. For a non-interactive install across every detected agent:
-
-```bash
-npx skills add alimtunc/turkit --all
-```
-
-You can use the skills immediately after install. The `install` skill is optional: run it only when you want a repo diagnostic, stack-pack recommendations, or a proposed `.turkit.yaml` / `AGENTS.md` setup.
+The CLI lets you choose one or more target agents interactively. You can use the skills immediately after install. The `install` skill is optional: run it only when you want a repo diagnostic, stack-pack recommendations, or a proposed `.turkit.yaml` / `AGENTS.md` setup.
 
 ### Claude Code Plugin Alternative
 
