@@ -51,7 +51,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
    - `.turkit.yaml` status: created / update proposed / already OK / skipped.
    - `AGENTS.md` / `GEMINI.md` status: created / section appended / already OK / skipped.
    - Available skills now reachable: `/ticket` and `/goal-review` (single-session orchestrators), plus the multi-session bricks (`ticket-triage`, `ticket-plan`, `ticket-execute`, `pre-commit-review`, `pre-pr-review`).
-   - Understanding gates now reachable: `/turkit:grill-change`, `/turkit:explain-diff`, `/turkit:teachback-gate`, `/turkit:merge-brief`, `/turkit:release-brief`.
+   - Understanding gates now reachable: `/turkit:grill-me`, `/turkit:explain-diff`, `/turkit:teachback-gate`, `/turkit:merge-brief`, `/turkit:release-brief`.
    - Suggested first quality command: `/turkit:pre-commit-review`, plus `/turkit-react:react-review` when React is detected.
    - If local Claude assets were detected, suggested migration command:
      `/turkit:adopt-project`.

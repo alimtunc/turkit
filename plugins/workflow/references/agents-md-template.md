@@ -35,7 +35,7 @@ Multi-session alternative (same building blocks, separate sessions):
 
 Understanding gates:
 
-- grill-change before coding, zoom-out when lost, explain-diff before commit,
+- grill-me before coding, zoom-out when lost, explain-diff before commit,
   teachback-gate before ship, merge-brief before merge, release-brief before release.
 
 Read each skill's SKILL.md under <SKILLS_PATH> for the full procedure. No Workflow

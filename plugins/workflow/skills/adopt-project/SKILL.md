@@ -29,7 +29,7 @@ Treat local skills/commands with these names as likely workflow duplicates:
 
 `install`, `turkit-init`, `ticket-triage`, `ticket-plan`, `ticket-execute`,
 `pre-commit-review`, `pre-pr-review`, `pr-description`, `test-instructions`,
-`ship`, `handoff`, `rules-refresh`, `grill-change`, `zoom-out`,
+`ship`, `handoff`, `rules-refresh`, `grill-me`, `zoom-out`,
 `explain-diff`, `teachback-gate`, `merge-brief`, `release-brief`,
 `react-review`.
 

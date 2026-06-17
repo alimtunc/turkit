@@ -10,7 +10,7 @@ All notable changes to turkit are tracked here. The project follows [SemVer](htt
 
 ### Added
 
-- Operator-understanding skills: `grill-change`, `zoom-out`, `explain-diff`, `teachback-gate`, `merge-brief`, and `release-brief`.
+- Operator-understanding skills: `grill-me`, `zoom-out`, `explain-diff`, `teachback-gate`, `merge-brief`, and `release-brief`.
 
 ### Changed
 

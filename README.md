@@ -68,14 +68,14 @@ flowchart TD
 - **Rules drifting**: `/turkit:rules-refresh <path>` to re-audit a rules doc against the current Claude version.
 - **Existing local Claude skills**: `/turkit:adopt-project` to migrate project-specific rules into `.turkit.yaml`/docs and archive duplicated local workflow skills.
 
-**Two ways to run the ticket flow.** The multi-session `ticket-triage` → `ticket-plan` → `ticket-execute` chain (each a discrete step, ideal across separate sessions) stays the default. New and **additive**: the single-session `/turkit:ticket` orchestrator, which runs intake/route → reuse-survey plan → **one approval pause** → execute → handoff in a single Workflow-native session. Pick `/ticket` when you want one continuous run with a single checkpoint; pick the three-step chain when you want explicit hand-offs between sessions.
+**Primary ticket entrypoint.** Use `/turkit:ticket` by default. It decides one-shot / standard / split, produces the right plan, pauses once for approval, then executes. Add flags when you want a narrower slice: `--plan` writes the plan and stops, `--execute` runs an existing plan, `--grill` adds a `grill-me` checkpoint before approval.
 
 **Two review entry points.** The single-shot `pre-commit-review` / `pre-pr-review` skills stay the default. New and **additive**: the operator-invoked `/turkit:goal-review` loop, which iterates review → fix until clean (on `--branch`) before a final verification pass. Pick `/goal-review` when you want it to keep fixing until the diff/branch/repo is clean; pick `pre-commit-review` / `pre-pr-review` for a single pass tied to a commit or PR.
 
 **Reprendre la main.** When AI speed makes the change hard to hold in your head, use the understanding gates before irreversible steps:
 
 ```text
-Before coding      /turkit:grill-change
+Before coding      /turkit:grill-me
 When lost          /turkit:zoom-out
 Before commit      /turkit:explain-diff
 Before ship        /turkit:teachback-gate
@@ -92,12 +92,12 @@ These skills are intentionally read-only and compact. They should help the opera
 | `/turkit:install` | Bootstraps Turkit in a repo: detects stack-specific packs (React when applicable), prints plugin install commands, and sets up `.turkit.yaml` via the init workflow. |
 | `/turkit:adopt-project` | Migrates an existing repo that already has local `.claude/skills` or `.claude/commands`: keeps project-specific knowledge, updates `.turkit.yaml`, and archives workflow duplicates outside the active skill path. |
 | `/turkit:turkit-init` | Detects the project's build tool, package manager, base branch, tracker, proposes `.turkit.yaml`. |
-| `/turkit:ticket` | Single-session orchestrator: intake/route → reuse-survey plan → one plan-approval pause → execute → handoff. Never commits; suggests `/goal-review` at the end. The Workflow-native alternative to the multi-session `ticket-triage` → `ticket-plan` → `ticket-execute` chain. |
+| `/turkit:ticket` | Main ticket entrypoint. Default runs intake/route → plan → approval → execute → handoff. Flags: `--plan`, `--execute`, `--grill`. |
 | `/turkit:ticket-triage` | Routes a ticket to one-shot / plan-then-execute / split-first. |
 | `/turkit:ticket-plan` | Writes a structured plan to `.claude/plans/<TICKET>.md` for operator review. |
 | `/turkit:ticket-execute` | Executes a validated plan on a feature branch (worktree opt-in). Never commits. |
 | `/turkit:goal-review` | Operator-invoked review+fix loop over `--diff` / `--branch` / `--repo`. Loops review → fix until clean (on `--branch`) then runs a final verification pass. Never commits. The looping alternative to the single-shot `pre-commit-review` / `pre-pr-review`. |
-| `/turkit:grill-change` | Stress-tests a ticket, plan, or design before implementation. Asks one question at a time, with a recommended answer and reasoning. |
+| `/turkit:grill-me` | Challenges a ticket, plan, or design before implementation. Asks one question at a time, with a recommended answer and reasoning. |
 | `/turkit:zoom-out` | Gives a compact map of a confusing code area, diff, branch, feature, or module. |
 | `/turkit:explain-diff` | Explains the staged/unstaged/branch diff in a short operator-readable brief before commit or review. |
 | `/turkit:teachback-gate` | Before commit, merge, PR, push, or release: asks the operator to explain the change back in three bullets before continuing. |

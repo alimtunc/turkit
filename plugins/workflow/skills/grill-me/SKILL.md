@@ -1,11 +1,11 @@
 ---
-name: grill-change
-description: Use when the operator wants to stress-test a planned change, ticket, design, or AI-generated plan before implementation starts.
+name: grill-me
+description: Use when the operator wants the agent to challenge a planned change, ticket, design, or AI-generated plan before implementation starts.
 disable-model-invocation: true
 allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git log:*), Bash(git diff:*), Read, Grep, Glob
 ---
 
-# Grill Change
+# Grill Me
 
 Pressure-test the change until the operator and agent share the same understanding.
 
