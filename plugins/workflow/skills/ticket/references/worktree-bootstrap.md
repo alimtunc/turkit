@@ -1,8 +1,8 @@
 # Worktree Bootstrap (Literal)
 
-The canonical worktree setup + verify sequence. Consumed by `ticket-execute` (set up
-workspace) and `ticket` (execute phase). It is the single source of truth for the worktree
-procedure — both skills point here instead of inlining their own bash.
+The canonical worktree setup + verify sequence. Consumed by `ticket` during execute mode.
+It is the single source of truth for the worktree procedure so the skill does not inline its
+own bash.
 
 A worktree is an isolated working copy checked out on its own branch. This procedure exists so
 edits land in the intended working copy: the verification gate below is what prevents an `Edit`
