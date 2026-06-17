@@ -1,6 +1,6 @@
 {
   "name": "turkit",
-  "description": "Project-agnostic Claude Code workflow skills: ticket lifecycle, reviews, ship, handoff, release understanding, and project adoption.",
+  "description": "Project-agnostic Agent-Skills workflow pack: setup, ticket lifecycle, reviews, shipping, handoff, release understanding, and human-in-control gates.",
   "version": "2.0.0",
   "author": {
     "name": "alimtunc",
@@ -13,6 +13,9 @@
     "claude-code",
     "skills",
     "workflow",
+    "agent-skills",
+    "ai-workflow",
+    "human-in-the-loop",
     "tickets",
     "code-review",
     "pr",
