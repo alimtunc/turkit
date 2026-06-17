@@ -1,11 +1,23 @@
 # turkit
 
-Project-agnostic agent skills — ticket lifecycle, code review, ship, handoff, and operator understanding gates. Authored as a Claude Code marketplace, but the skills use the open [Agent-Skills](https://github.com/vercel-labs/skills) format, so they also run on Codex, Cursor, Gemini, and any Agent-Skills host. See [Install on other agents](#install-on-codex--cursor--gemini--any-agent-skills-host).
+Project-agnostic agent workflow skills for AI-assisted development. Turkit helps developers keep control of what the agent plans, changes, reviews, ships, hands off, and releases, without tying the workflow to one model, tracker, stack, or repo layout.
 
-Two plugins today; more to come:
+It ships as Claude Code marketplace plugins, but every skill uses the open [Agent-Skills](https://github.com/vercel-labs/skills) `SKILL.md` format with colocated references. Install through Claude Code, or use `npx skills add` on Codex, Cursor, Gemini, and any Agent-Skills host. See [Install on other agents](#install-on-codex--cursor--gemini--any-agent-skills-host).
 
-- **`turkit`** — ticket lifecycle, code review, ship, handoff, rules-refresh, and compact operator-understanding gates. The workflow backbone that works in any repo.
-- **`turkit-react`** — opinionated React review. Modern React 19+ only, strict component boundaries, disciplined hooks.
+Two installable packs:
+
+- **`turkit`** — core workflow skills: project setup, ticket lifecycle, reviews, shipping, handoff, rules maintenance, and compact human-understanding gates.
+- **`turkit-react`** — optional React review pack. Modern React 19+ only, strict component boundaries, disciplined hooks.
+
+## Skills at a glance
+
+| Area | Skills | Use when |
+|---|---|---|
+| Setup and adoption | `/turkit:install`, `/turkit:turkit-init`, `/turkit:adopt-project` | You want Turkit configured in a new or existing repo without losing project-specific rules. |
+| Ticket workflow | `/turkit:ticket`, `/turkit:ticket-triage`, `/turkit:ticket-plan`, `/turkit:ticket-execute` | You want one default ticket entrypoint, or a narrower triage / plan / execute slice. |
+| Understanding gates | `/turkit:grill-me`, `/turkit:zoom-out`, `/turkit:explain-diff`, `/turkit:teachback-gate`, `/turkit:merge-brief`, `/turkit:release-brief` | You want to slow down before coding, committing, merging, or releasing so the human can explain what is happening. |
+| Review and quality | `/turkit:goal-review`, `/turkit:pre-commit-review`, `/turkit:pre-pr-review`, `/turkit-react:react-review` | You want a scoped review loop, a pre-commit check, a branch review, or React-specific judgment. |
+| Shipping and continuity | `/turkit:pr-description`, `/turkit:test-instructions`, `/turkit:ship`, `/turkit:handoff`, `/turkit:rules-refresh` | You want concise PR/test docs, host-agnostic shipping, session handoff, or rules maintenance. |
 
 ## Install (Claude Code)
 

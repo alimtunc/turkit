@@ -5,13 +5,13 @@
     "email": "alim.tunc@outlook.fr"
   },
   "metadata": {
-    "description": "Project-agnostic Claude Code workflow + stack-specific review skills.",
+    "description": "Project-agnostic agent workflow skills for tickets, reviews, shipping, handoffs, and human understanding gates.",
     "version": "2.0.0"
   },
   "plugins": [
     {
       "name": "turkit",
-      "description": "Ticket lifecycle, reviews, ship, handoff, release understanding, project adoption.",
+      "description": "Core workflow skills: setup, tickets, reviews, ship, handoff, rules maintenance, and human understanding gates.",
       "source": "./plugins/workflow",
       "strict": false
     },
