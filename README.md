@@ -23,7 +23,7 @@ Two plugins today; more to come:
 /turkit:install
 ```
 
-`turkit` replaces the old `turkit-workflow` plugin name. Existing commands move from `/turkit-workflow:<skill>` to `/turkit:<skill>`.
+`turkit` replaces the old `turkit-workflow` plugin name. Existing commands move from `/turkit-workflow:<skill>` to `/turkit:<skill>`. Existing Claude Code users should install the new plugin name with `/plugin install turkit@turkit`; the old namespace remains a v1.x install and is not auto-renamed by Claude Code.
 
 **Not on Claude Code?** Codex / Cursor / Gemini / any Agent-Skills host install with a single `npx skills add` command — see [Install on other agents](#install-on-codex--cursor--gemini--any-agent-skills-host).
 
