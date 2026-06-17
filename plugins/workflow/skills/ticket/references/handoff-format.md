@@ -1,8 +1,8 @@
 # Execution Handoff Format
 
-The canonical handoff block emitted at the end of an execution pass. Consumed by
-`ticket-execute` (step 9) and `ticket` (verify + handoff phase). It is the single source of
-truth for the handoff shape — both skills point here instead of inlining their own.
+The canonical handoff block emitted at the end of a ticket execution pass. Consumed by
+`ticket` during the verify + handoff phase. It is the single source of truth for the handoff
+shape so the skill does not inline its own.
 
 The handoff is a status report, not an action. It **suggests** the next operator steps
 (`/goal-review`, then commit) and never runs them: review and commit are always

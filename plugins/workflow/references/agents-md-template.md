@@ -23,14 +23,17 @@ Single-session orchestrators:
 
 - /ticket — intake + route (one-shot / standard / split) → reuse-survey plan → one
   plan-approval pause → execute criterion by criterion → handoff. Never commits;
-  suggests /goal-review, never auto-runs it.
+  suggests /goal-review, never auto-runs it. Use --triage, --plan, or --execute
+  when you only want that slice; use --grill to challenge the plan before approval.
 - /goal-review — review + fix loop (--diff / --branch / --repo). --branch loops
   review→fix until clean, then a final verification pass; --diff and --repo are
   single-pass. Never commits.
 
-Multi-session alternative (same building blocks, separate sessions):
+Focused modes:
 
-- ticket-triage → ticket-plan → ticket-execute.
+- /ticket --triage — classify the ticket and stop.
+- /ticket --plan — write/present the plan and stop before edits.
+- /ticket --execute — execute an already-approved .claude/plans/<TICKET-ID>.md.
 - Reviews: pre-commit-review (working tree) / pre-pr-review (committed branch).
 
 Understanding gates:

@@ -6,12 +6,12 @@
   },
   "metadata": {
     "description": "Project-agnostic agent workflow skills for tickets, reviews, shipping, handoffs, and human understanding gates.",
-    "version": "2.0.0"
+    "version": "3.0.0"
   },
   "plugins": [
     {
       "name": "turkit",
-      "description": "Core workflow skills: setup, tickets, reviews, ship, handoff, rules maintenance, and human understanding gates.",
+      "description": "Core workflow skills: one-command tickets, reviews, ship, handoff, rules maintenance, and human understanding gates.",
       "source": "./plugins/workflow",
       "strict": false
     },

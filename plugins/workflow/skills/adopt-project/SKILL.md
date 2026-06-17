@@ -13,7 +13,7 @@ goal is to avoid two active workflow systems.
 
 ## Policy
 
-- Turkit owns generic workflow: ticket triage/plan/execute, review, PR
+- Turkit owns generic workflow: ticket triage/plan/execute via `/ticket` flags, review, PR
   description, test instructions, ship, handoff, rules refresh.
 - The project owns project knowledge: architecture, commands, branch naming,
   worktree policy, setup steps, stack conventions, business rules.
@@ -27,11 +27,14 @@ goal is to avoid two active workflow systems.
 
 Treat local skills/commands with these names as likely workflow duplicates:
 
-`install`, `turkit-init`, `ticket-triage`, `ticket-plan`, `ticket-execute`,
-`pre-commit-review`, `pre-pr-review`, `pr-description`, `test-instructions`,
-`ship`, `handoff`, `rules-refresh`, `grill-me`, `zoom-out`,
-`explain-diff`, `teachback-gate`, `merge-brief`, `release-brief`,
-`react-review`.
+`install`, `turkit-init`, `ticket`, `pre-commit-review`, `pre-pr-review`,
+`pr-description`, `test-instructions`, `ship`, `handoff`, `rules-refresh`,
+`grill-me`, `zoom-out`, `explain-diff`, `teachback-gate`, `merge-brief`,
+`release-brief`, `react-review`.
+
+Also treat these legacy Turkit v1/v2 names as workflow duplicates if they exist
+locally: `ticket-triage`, `ticket-plan`, `ticket-execute`. They are now modes
+of `/ticket` (`--triage`, `--plan`, `--execute`), not separate public skills.
 
 ## Steps
 
@@ -56,7 +59,7 @@ Treat local skills/commands with these names as likely workflow duplicates:
    ```markdown
    | Asset | Proposed action | Why | Extract to |
    |---|---|---|---|
-   | `.claude/skills/ticket-execute` | merge-then-archive | Turkit owns execution; local skill has worktree/init rules | `.turkit.yaml → workflow` |
+   | `.claude/skills/ticket-execute` | merge-then-archive | Turkit owns execution via `/ticket --execute`; local skill has worktree/init rules | `.turkit.yaml → workflow` |
    ```
 
 3. **Propose `.turkit.yaml` updates.**

@@ -14,7 +14,7 @@ Two installable packs:
 | Area | Skills | Use when |
 |---|---|---|
 | Setup and adoption | `/turkit:install`, `/turkit:turkit-init`, `/turkit:adopt-project` | You want Turkit configured in a new or existing repo without losing project-specific rules. |
-| Ticket workflow | `/turkit:ticket`, `/turkit:ticket-triage`, `/turkit:ticket-plan`, `/turkit:ticket-execute` | You want one default ticket entrypoint, or a narrower triage / plan / execute slice. |
+| Ticket workflow | `/turkit:ticket` (`--triage`, `--plan`, `--execute`, `--grill`) | You want one ticket command, with flags when you only need a narrower slice. |
 | Understanding gates | `/turkit:grill-me`, `/turkit:zoom-out`, `/turkit:explain-diff`, `/turkit:teachback-gate`, `/turkit:merge-brief`, `/turkit:release-brief` | You want to slow down before coding, committing, merging, or releasing so the human can explain what is happening. |
 | Review and quality | `/turkit:goal-review`, `/turkit:pre-commit-review`, `/turkit:pre-pr-review`, `/turkit-react:react-review` | You want a scoped review loop, a pre-commit check, a branch review, or React-specific judgment. |
 | Shipping and continuity | `/turkit:pr-description`, `/turkit:test-instructions`, `/turkit:ship`, `/turkit:handoff`, `/turkit:rules-refresh` | You want concise PR/test docs, host-agnostic shipping, session handoff, or rules maintenance. |
@@ -39,52 +39,34 @@ Two installable packs:
 
 **Not on Claude Code?** Codex / Cursor / Gemini / any Agent-Skills host install with a single `npx skills add` command — see [Install on other agents](#install-on-codex--cursor--gemini--any-agent-skills-host).
 
-## How the ticket flow fits together
+## Recommended workflow
 
 ```mermaid
-flowchart TD
-    A["📋 New ticket"] --> CHOICE{"single-session<br/>or multi-session?"}
+flowchart LR
+    T["/turkit:ticket"] --> A["Plan approval"]
+    A --> E["Execute<br/>never commits"]
+    E --> R["Review<br/>goal-review or pre-commit-review"]
+    R --> S["/turkit:ship"]
 
-    CHOICE -->|"single-session (Workflow-native)"| TK["/turkit:ticket<br/>intake → reuse-survey plan →<br/>one approval pause → execute → handoff"]
-    CHOICE -->|"multi-session"| T["/turkit:ticket-triage"]
-
-    T -->|"one-shot — under 1h"| E["/turkit:ticket-execute"]
-    T -->|"plan-then-execute — 1h to 1d"| P["/turkit:ticket-plan"]
-    T -->|"split-first — multi-day"| S["🔀 Split into sub-tickets<br/>re-triage each"]
-
-    P -->|"operator validates the plan"| E
-    E --> W["🔧 Implements on a feature branch<br/>(worktree if requested, never commits)"]
-    TK --> W
-    W --> V["🧪 Operator manually verifies"]
-
-    V -. "operator-invoked review+fix loop<br/>review → fix until clean, then verify" .-> GR["/turkit:goal-review<br/>--diff / --branch / --repo"]
-    V --> PCR["/turkit:pre-commit-review"]
-    PCR -. "branch has multiple commits" .-> PPR["/turkit:pre-pr-review"]
-    PCR --> SHIP["/turkit:ship"]
-    PPR --> SHIP
-    GR -. "back to the operator" .-> SHIP
-    SHIP --> DONE["🚀 PR opened + ticket Done"]
-
-    V -. "helper" .-> TI["/turkit:test-instructions"]
-    SHIP -. "delegates to" .-> PRD["/turkit:pr-description"]
-    V -. "escape hatch" .-> HO["/turkit:handoff<br/>resume in another session"]
+    T -. "focused modes" .-> F["--triage<br/>--plan<br/>--execute<br/>--grill"]
+    E -. "need to pause" .-> H["/turkit:handoff"]
+    S -. "release context" .-> B["merge-brief<br/>release-brief"]
 ```
 
-**Typical usage:**
-- **Small tickets**: `ticket-triage` → `ticket-execute` → `pre-commit-review` → `ship`.
-- **Medium tickets**: `ticket-triage` → `ticket-plan` → operator validates → `ticket-execute` → `pre-commit-review` → `ship`.
-- **Large tickets**: `ticket-triage` (split-first) → split into sub-tickets → re-triage each.
-- **Long branches**: `pre-pr-review` instead of (or in addition to) `pre-commit-review`.
-- **Running out of context**: `handoff` at any point.
-- **Stack-specific review**: pair `pre-commit-review` with `/turkit-react:react-review` for React-specific findings.
-- **Rules drifting**: `/turkit:rules-refresh <path>` to re-audit a rules doc against the current Claude version.
-- **Existing local Claude skills**: `/turkit:adopt-project` to migrate project-specific rules into `.turkit.yaml`/docs and archive duplicated local workflow skills.
+**Ticket is one command.** Use `/turkit:ticket` by default. It reads the ticket, chooses one-shot / standard / split, produces the plan, pauses once for approval, then executes without committing. Use flags only when you want a narrower slice:
 
-**Primary ticket entrypoint.** Use `/turkit:ticket` by default. It decides one-shot / standard / split, produces the right plan, pauses once for approval, then executes. Add flags when you want a narrower slice: `--plan` writes the plan and stops, `--execute` runs an existing plan, `--grill` adds a `grill-me` checkpoint before approval.
+| Command | Stops after |
+|---|---|
+| `/turkit:ticket --triage <ticket>` | route + recommendation |
+| `/turkit:ticket --plan <ticket>` | plan + optional `--grill` checkpoint |
+| `/turkit:ticket --execute <ticket>` | execution + handoff from an approved plan |
+| `/turkit:ticket --grill <ticket>` | default flow, with a `grill-me` checkpoint before approval |
 
-**Two review entry points.** The single-shot `pre-commit-review` / `pre-pr-review` skills stay the default. New and **additive**: the operator-invoked `/turkit:goal-review` loop, which iterates review → fix until clean (on `--branch`) before a final verification pass. Pick `/goal-review` when you want it to keep fixing until the diff/branch/repo is clean; pick `pre-commit-review` / `pre-pr-review` for a single pass tied to a commit or PR.
+`ticket-triage`, `ticket-plan`, and `ticket-execute` were folded into these flags in `turkit` v3.0.0. The old behavior is still available; the public command surface is smaller.
 
-**Reprendre la main.** When AI speed makes the change hard to hold in your head, use the understanding gates before irreversible steps:
+**Review stays operator-gated.** Pick `/turkit:goal-review` when you want a review -> fix loop over `--diff`, `--branch`, or `--repo`. Pick `pre-commit-review` / `pre-pr-review` for a single strict pass tied to a commit or PR. Pair with `/turkit-react:react-review` when React-specific judgment matters.
+
+**Human understanding gates.** When AI speed makes the change hard to hold in your head, use these read-only gates before irreversible steps:
 
 ```text
 Before coding      /turkit:grill-me
@@ -95,7 +77,7 @@ Before merge       /turkit:merge-brief
 Before release     /turkit:release-brief
 ```
 
-These skills are intentionally read-only and compact. They should help the operator decide, not produce another long audit.
+These skills are intentionally compact. They should help the operator decide, not produce another long audit.
 
 ## `turkit` skills
 
@@ -104,10 +86,7 @@ These skills are intentionally read-only and compact. They should help the opera
 | `/turkit:install` | Bootstraps Turkit in a repo: detects stack-specific packs (React when applicable), prints plugin install commands, and sets up `.turkit.yaml` via the init workflow. |
 | `/turkit:adopt-project` | Migrates an existing repo that already has local `.claude/skills` or `.claude/commands`: keeps project-specific knowledge, updates `.turkit.yaml`, and archives workflow duplicates outside the active skill path. |
 | `/turkit:turkit-init` | Detects the project's build tool, package manager, base branch, tracker, proposes `.turkit.yaml`. |
-| `/turkit:ticket` | Main ticket entrypoint. Default runs intake/route → plan → approval → execute → handoff. Flags: `--plan`, `--execute`, `--grill`. |
-| `/turkit:ticket-triage` | Routes a ticket to one-shot / plan-then-execute / split-first. |
-| `/turkit:ticket-plan` | Writes a structured plan to `.claude/plans/<TICKET>.md` for operator review. |
-| `/turkit:ticket-execute` | Executes a validated plan on a feature branch (worktree opt-in). Never commits. |
+| `/turkit:ticket` | Main ticket entrypoint. Default runs intake/route -> plan -> approval -> execute -> handoff. Flags: `--triage`, `--plan`, `--execute`, `--grill`. |
 | `/turkit:goal-review` | Operator-invoked review+fix loop over `--diff` / `--branch` / `--repo`. Loops review → fix until clean (on `--branch`) then runs a final verification pass. Never commits. The looping alternative to the single-shot `pre-commit-review` / `pre-pr-review`. |
 | `/turkit:grill-me` | Challenges a ticket, plan, or design before implementation. Asks one question at a time, with a recommended answer and reasoning. |
 | `/turkit:zoom-out` | Gives a compact map of a confusing code area, diff, branch, feature, or module. |

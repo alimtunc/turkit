@@ -1,12 +1,12 @@
 ---
 name: ticket
-description: Single-session ticket orchestrator with optional modes (`--plan`, `--execute`, `--grill`). Invoke when the operator types `/ticket` or explicitly asks to run a ticket through its lifecycle. Do NOT invoke just because a message carries a ticket id, a tracker link, a pasted issue, or "implémente cette issue" — handle those per repo rules unless `/ticket` is explicit. Never commits; suggests `/goal-review`, never auto-runs it.
+description: Use when the operator explicitly invokes `/ticket` to run or inspect a ticket workflow. Supports `--triage`, `--plan`, `--execute`, and optional `--grill`. Do not self-trigger on a bare ticket id, tracker link, pasted issue, or implementation request. Never commits.
 allowed-tools: Skill, Bash(git status:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git checkout:*), Bash(git switch:*), Bash(git worktree:*), Bash(git diff:*), Bash(git ls-files:*), Bash(pwd:*), Bash(cp:*), Bash(mkdir:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(just:*), Bash(make:*), Bash(cargo:*), Bash(poetry:*), Bash(uv:*), Bash(go:*), Bash(mix:*), Bash(npx:*), Read, Grep, Glob, Edit, MultiEdit, Write, Task
 ---
 
 # Ticket
 
-Single-session orchestrator for one ticket. Default flow: intake → route → plan → ⏸ plan approval → execute → verify, all in this session. Optional flags expose the same workflow as smaller slices without forcing the operator into separate skills.
+Single ticket entrypoint. Default flow: intake → route → plan → plan approval → execute → verify, all in this session. Optional flags expose the same workflow as smaller slices without forcing the operator into separate public skills.
 
 ## Modes
 
@@ -15,16 +15,18 @@ Parse flags before resolving the ticket:
 | Flag | Behavior |
 |---|---|
 | none | Default full flow: plan, pause for approval, execute, verify, handoff. |
+| `--triage` | Route only: read the ticket, classify one-shot / standard / split, print the recommended next `/ticket` command, then stop. |
 | `--grill` | Same as default, but runs `grill-me` against the plan before approval. Not default. |
 | `--plan` | Plan only: intake, route, reuse survey, write/present the plan, then stop before edits. |
 | `--execute` | Execute only: resolve the ticket id, read an existing `.claude/plans/<TICKET-ID>.md`, verify it still matches the code, then execute. |
 
-If multiple flags are passed, apply the narrowest mode: `--execute` wins over `--plan`; `--plan --grill` means plan, grill, then stop.
+Accept at most one phase flag among `--triage`, `--plan`, and `--execute`. If more than one is passed, stop and ask the operator to choose one. `--grill` may combine with the default flow or `--plan`; ignore it with `--triage` and `--execute` after saying why.
 
 ## Invocation boundary
 
-- **Operator-invoked.** Never self-trigger on a bare ticket mention — a tracker link, a ticket id, a pasted issue, or "implémente cette issue" do **not** invoke this skill. Handle those per the repo's rules docs unless `/ticket` is explicit.
-- **One internal forward chain:** intake → route → plan → execute. Flags may stop after planning or start from an existing plan, but the operator still uses `/ticket` as the main entrypoint.
+- **Operator-invoked.** Never self-trigger on a bare ticket mention — a tracker link, a ticket id, a pasted issue, or an implementation request do **not** invoke this skill. Handle those per the repo's rules docs unless `/ticket` is explicit.
+- **One public ticket command:** intake, triage, planning, and execution are modes of `/ticket`, not separate public skills.
+- **One internal forward chain:** intake → route → plan → execute. Flags may stop after triage or planning, or start from an existing plan, but the operator still uses `/ticket` as the main entrypoint.
 - **Never auto-invoke `/goal-review`** or any reviewer subagent. The handoff suggests `/goal-review`; the operator runs it.
 - **Never commit.**
 - **Never make `--grill` implicit.** Some operators want speed; `grill-me` is opt-in.
@@ -46,6 +48,10 @@ If multiple flags are passed, apply the narrowest mode: `--execute` wins over `-
     Route on **pertinence, not file count.** Ten files of mechanical rename is one-shot; one file of novel state logic warrants a plan.
 
 - **split** is the escape hatch, not routine — keep the bar high. Use it only when the ticket genuinely mixes unrelated concerns, never for a ticket that is merely large but coherent (that is a normal `standard` plan). When warranted, decompose locally into one sub-plan file per piece (Phase 2); present the decomposition at the Phase 3 pause; on approval, execute each sub-plan in dependency order in this same session. Never create tracker issues — the sub-tickets live only as repo plan files.
+- If `--triage` was passed, stop here. Print the selected path, the short reason, and the recommended next command:
+  - **one-shot / standard / split, continue in this session:** `/turkit:ticket <TICKET-ID>`
+  - **plan-only first:** `/turkit:ticket --plan <TICKET-ID>`
+  Do not write a plan or edit files in triage mode.
 
 ### 2. Plan (reuse survey)
 

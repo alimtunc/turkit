@@ -1,6 +1,6 @@
 # Plan Templates
 
-Single source of truth for ticket plan markdown. Consumed by `ticket-plan`, `ticket-triage`, and `ticket`. Pick the section that matches the chosen path: a full plan for plan-then-execute, a one-shot mini-plan for a single well-understood change, or a split sub-plan file per piece when a ticket is decomposed locally.
+Single source of truth for ticket plan markdown. Consumed by `ticket`. Pick the section that matches the chosen path: a full plan for a standard ticket, a one-shot mini-plan for a single well-understood change, or a split sub-plan file per piece when a ticket is decomposed locally.
 
 ## Full plan
 
@@ -71,14 +71,14 @@ When a ticket genuinely mixes unrelated concerns, decompose it into local sub-ti
 ```markdown
 # <TICKET-ID>-<n> — <short title>
 
-## Résumé (reformulé)
+## Summary
 <2–3 lines describing intent>
 
-## Critères d'acceptation
+## Acceptance criteria
 1. <precise, verifiable criterion>
 2. ...
 
-## Fichiers à toucher
+## Files to touch
 - `path/to/file` — <what + approach>
 
 ## Reuse check
