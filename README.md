@@ -94,6 +94,16 @@ Before merge       /turkit:merge-brief
 Before release     /turkit:release-brief
 ```
 
+## Pair With Matt Pocock's Skills
+
+Turkit focuses on the delivery workflow around an AI coding agent: tickets, bounded loops, reviews, conflicts, shipping, handoffs, and compact decision gates.
+
+For engineering disciplines such as TDD, debugging, domain modeling, and codebase design, install [mattpocock/skills](https://github.com/mattpocock/skills) alongside Turkit:
+
+```bash
+npx skills add mattpocock/skills
+```
+
 ## Optional Project Config
 
 You do **not** need `.turkit.yaml` to try Turkit. The skills detect common package managers, base branches, issue trackers, and PR hosts at runtime, then degrade to manual fallbacks when something is missing.
