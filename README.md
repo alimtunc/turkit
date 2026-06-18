@@ -24,7 +24,7 @@ Claude Code users can install through the plugin marketplace instead of `npx`:
 /plugin install turkit-react@turkit
 ```
 
-`turkit` replaces the old `turkit-workflow` plugin name. Existing v1 commands moved from `/turkit-workflow:<skill>` to `/turkit:<skill>`.
+`turkit` replaces the old `turkit-workflow` plugin name. Existing v1 commands moved from the old namespace to `turkit`.
 
 ## Recommended Workflow
 
@@ -41,21 +41,21 @@ flowchart LR
     S -. "understand before irreversible steps" .-> B["merge-brief<br/>release-brief"]
 ```
 
-Use `/turkit:ticket` by default. It reads the ticket, chooses one-shot / standard / split, produces a plan, pauses once for approval, then executes without committing.
+Use `ticket` by default. It reads the ticket, chooses one-shot / standard / split, produces a plan, pauses once for approval, then executes without committing.
 
 | Command | Use when |
 |---|---|
-| `/turkit:ticket <ticket>` | Default ticket flow: plan -> approval -> execute -> handoff. |
-| `/turkit:ticket --triage <ticket>` | Classify scope and stop. |
-| `/turkit:ticket --plan <ticket>` | Write/present the plan and stop before edits. |
-| `/turkit:ticket --execute <ticket>` | Execute an already-approved `.claude/plans/<TICKET>.md`. |
-| `/turkit:ticket --grill <ticket>` | Challenge the plan before approval. |
+| `ticket <ticket>` | Default ticket flow: plan -> approval -> execute -> handoff. |
+| `ticket --triage <ticket>` | Classify scope and stop. |
+| `ticket --plan <ticket>` | Write/present the plan and stop before edits. |
+| `ticket --execute <ticket>` | Execute an already-approved `.claude/plans/<TICKET>.md`. |
+| `ticket --grill <ticket>` | Challenge the plan before approval. |
 
 `ticket-triage`, `ticket-plan`, and `ticket-execute` were folded into these flags in `turkit` v3.0.0. Same behavior, smaller public command surface.
 
 ## Skills
 
-Names below are skill names. In Claude Code, most commands use `/turkit:<skill>`. On other Agent-Skills hosts, invoke the same skill by name.
+Names below are skill names. Claude Code exposes them as slash commands; other Agent-Skills hosts invoke the same skill names directly.
 
 | Skill | What it does |
 |---|---|
@@ -85,11 +85,11 @@ Names below are skill names. In Claude Code, most commands use `/turkit:<skill>`
 These are intentionally compact and read-only. They are meant to help the operator understand and decide, not produce another long audit.
 
 ```text
-When lost          /turkit:zoom-out
-Before commit      /turkit:explain-diff
-Before ship        /turkit:teachback-gate
-Before merge       /turkit:merge-brief
-Before release     /turkit:release-brief
+When lost          zoom-out
+Before commit      explain-diff
+Before ship        teachback-gate
+Before merge       merge-brief
+Before release     release-brief
 ```
 
 ## Pair With Matt Pocock's Skills
@@ -102,7 +102,7 @@ For standalone plan grilling, TDD, debugging, domain modeling, and codebase desi
 npx skills add mattpocock/skills
 ```
 
-Use Matt's `grill-me` for a general plan/design challenge. Use `/turkit:ticket --grill` when the challenge belongs inside Turkit's ticket flow.
+Use Matt's `grill-me` for a general plan/design challenge. Use `ticket --grill` when the challenge belongs inside Turkit's ticket flow.
 
 ## Optional Project Config
 
