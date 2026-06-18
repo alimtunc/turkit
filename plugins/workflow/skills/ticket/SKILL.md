@@ -16,7 +16,7 @@ Parse flags before resolving the ticket:
 |---|---|
 | none | Default full flow: plan, pause for approval, execute, verify, handoff. |
 | `--triage` | Route only: read the ticket, classify one-shot / standard / split, print the recommended next `/ticket` command, then stop. |
-| `--grill` | Same as default, but runs `grill-me` against the plan before approval. Not default. |
+| `--grill` | Same as default, but challenges the plan before approval. Not default. |
 | `--plan` | Plan only: intake, route, reuse survey, write/present the plan, then stop before edits. |
 | `--execute` | Execute only: resolve the ticket id, read an existing `.claude/plans/<TICKET-ID>.md`, verify it still matches the code, then execute. |
 
@@ -29,7 +29,7 @@ Accept at most one phase flag among `--triage`, `--plan`, and `--execute`. If mo
 - **One internal forward chain:** intake → route → plan → execute. Flags may stop after triage or planning, or start from an existing plan, but the operator still uses `/ticket` as the main entrypoint.
 - **Never auto-invoke `/goal-review`** or any reviewer subagent. The handoff suggests `/goal-review`; the operator runs it.
 - **Never commit.**
-- **Never make `--grill` implicit.** Some operators want speed; `grill-me` is opt-in.
+- **Never make `--grill` implicit.** Some operators want speed; plan challenge is opt-in.
 
 ## Phases
 
@@ -65,7 +65,11 @@ Accept at most one phase flag among `--triage`, `--plan`, and `--execute`. If mo
 ### 3. ⏸ Plan approval — the only human checkpoint
 
 - Print the plan (the full plan, the inline mini-plan, or the split decomposition) and **stop for operator validation before any edit.** This is the cheapest moment to catch a scope misunderstanding.
-- If `--grill` was passed, invoke `grill-me` on the plan before asking for approval. If no Skill tool is available, follow `grill-me`'s `SKILL.md` directly in this session. The grill is part of the approval checkpoint, not a separate implementation step.
+- If `--grill` was passed, run the inline challenge checkpoint before asking for approval:
+  - Challenge the plan's main assumption, rejected alternative, highest-risk edge case, and verification signal.
+  - Ask at most one concrete question if the plan is ambiguous enough that approval would be unsafe.
+  - If no blocking question remains, include a compact `Challenge record` with: `Assumption`, `Rejected alternative`, `Main risk`, and `Verification`.
+  The challenge is part of the approval checkpoint, not a separate implementation step.
 - If `--plan` was passed, stop after the plan/grill checkpoint and print the next command:
   ```text
   /turkit:ticket --execute <TICKET-ID>
@@ -104,7 +108,7 @@ When the **Workflow** tool is available, encode the Phase 2 reuse survey as a Wo
 - Inlining a plan template instead of pointing at `references/plan-template.md` — the brick is the single source of truth.
 - Hardcoding a specific tracker MCP, build command, or React tool — resolve via the contracts (`issue-tracker-detection.md`, `build-tool-detection.md`) and `.turkit.yaml`.
 - Auto-invoking `/goal-review` or any reviewer subagent — review is always operator-gated.
-- Running `grill-me` by default — it is useful friction only when explicitly requested with `--grill`.
+- Running the challenge checkpoint by default — it is useful friction only when explicitly requested with `--grill`.
 - Treating `--plan` as permission to continue into edits — `--plan` always stops before implementation.
 - Bypassing a guardrail or hook by commenting it out or masking the pattern with a disable directive — fix the underlying type/logic instead.
 - Editing files under the original repo root when a worktree was bootstrapped — the diff lands on the wrong working copy and silently disappears from source control on the feature branch.

@@ -41,8 +41,8 @@ Focused modes:
 
 Understanding gates:
 
-- grill-me before coding, zoom-out when lost, explain-diff before commit,
-  teachback-gate before ship, merge-brief before merge, release-brief before release.
+- zoom-out when lost, explain-diff before commit, teachback-gate before ship,
+  merge-brief before merge, release-brief before release.
 
 Conflict helper:
 

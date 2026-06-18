@@ -49,7 +49,7 @@ Use `/turkit:ticket` by default. It reads the ticket, chooses one-shot / standar
 | `/turkit:ticket --triage <ticket>` | Classify scope and stop. |
 | `/turkit:ticket --plan <ticket>` | Write/present the plan and stop before edits. |
 | `/turkit:ticket --execute <ticket>` | Execute an already-approved `.claude/plans/<TICKET>.md`. |
-| `/turkit:ticket --grill <ticket>` | Add a `grill-me` challenge before plan approval. |
+| `/turkit:ticket --grill <ticket>` | Challenge the plan before approval. |
 
 `ticket-triage`, `ticket-plan`, and `ticket-execute` were folded into these flags in `turkit` v3.0.0. Same behavior, smaller public command surface.
 
@@ -66,7 +66,6 @@ Names below are skill names. In Claude Code, most commands use `/turkit:<skill>`
 | `pre-pr-review` | Strict full-branch review before opening or updating a PR. |
 | `react-review` | React 19+ review focused on component boundaries, hooks, JSX hygiene, types, and unnecessary effects. |
 | `resolve-conflict` | Resolves current git merge/rebase/cherry-pick conflicts without staging, continuing, committing, or pushing. |
-| `grill-me` | Challenges a ticket, plan, or design before implementation. |
 | `zoom-out` | Builds a compact map when the code area, diff, branch, or feature feels confusing. |
 | `explain-diff` | Explains staged, unstaged, or branch changes in a short operator-readable brief. |
 | `teachback-gate` | Asks the operator to explain the change back before commit, PR, push, or release. |
@@ -86,7 +85,6 @@ Names below are skill names. In Claude Code, most commands use `/turkit:<skill>`
 These are intentionally compact and read-only. They are meant to help the operator understand and decide, not produce another long audit.
 
 ```text
-Before coding      /turkit:grill-me
 When lost          /turkit:zoom-out
 Before commit      /turkit:explain-diff
 Before ship        /turkit:teachback-gate
@@ -98,11 +96,13 @@ Before release     /turkit:release-brief
 
 Turkit focuses on the delivery workflow around an AI coding agent: tickets, bounded loops, reviews, conflicts, shipping, handoffs, and compact decision gates.
 
-For engineering disciplines such as TDD, debugging, domain modeling, and codebase design, install [mattpocock/skills](https://github.com/mattpocock/skills) alongside Turkit:
+For standalone plan grilling, TDD, debugging, domain modeling, and codebase design, install [mattpocock/skills](https://github.com/mattpocock/skills) alongside Turkit:
 
 ```bash
 npx skills add mattpocock/skills
 ```
+
+Use Matt's `grill-me` for a general plan/design challenge. Use `/turkit:ticket --grill` when the challenge belongs inside Turkit's ticket flow.
 
 ## Optional Project Config
 

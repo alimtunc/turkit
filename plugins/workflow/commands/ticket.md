@@ -15,6 +15,6 @@ allowed-tools: Skill, Read, Edit, MultiEdit, Write, Glob, Grep, Task, Bash(git s
 
 Invoke the `ticket` skill with `$ARGUMENTS`.
 
-The skill is the source of truth for: parsing flags, resolving the ticket from the argument (tracker id, URL, or free-form description), classifying scope (one-shot / standard / split), stopping after `--triage` when requested, conducting the reuse survey, producing the plan, optionally running `grill-me`, stopping for plan approval, executing criterion by criterion, and emitting the handoff.
+The skill is the source of truth for: parsing flags, resolving the ticket from the argument (tracker id, URL, or free-form description), classifying scope (one-shot / standard / split), stopping after `--triage` when requested, conducting the reuse survey, producing the plan, optionally challenging the plan with `--grill`, stopping for plan approval, executing criterion by criterion, and emitting the handoff.
 
 Never commit. When the handoff is emitted, suggest `/goal-review` (run `--diff` before a commit, `--branch` before a PR) — do not auto-invoke it.
