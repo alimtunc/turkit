@@ -2,6 +2,13 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v3.4.0 — 2026-06-18
+
+### Added
+
+- `preview-test` functionally tests deployed PR previews from `.turkit.yaml → preview.url_template` or an operator-provided URL, then returns a structured PASS/FAIL verdict for review/fix loops.
+- Preview detection contract and optional `.turkit.yaml → preview` settings for URL templates, readiness hints, and vision mode.
+
 ## turkit v3.3.0 — 2026-06-18
 
 ### Added

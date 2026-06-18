@@ -1,7 +1,7 @@
 {
   "name": "turkit",
   "description": "Project-agnostic Agent-Skills workflow pack: tickets, bounded goal loops, conflict resolution, reviews, shipping, handoff, and human-in-control gates.",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "author": {
     "name": "alimtunc",
     "url": "https://github.com/alimtunc"
