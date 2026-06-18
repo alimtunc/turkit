@@ -2,6 +2,14 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v3.2.0 — 2026-06-18
+
+### Changed
+
+- README install and skill catalog now emphasize the generic `npx skills add alimtunc/turkit` path and list skills by purpose instead of internal pack names.
+- Turkit now explicitly recommends `mattpocock/skills` alongside Turkit for standalone plan grilling, TDD, debugging, domain modeling, and codebase design.
+- Removed Turkit's standalone `grill-me` skill and slash command to avoid duplicating Matt Pocock's skill. `/turkit:ticket --grill` remains available as an inline ticket-plan challenge checkpoint.
+
 ## turkit v2.0.0 — 2026-06-17
 
 ### Breaking
