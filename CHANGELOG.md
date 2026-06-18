@@ -2,6 +2,12 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v3.3.0 — 2026-06-18
+
+### Added
+
+- `clean-skill` audits installed skill folders for stale Turkit-owned skills left behind by additive updates, then deletes only confirmed stale paths.
+
 ## turkit v3.2.0 — 2026-06-18
 
 ### Changed
