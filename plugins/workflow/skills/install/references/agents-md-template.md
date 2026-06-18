@@ -49,6 +49,11 @@ Conflict helper:
 - resolve-conflict resolves current git merge/rebase/cherry-pick conflicts only.
   It never stages files, continues the operation, commits, pushes, resets, or aborts.
 
+Upgrade cleanup:
+
+- clean-skill audits installed skill folders for stale Turkit-owned skills left
+  behind by additive updates. It deletes only confirmed stale paths.
+
 Read each skill's SKILL.md under <SKILLS_PATH> for the full procedure. No Workflow
 tool? The skills degrade to parallel agents, then to sequential steps — same behavior,
 only the mechanism differs. Never commit without an explicit request.

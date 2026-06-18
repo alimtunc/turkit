@@ -66,6 +66,7 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 | `pre-pr-review` | Strict full-branch review before opening or updating a PR. |
 | `react-review` | React 19+ review focused on component boundaries, hooks, JSX hygiene, types, and unnecessary effects. |
 | `resolve-conflict` | Resolves current git merge/rebase/cherry-pick conflicts without staging, continuing, committing, or pushing. |
+| `clean-skill` | Audits and removes stale Turkit skills left behind by additive installs, after explicit confirmation. |
 | `zoom-out` | Builds a compact map when the code area, diff, branch, or feature feels confusing. |
 | `explain-diff` | Explains staged, unstaged, or branch changes in a short operator-readable brief. |
 | `teachback-gate` | Asks the operator to explain the change back before commit, PR, push, or release. |
@@ -103,6 +104,10 @@ npx skills add mattpocock/skills
 ```
 
 Use Matt's `grill-me` for a general plan/design challenge. Use `ticket --grill` when the challenge belongs inside Turkit's ticket flow.
+
+## Upgrade Cleanup
+
+Skill installers are usually additive: reinstalling Turkit updates current skills but may not remove skills that Turkit no longer ships. Run `clean-skill` when an old Turkit command still appears after an update.
 
 ## Optional Project Config
 
