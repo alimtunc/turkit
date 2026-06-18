@@ -72,7 +72,7 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 | `clean-skill` | Audits and removes stale Turkit skills left behind by additive installs, after explicit confirmation. |
 | `preview-test` | Functionally tests a deployed PR preview from config or an operator-provided URL and returns a structured verdict. |
 | `zoom-out` | Builds a compact map when the code area, diff, branch, or feature feels confusing. |
-| `explain-diff` | Explains staged, unstaged, or branch changes in a short operator-readable brief. |
+| `explain-diff` | Explains staged, unstaged, or branch changes as a compact before/after brief. |
 | `teachback-gate` | Asks the operator to explain the change back before commit, PR, push, or release. |
 | `merge-brief` | Summarizes what enters the base branch, risks, verification, rollback, and files to reread. |
 | `release-brief` | Summarizes release target, public delta, risk, verification, and rollback. |
