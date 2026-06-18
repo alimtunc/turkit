@@ -10,7 +10,7 @@ The skills use the open [Agent-Skills](https://github.com/vercel-labs/skills) `S
 npx skills add alimtunc/turkit
 ```
 
-The CLI lets you choose one or more target agents interactively. You can use the skills immediately after install. The `install` skill is optional: run it only when you want a repo diagnostic, stack-pack recommendations, or a proposed `.turkit.yaml` / `AGENTS.md` setup.
+The CLI lets you choose one or more target agents interactively. You can use the skills immediately after install. The `install` skill is optional: run it only when you want a repo diagnostic or a proposed `.turkit.yaml` / `AGENTS.md` setup.
 
 ### Claude Code Plugin Alternative
 
@@ -55,31 +55,31 @@ Use `/turkit:ticket` by default. It reads the ticket, chooses one-shot / standar
 
 ## Skills
 
-Names below are skill names. In Claude Code, use `/turkit:<skill>` for core workflow skills and `/turkit-react:react-review` for the React pack. On other Agent-Skills hosts, invoke the same skill by name.
+Names below are skill names. In Claude Code, most commands use `/turkit:<skill>`. On other Agent-Skills hosts, invoke the same skill by name.
 
-| Skill | Pack | What it does |
-|---|---|---|
-| `ticket` | `turkit` | Main ticket workflow: plan, approval, execute, and handoff; supports `--triage`, `--plan`, `--execute`, and `--grill`. |
-| `goal-loop` | `turkit` | Iterates on a bounded non-ticket objective until criteria pass, budget is exhausted, or a human decision is needed. |
-| `goal-review` | `turkit` | Review/fix loop for a diff, branch, or repo; useful when you want the agent to keep fixing until clean. |
-| `pre-commit-review` | `turkit` | Strict review of the current working-tree diff before committing. |
-| `pre-pr-review` | `turkit` | Strict full-branch review before opening or updating a PR. |
-| `react-review` | `turkit-react` | React 19+ review focused on component boundaries, hooks, JSX hygiene, types, and unnecessary effects. |
-| `resolve-conflict` | `turkit` | Resolves current git merge/rebase/cherry-pick conflicts without staging, continuing, committing, or pushing. |
-| `grill-me` | `turkit` | Challenges a ticket, plan, or design before implementation. |
-| `zoom-out` | `turkit` | Builds a compact map when the code area, diff, branch, or feature feels confusing. |
-| `explain-diff` | `turkit` | Explains staged, unstaged, or branch changes in a short operator-readable brief. |
-| `teachback-gate` | `turkit` | Asks the operator to explain the change back before commit, PR, push, or release. |
-| `merge-brief` | `turkit` | Summarizes what enters the base branch, risks, verification, rollback, and files to reread. |
-| `release-brief` | `turkit` | Summarizes release target, public delta, risk, verification, and rollback. |
-| `pr-description` | `turkit` | Writes a concise PR description from the branch diff. |
-| `test-instructions` | `turkit` | Produces a short manual-test checklist after implementation. |
-| `ship` | `turkit` | Commit, push, open a PR, and close the ticket with host fallbacks. |
-| `handoff` | `turkit` | Creates a read-only session handoff for another agent or a later session. |
-| `rules-refresh` | `turkit` | Reviews a rules document and proposes keep, sharpen, redundant, or stale updates. |
-| `install` | `turkit` | Optional setup diagnostic: recommends packs and proposes `.turkit.yaml`, `AGENTS.md`, or `GEMINI.md` changes. |
-| `turkit-init` | `turkit` | Proposes a `.turkit.yaml` from detected commands, base branch, tracker, workflow, and rules docs. |
-| `adopt-project` | `turkit` | Migrates repos that already have local Claude skills, commands, or duplicated workflow rules. |
+| Skill | What it does |
+|---|---|
+| `ticket` | Main ticket workflow: plan, approval, execute, and handoff; supports `--triage`, `--plan`, `--execute`, and `--grill`. |
+| `goal-loop` | Iterates on a bounded non-ticket objective until criteria pass, budget is exhausted, or a human decision is needed. |
+| `goal-review` | Review/fix loop for a diff, branch, or repo; useful when you want the agent to keep fixing until clean. |
+| `pre-commit-review` | Strict review of the current working-tree diff before committing. |
+| `pre-pr-review` | Strict full-branch review before opening or updating a PR. |
+| `react-review` | React 19+ review focused on component boundaries, hooks, JSX hygiene, types, and unnecessary effects. |
+| `resolve-conflict` | Resolves current git merge/rebase/cherry-pick conflicts without staging, continuing, committing, or pushing. |
+| `grill-me` | Challenges a ticket, plan, or design before implementation. |
+| `zoom-out` | Builds a compact map when the code area, diff, branch, or feature feels confusing. |
+| `explain-diff` | Explains staged, unstaged, or branch changes in a short operator-readable brief. |
+| `teachback-gate` | Asks the operator to explain the change back before commit, PR, push, or release. |
+| `merge-brief` | Summarizes what enters the base branch, risks, verification, rollback, and files to reread. |
+| `release-brief` | Summarizes release target, public delta, risk, verification, and rollback. |
+| `pr-description` | Writes a concise PR description from the branch diff. |
+| `test-instructions` | Produces a short manual-test checklist after implementation. |
+| `ship` | Commit, push, open a PR, and close the ticket with host fallbacks. |
+| `handoff` | Creates a read-only session handoff for another agent or a later session. |
+| `rules-refresh` | Reviews a rules document and proposes keep, sharpen, redundant, or stale updates. |
+| `install` | Optional setup diagnostic: proposes `.turkit.yaml`, `AGENTS.md`, or `GEMINI.md` changes. |
+| `turkit-init` | Proposes a `.turkit.yaml` from detected commands, base branch, tracker, workflow, and rules docs. |
+| `adopt-project` | Migrates repos that already have local Claude skills, commands, or duplicated workflow rules. |
 
 ## Human-Control Gates
 
