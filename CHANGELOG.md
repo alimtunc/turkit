@@ -2,6 +2,15 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v3.5.0 — 2026-06-18
+
+### Added
+
+- `ticket --fast` runs the normal ticket flow with compact operator output and a narrower reuse survey while keeping approval and verification gates.
+- `.turkit.yaml → workflow.token_budget` lets projects default workflow skills to `low`, `normal`, or `high` exploration.
+- `.turkit.yaml → output.style` lets projects choose `compact`, `standard`, or `full` operator-facing responses.
+- `commands.dev` is now part of the command-resolution contract for skills that explicitly need a live local app.
+
 ## turkit v3.4.0 — 2026-06-18
 
 ### Added
