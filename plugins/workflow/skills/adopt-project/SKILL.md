@@ -27,8 +27,8 @@ goal is to avoid two active workflow systems.
 
 Treat local skills/commands with these names as likely workflow duplicates:
 
-`install`, `turkit-init`, `ticket`, `pre-commit-review`, `pre-pr-review`,
-`pr-description`, `test-instructions`, `ship`, `handoff`, `rules-refresh`,
+`install`, `turkit-init`, `ticket`, `goal-loop`, `pre-commit-review`, `pre-pr-review`,
+`pr-description`, `test-instructions`, `ship`, `handoff`, `rules-refresh`, `resolve-conflict`,
 `grill-me`, `zoom-out`, `explain-diff`, `teachback-gate`, `merge-brief`,
 `release-brief`, `react-review`.
 

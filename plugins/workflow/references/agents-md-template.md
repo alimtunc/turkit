@@ -25,6 +25,9 @@ Single-session orchestrators:
   plan-approval pause → execute criterion by criterion → handoff. Never commits;
   suggests /goal-review, never auto-runs it. Use --triage, --plan, or --execute
   when you only want that slice; use --grill to challenge the plan before approval.
+- /goal-loop — bounded objective loop for non-ticket work, refactors, cleanup, docs,
+  or ticket follow-up. Turns the goal into criteria, edits in rounds, verifies, and
+  stops when complete, blocked, or the round budget is exhausted. Never commits.
 - /goal-review — review + fix loop (--diff / --branch / --repo). --branch loops
   review→fix until clean, then a final verification pass; --diff and --repo are
   single-pass. Never commits.
@@ -40,6 +43,11 @@ Understanding gates:
 
 - grill-me before coding, zoom-out when lost, explain-diff before commit,
   teachback-gate before ship, merge-brief before merge, release-brief before release.
+
+Conflict helper:
+
+- resolve-conflict resolves current git merge/rebase/cherry-pick conflicts only.
+  It never stages files, continues the operation, commits, pushes, resets, or aborts.
 
 Read each skill's SKILL.md under <SKILLS_PATH> for the full procedure. No Workflow
 tool? The skills degrade to parallel agents, then to sequential steps — same behavior,
