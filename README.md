@@ -35,7 +35,7 @@ flowchart LR
     E --> R["review"]
     R --> S["ship"]
 
-    T -. "focused modes" .-> F["--triage<br/>--plan<br/>--execute<br/>--grill"]
+    T -. "focused modes" .-> F["--triage<br/>--plan<br/>--execute<br/>--grill<br/>--fast"]
     E -. "non-ticket objective" .-> G["goal-loop"]
     E -. "pause/resume" .-> H["handoff"]
     S -. "understand before irreversible steps" .-> B["merge-brief<br/>release-brief"]
@@ -50,8 +50,11 @@ Use `ticket` by default. It reads the ticket, chooses one-shot / standard / spli
 | `ticket --plan <ticket>` | Write/present the plan and stop before edits. |
 | `ticket --execute <ticket>` | Execute an already-approved `.claude/plans/<TICKET>.md`. |
 | `ticket --grill <ticket>` | Challenge the plan before approval. |
+| `ticket --fast <ticket>` | Run the default ticket flow with compact output and a narrower reuse survey. |
 
 `ticket-triage`, `ticket-plan`, and `ticket-execute` were folded into these flags in `turkit` v3.0.0. Same behavior, smaller public command surface.
+
+Use `ticket --fast` for small or obvious work when you want lower token usage. It keeps plan approval and verification; it only narrows exploration and shortens the operator-facing output.
 
 ## Skills
 
@@ -59,7 +62,7 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 
 | Skill | What it does |
 |---|---|
-| `ticket` | Main ticket workflow: plan, approval, execute, and handoff; supports `--triage`, `--plan`, `--execute`, and `--grill`. |
+| `ticket` | Main ticket workflow: plan, approval, execute, and handoff; supports `--triage`, `--plan`, `--execute`, `--grill`, and `--fast`. |
 | `goal-loop` | Iterates on a bounded non-ticket objective until criteria pass, budget is exhausted, or a human decision is needed. |
 | `goal-review` | Review/fix loop for a diff, branch, or repo; useful when you want the agent to keep fixing until clean. |
 | `pre-commit-review` | Strict review of the current working-tree diff before committing. |
@@ -136,9 +139,10 @@ You do **not** need `.turkit.yaml` to try Turkit. The skills detect common packa
 
 Add `.turkit.yaml` only when you want to pin project-specific behavior:
 
-- commands such as `check`, `lint`, `test`, `build`, or `react_review`
+- commands such as `dev`, `check`, `lint`, `test`, `build`, or `react_review`
 - rule docs to load before planning/reviewing
 - branch/worktree policy
+- token budget and output style
 - PR host overrides for GitHub, GitLab, Bitbucket, Gerrit, etc.
 - deployed PR preview URL template and optional readiness/vision settings
 - review strictness knobs
@@ -147,9 +151,14 @@ Minimal example:
 
 ```yaml
 commands:
+  dev: pnpm dev
   check: pnpm typecheck
   lint: pnpm lint
   test: pnpm test
+workflow:
+  token_budget: low
+output:
+  style: compact
 base_branch: main
 rules:
   docs:

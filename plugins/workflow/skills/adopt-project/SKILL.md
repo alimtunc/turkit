@@ -67,6 +67,7 @@ of `/ticket` (`--triage`, `--plan`, `--execute`), not separate public skills.
 
    ```yaml
    commands:
+     dev: <command>
      check: <command>
      lint: <command>
      fmt: <command>
@@ -78,8 +79,11 @@ of `/ticket` (`--triage`, `--plan`, `--execute`), not separate public skills.
      workspace: feature_branch # or worktree_required
      worktree_dir: .worktrees
      branch_template: "{ticket_id_lower}-{slug}"
+     token_budget: low
      init:
        - <copy env / install deps / seed config command>
+   output:
+     style: compact
    rules:
      docs:
        - CLAUDE.md

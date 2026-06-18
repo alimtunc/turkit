@@ -1,6 +1,6 @@
 # Build Tool Detection Contract
 
-Skills that need to run project commands (`check`, `lint`, `fmt`, `test`, `build`) MUST resolve them via this order:
+Skills that need to run project commands (`dev`, `check`, `lint`, `fmt`, `test`, `build`) MUST resolve them via this order:
 
 1. **`.turkit.yaml`** at the repo root, `commands:` section — explicit user override. If present, use it verbatim for any command it defines; fall through only for commands it does not define.
 
@@ -21,12 +21,17 @@ Skills that need to run project commands (`check`, `lint`, `fmt`, `test`, `build
    - `go.mod` → `go test ./...`, `go vet ./...`, `gofmt -w .`
    - `mix.exs` → `mix <cmd>`
 
+   No ecosystem default exists for `dev`. Resolve `dev` only from `.turkit.yaml`,
+   `Justfile`, `Makefile`, or `package.json` scripts. If unresolved, ask the
+   operator once only when a skill explicitly needs a live local app.
+
 6. **Nothing resolved.** Ask the operator once: "I couldn't resolve a `<cmd>` command for this project. What should I run? (Answer gets suggested as `.turkit.yaml` entry.)"
 
 ## `.turkit.yaml` shape
 
 ```yaml
 commands:
+  dev: just dev
   check: just check
   lint: just lint
   fmt: just fmt
@@ -38,9 +43,12 @@ workflow:
   workspace: feature_branch # or worktree_required
   worktree_dir: .worktrees
   branch_template: "{ticket_id_lower}-{slug}"
+  token_budget: normal # low | normal | high
   init:
     - cp .env.example .env
     - pnpm install
+output:
+  style: compact # compact | standard | full
 rules:
   docs:
     - CLAUDE.md
@@ -73,6 +81,21 @@ Workflow-aware skills MAY read `.turkit.yaml → workflow`:
   must be copy-pasteable and repo-relative from the active working directory.
   Prefer package-manager directory flags (for example `pnpm --dir ui install`)
   over `cd ui && ...` so command allowlists can match the executable reliably.
+- `token_budget`: optional execution hint for workflow skills.
+  - `low`: avoid broad fan-out, keep operator-facing output compact, and inspect
+    only directly relevant files unless blocked.
+  - `normal` (default): use the standard workflow.
+  - `high`: allow broader exploration when the operator explicitly wants depth.
+
+## `output`
+
+Skills MAY read `.turkit.yaml → output.style` for operator-facing responses:
+
+- `compact` (default): short, scan-first output.
+- `standard`: normal detail for plans and handoffs.
+- `full`: expanded detail when the operator explicitly wants it.
+
+Output style does not weaken required verification or safety guardrails.
 
 ## `rules`
 

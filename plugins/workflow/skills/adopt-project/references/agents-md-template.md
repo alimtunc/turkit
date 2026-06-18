@@ -24,7 +24,8 @@ Single-session orchestrators:
 - /ticket — intake + route (one-shot / standard / split) → reuse-survey plan → one
   plan-approval pause → execute criterion by criterion → handoff. Never commits;
   suggests /goal-review, never auto-runs it. Use --triage, --plan, or --execute
-  when you only want that slice; use --grill to challenge the plan before approval.
+  when you only want that slice; use --grill to challenge the plan before approval;
+  use --fast for a lower-token run with compact output.
 - /goal-loop — bounded objective loop for non-ticket work, refactors, cleanup, docs,
   or ticket follow-up. Turns the goal into criteria, edits in rounds, verifies, and
   stops when complete, blocked, or the round budget is exhausted. Never commits.
@@ -37,6 +38,8 @@ Focused modes:
 - /ticket --triage — classify the ticket and stop.
 - /ticket --plan — write/present the plan and stop before edits.
 - /ticket --execute — execute an already-approved .claude/plans/<TICKET-ID>.md.
+- /ticket --fast — run the normal ticket flow with narrow reuse survey and compact
+  output. Safety gates still apply.
 - Reviews: pre-commit-review (working tree) / pre-pr-review (committed branch).
 
 Understanding gates:

@@ -32,7 +32,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
 
 3. **Set up project config.**
    - If `.turkit.yaml` is missing, follow [`turkit-init/SKILL.md`](../turkit-init/SKILL.md) as the source of truth to propose one.
-   - If `.turkit.yaml` exists, read it and report whether required commands appear covered (`check`, `lint`, `fmt`, `test`, `build`, `base_branch`). For React projects, also report whether `commands.react_review` is configured or whether the React review will use its fallback.
+   - If `.turkit.yaml` exists, read it and report whether required commands appear covered (`check`, `lint`, `fmt`, `test`, `build`, `base_branch`) and whether optional `commands.dev`, `workflow.token_budget`, and `output.style` are configured. For React projects, also report whether `commands.react_review` is configured or whether the React review will use its fallback.
    - Never overwrite or edit `.turkit.yaml` without showing the proposed content or diff and getting explicit confirmation.
 
 4. **Generate `AGENTS.md` + `GEMINI.md` (multi-LLM entry points).** Give non-Claude agents (Codex, Gemini, …) a thin pointer at the turkit workflow without restating project rules. Use [`references/agents-md-template.md`](references/agents-md-template.md) as the source of truth for the body and merge rules.
@@ -50,7 +50,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
    - Recommended plugin install commands.
    - `.turkit.yaml` status: created / update proposed / already OK / skipped.
    - `AGENTS.md` / `GEMINI.md` status: created / section appended / already OK / skipped.
-   - Available skills now reachable: `/ticket` (with `--triage`, `--plan`, `--execute`, `--grill`), `/goal-loop`, `/goal-review`, plus `pre-commit-review` / `pre-pr-review`.
+   - Available skills now reachable: `/ticket` (with `--triage`, `--plan`, `--execute`, `--grill`, `--fast`), `/goal-loop`, `/goal-review`, plus `pre-commit-review` / `pre-pr-review`.
    - Conflict helper now reachable: `/turkit:resolve-conflict`.
    - Preview helper now reachable: `/turkit:preview-test`.
    - Upgrade cleanup now reachable: `/turkit:clean-skill`.

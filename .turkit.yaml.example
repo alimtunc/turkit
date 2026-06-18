@@ -2,6 +2,8 @@
 # All fields optional. Run /turkit:turkit-init to auto-generate one tailored to your project.
 
 commands:
+  # Optional local dev server command, used only by skills that need a live app.
+  dev: pnpm dev
   check: pnpm typecheck
   lint: pnpm lint
   fmt: pnpm format
@@ -19,8 +21,13 @@ workflow:
   workspace: feature_branch # or worktree_required
   worktree_dir: .worktrees
   branch_template: "{ticket_id_lower}-{slug}"
+  token_budget: low # low | normal | high
   init:
     - pnpm install
+
+# Optional operator-facing output style. Use compact to keep agent replies short.
+output:
+  style: compact # compact | standard | full
 
 # Optional project rule sources loaded by planning/execution/review skills.
 rules:

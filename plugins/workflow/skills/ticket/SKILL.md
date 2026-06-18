@@ -1,6 +1,6 @@
 ---
 name: ticket
-description: Use when the operator explicitly invokes `/ticket` to run or inspect a ticket workflow. Supports `--triage`, `--plan`, `--execute`, and optional `--grill`. Do not self-trigger on a bare ticket id, tracker link, pasted issue, or implementation request. Never commits.
+description: Use when the operator explicitly invokes `/ticket` to run or inspect a ticket workflow. Supports `--triage`, `--plan`, `--execute`, optional `--grill`, and low-token `--fast`. Do not self-trigger on a bare ticket id, tracker link, pasted issue, or implementation request. Never commits.
 allowed-tools: Skill, Bash(git status:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git checkout:*), Bash(git switch:*), Bash(git worktree:*), Bash(git diff:*), Bash(git ls-files:*), Bash(pwd:*), Bash(cp:*), Bash(mkdir:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(just:*), Bash(make:*), Bash(cargo:*), Bash(poetry:*), Bash(uv:*), Bash(go:*), Bash(mix:*), Bash(npx:*), Read, Grep, Glob, Edit, MultiEdit, Write, Task
 ---
 
@@ -17,10 +17,11 @@ Parse flags before resolving the ticket:
 | none | Default full flow: plan, pause for approval, execute, verify, handoff. |
 | `--triage` | Route only: read the ticket, classify one-shot / standard / split, print the recommended next `/ticket` command, then stop. |
 | `--grill` | Same as default, but challenges the plan before approval. Not default. |
+| `--fast` | Low-token run: compact output, no Workflow/Task fan-out, narrow reuse survey, same safety gates. |
 | `--plan` | Plan only: intake, route, reuse survey, write/present the plan, then stop before edits. |
 | `--execute` | Execute only: resolve the ticket id, read an existing `.claude/plans/<TICKET-ID>.md`, verify it still matches the code, then execute. |
 
-Accept at most one phase flag among `--triage`, `--plan`, and `--execute`. If more than one is passed, stop and ask the operator to choose one. `--grill` may combine with the default flow or `--plan`; ignore it with `--triage` and `--execute` after saying why.
+Accept at most one phase flag among `--triage`, `--plan`, and `--execute`. If more than one is passed, stop and ask the operator to choose one. `--grill` may combine with the default flow or `--plan`; ignore it with `--triage` and `--execute` after saying why. `--fast` may combine with the default flow, `--plan`, or `--execute`; ignore it with `--triage` after saying triage is already compact.
 
 ## Invocation boundary
 
@@ -30,6 +31,16 @@ Accept at most one phase flag among `--triage`, `--plan`, and `--execute`. If mo
 - **Never auto-invoke `/goal-review`** or any reviewer subagent. The handoff suggests `/goal-review`; the operator runs it.
 - **Never commit.**
 - **Never make `--grill` implicit.** Some operators want speed; plan challenge is opt-in.
+- **Fast is not unsafe.** `--fast` reduces exploration and wording, but it never skips required approval, implementation criteria, or verification.
+
+## Config
+
+Read `.turkit.yaml` when present, but tolerate a missing file.
+
+- `.turkit.yaml → workflow.token_budget`: `low`, `normal`, or `high`. Default `normal`.
+- `.turkit.yaml → output.style`: `compact`, `standard`, or `full`. Default `compact`.
+- `--fast` overrides `workflow.token_budget` to `low` for this run.
+- For invalid values, fall back to the default and mention the ignored value once.
 
 ## Phases
 
@@ -57,6 +68,8 @@ Accept at most one phase flag among `--triage`, `--plan`, and `--execute`. If mo
 
 - **Load project rules** before planning. Read `.turkit.yaml → rules.docs`; if absent, fall back to `CLAUDE.md` / `AGENTS.md` / `docs/conventions/*.md`. These set ownership, boundaries, and conventions the plan's quality contract must encode.
 - **Reuse survey.** Fan out (degradable — see `## Orchestration & platform`) over the workspace to find reusable modules / components / helpers / schemas **before inventing new ones**. Cross-check the relevant contract or boundary if the ticket touches an API or shared surface. Synthesize the findings into the plan's `Reuse` / `Quality contract` sections.
+  - If `workflow.token_budget` is `low`, do not fan out. Read only the ticket, configured rules docs, directly referenced files, and one targeted search over likely reusable names. Record `Reuse survey limited by token budget` in the plan if that materially narrows confidence.
+  - If `workflow.token_budget` is `high`, broaden the reuse survey only when the ticket touches shared behavior, cross-module contracts, or unclear architecture. Do not spend extra budget on obvious one-shot edits.
 - Produce the plan from `references/plan-template.md` — do not inline a template, point to the matching section:
     - **standard** → write `.claude/plans/<TICKET-ID>.md` using the **Full plan** section.
     - **one-shot** → keep an inline mini-plan using the **One-shot mini-plan** section; no plan file.
@@ -64,7 +77,7 @@ Accept at most one phase flag among `--triage`, `--plan`, and `--execute`. If mo
 
 ### 3. ⏸ Plan approval — the only human checkpoint
 
-- Print the plan (the full plan, the inline mini-plan, or the split decomposition) and **stop for operator validation before any edit.** This is the cheapest moment to catch a scope misunderstanding.
+- Print the plan (the full plan, the inline mini-plan, or the split decomposition) and **stop for operator validation before any edit.** This is the cheapest moment to catch a scope misunderstanding. If `output.style` is `compact`, print a scan-first plan summary plus the plan path when one exists; do not paste long plan bodies unless the operator asks.
 - If `--grill` was passed, run the inline challenge checkpoint before asking for approval:
   - Challenge the plan's main assumption, rejected alternative, highest-risk edge case, and verification signal.
   - Ask at most one concrete question if the plan is ambiguous enough that approval would be unsafe.
@@ -92,11 +105,11 @@ Accept at most one phase flag among `--triage`, `--plan`, and `--execute`. If mo
 
 - **Self-check the diff** against the plan's quality contract: every acceptance criterion maps to a concrete change, no scope creep, no half-implementation. Quick pass on touched files for reuse (no duplicated helper/component/schema), ownership (helpers/types/constants in the planned module, not opportunistically inside entry points or render files), boundaries (no new cross-layer import or hidden public surface), and comment hygiene.
 - **Run the project gate** from the active working-tree root (the worktree root if one was bootstrapped). Resolve `check` / `lint` / `fmt` per `references/build-tool-detection.md`. Run a **React gate only when** React files were changed **and** a gate is configured — `.turkit.yaml → commands.react_review`, or the `turkit-react` pack when installed. Never hardcode a specific React tool; if no gate is configured, skip it. Fix root causes or report them; do not bypass a guardrail to make a check pass.
-- **Emit the handoff** from `references/handoff-format.md` — fill every field. It **suggests** `/goal-review` (`--diff` before commit, `--branch` before PR) and the commit, prefixed "do NOT run these yourself", and never runs them.
+- **Emit the handoff** from `references/handoff-format.md` — fill every field. It **suggests** `/goal-review` (`--diff` before commit, `--branch` before PR) and the commit, prefixed "do NOT run these yourself", and never runs them. If `output.style` is `compact`, keep each filled field to the shortest accurate form; do not add narrative after the handoff.
 
 ## Orchestration & platform
 
-When the **Workflow** tool is available, encode the Phase 2 reuse survey as a Workflow `pipeline` / `parallel`: fan out one reader per shared package (or workspace area) plus the target feature, then synthesize their findings into the plan's `Reuse` / `Quality contract`. When the Workflow tool is not available but subagents are, run the same fan-out as parallel `Agent` / `Task` calls in a single message. When neither is available, run the reads sequentially in this session. The behavior is identical; only the mechanism differs — never require a remote orchestrator or any platform-only capability for correctness; it only makes the same survey faster.
+When the **Workflow** tool is available and `workflow.token_budget` is not `low`, encode the Phase 2 reuse survey as a Workflow `pipeline` / `parallel`: fan out one reader per shared package (or workspace area) plus the target feature, then synthesize their findings into the plan's `Reuse` / `Quality contract`. When the Workflow tool is not available but subagents are and `workflow.token_budget` is not `low`, run the same fan-out as parallel `Agent` / `Task` calls in a single message. When neither is available, or when token budget is `low`, run the reads sequentially in this session. The behavior is identical; only the mechanism differs — never require a remote orchestrator or any platform-only capability for correctness; it only makes the same survey faster.
 
 **Execution (Phase 4) is never parallelized.** Implementation files are interdependent; they are written sequentially in the main session regardless of which orchestration tier is available.
 
@@ -109,6 +122,7 @@ When the **Workflow** tool is available, encode the Phase 2 reuse survey as a Wo
 - Hardcoding a specific tracker MCP, build command, or React tool — resolve via the contracts (`issue-tracker-detection.md`, `build-tool-detection.md`) and `.turkit.yaml`.
 - Auto-invoking `/goal-review` or any reviewer subagent — review is always operator-gated.
 - Running the challenge checkpoint by default — it is useful friction only when explicitly requested with `--grill`.
+- Treating `--fast` or `workflow.token_budget: low` as permission to skip safety checks, approval, or verification — token budget changes breadth and verbosity, not correctness.
 - Treating `--plan` as permission to continue into edits — `--plan` always stops before implementation.
 - Bypassing a guardrail or hook by commenting it out or masking the pattern with a disable directive — fix the underlying type/logic instead.
 - Editing files under the original repo root when a worktree was bootstrapped — the diff lands on the wrong working copy and silently disappears from source control on the feature branch.
