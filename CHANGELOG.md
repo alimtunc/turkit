@@ -2,6 +2,13 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v3.5.1 — 2026-06-18
+
+### Changed
+
+- `explain-diff` now emits a compact before/after brief with explicit constraint, impact, scope, risk, verification, and reread fields.
+- `explain-diff` now forbids diagrams, long prose, file-by-file walkthroughs, and invented intent.
+
 ## turkit v3.5.0 — 2026-06-18
 
 ### Added
