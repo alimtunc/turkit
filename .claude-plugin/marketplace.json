@@ -5,13 +5,13 @@
     "email": "alim.tunc@outlook.fr"
   },
   "metadata": {
-    "description": "Project-agnostic agent workflow skills for tickets, reviews, shipping, handoffs, and human understanding gates.",
-    "version": "3.0.0"
+    "description": "Project-agnostic agent workflow skills for tickets, goal loops, reviews, conflict resolution, shipping, and handoffs.",
+    "version": "3.1.0"
   },
   "plugins": [
     {
       "name": "turkit",
-      "description": "Core workflow skills: one-command tickets, reviews, ship, handoff, rules maintenance, and human understanding gates.",
+      "description": "Core workflow skills: tickets, bounded goal loops, conflict resolution, reviews, ship, handoff, rules maintenance, and human understanding gates.",
       "source": "./plugins/workflow",
       "strict": false
     },

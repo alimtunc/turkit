@@ -1,7 +1,7 @@
 {
   "name": "turkit",
-  "description": "Project-agnostic Agent-Skills workflow pack: one-command tickets, reviews, shipping, handoff, release understanding, and human-in-control gates.",
-  "version": "3.0.0",
+  "description": "Project-agnostic Agent-Skills workflow pack: tickets, bounded goal loops, conflict resolution, reviews, shipping, handoff, and human-in-control gates.",
+  "version": "3.1.0",
   "author": {
     "name": "alimtunc",
     "url": "https://github.com/alimtunc"
@@ -16,6 +16,8 @@
     "agent-skills",
     "ai-workflow",
     "human-in-the-loop",
+    "goal-loop",
+    "conflicts",
     "tickets",
     "code-review",
     "pr",

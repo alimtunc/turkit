@@ -36,6 +36,7 @@ flowchart LR
     R --> S["ship"]
 
     T -. "focused modes" .-> F["--triage<br/>--plan<br/>--execute<br/>--grill"]
+    E -. "non-ticket objective" .-> G["goal-loop"]
     E -. "pause/resume" .-> H["handoff"]
     S -. "understand before irreversible steps" .-> B["merge-brief<br/>release-brief"]
 ```
@@ -59,10 +60,12 @@ Names below are skill names. In Claude Code, use `/turkit:<skill>` for core work
 | Skill | Pack | What it does |
 |---|---|---|
 | `ticket` | `turkit` | Main ticket workflow: plan, approval, execute, and handoff; supports `--triage`, `--plan`, `--execute`, and `--grill`. |
+| `goal-loop` | `turkit` | Iterates on a bounded non-ticket objective until criteria pass, budget is exhausted, or a human decision is needed. |
 | `goal-review` | `turkit` | Review/fix loop for a diff, branch, or repo; useful when you want the agent to keep fixing until clean. |
 | `pre-commit-review` | `turkit` | Strict review of the current working-tree diff before committing. |
 | `pre-pr-review` | `turkit` | Strict full-branch review before opening or updating a PR. |
 | `react-review` | `turkit-react` | React 19+ review focused on component boundaries, hooks, JSX hygiene, types, and unnecessary effects. |
+| `resolve-conflict` | `turkit` | Resolves current git merge/rebase/cherry-pick conflicts without staging, continuing, committing, or pushing. |
 | `grill-me` | `turkit` | Challenges a ticket, plan, or design before implementation. |
 | `zoom-out` | `turkit` | Builds a compact map when the code area, diff, branch, or feature feels confusing. |
 | `explain-diff` | `turkit` | Explains staged, unstaged, or branch changes in a short operator-readable brief. |
@@ -125,6 +128,7 @@ Run `install` for guided setup, or `turkit-init` when you only want a proposed `
 - **Issue trackers are optional.** Turkit resolves tickets from MCP tracker tools when available, then branch names, then operator-provided descriptions. No tracker is a supported mode.
 - **PR hosts are optional.** `ship` resolves PR creation through `.turkit.yaml`, then `gh`, then `glab`, then prints a manual fallback.
 - **Parallel orchestration is optional.** When a host has Workflow/Task/Agent tools, Turkit uses them for faster surveys and reviews. Without them, skills run the same steps sequentially.
+- **Goal loops are bounded.** `goal-loop` defaults to a small round budget and stops on ambiguity, repeated verification failure, or scope expansion.
 - **References are self-contained.** Shared rubrics and detection contracts are vendored into each skill so per-skill installs work outside this repo.
 
 ## Maintainers
