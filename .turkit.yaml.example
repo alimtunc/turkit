@@ -37,6 +37,15 @@ vcs:
   pr_create: gh pr create --title "$TITLE" --body-file "$BODY_FILE"
   pr_view: gh pr view "$PR_NUMBER"
 
+# Optional deployed preview configuration used by preview-test.
+preview:
+  # URL template for PR previews. {pr_number} is substituted after PR detection.
+  url_template: "pr-{pr_number}.beta.example.com"
+  # Optional selector or text that indicates the preview is ready.
+  wait_for: ""
+  # Visual analysis mode for screenshots: auto | claude | gemini | off.
+  vision: auto
+
 # Optional review strictness knobs read by the review skills/rubrics. Defaults shown.
 review:
   strictness: standard # relaxed | standard | strict

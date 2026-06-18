@@ -67,6 +67,7 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 | `react-review` | React 19+ review focused on component boundaries, hooks, JSX hygiene, types, and unnecessary effects. |
 | `resolve-conflict` | Resolves current git merge/rebase/cherry-pick conflicts without staging, continuing, committing, or pushing. |
 | `clean-skill` | Audits and removes stale Turkit skills left behind by additive installs, after explicit confirmation. |
+| `preview-test` | Functionally tests a deployed PR preview from config or an operator-provided URL and returns a structured verdict. |
 | `zoom-out` | Builds a compact map when the code area, diff, branch, or feature feels confusing. |
 | `explain-diff` | Explains staged, unstaged, or branch changes in a short operator-readable brief. |
 | `teachback-gate` | Asks the operator to explain the change back before commit, PR, push, or release. |
@@ -80,6 +81,26 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 | `install` | Optional setup diagnostic: proposes `.turkit.yaml`, `AGENTS.md`, or `GEMINI.md` changes. |
 | `turkit-init` | Proposes a `.turkit.yaml` from detected commands, base branch, tracker, workflow, and rules docs. |
 | `adopt-project` | Migrates repos that already have local Claude skills, commands, or duplicated workflow rules. |
+
+## Preview Testing
+
+Use `preview-test` when a PR has a deployed preview and you want the agent to test the live user flow before merge or release. Turkit never assumes your preview host. Either pass a URL directly, or configure a template:
+
+```yaml
+preview:
+  url_template: "pr-{pr_number}.beta.example.com"
+  wait_for: ""
+  vision: auto
+```
+
+`{pr_number}` is resolved from the active PR context when possible, then substituted into the URL. If no template or URL is available, `preview-test` asks for one instead of guessing. It ends with a machine-readable verdict for review/fix loops:
+
+```json
+{
+  "status": "PASS",
+  "findings": []
+}
+```
 
 ## Human-Control Gates
 
@@ -119,6 +140,7 @@ Add `.turkit.yaml` only when you want to pin project-specific behavior:
 - rule docs to load before planning/reviewing
 - branch/worktree policy
 - PR host overrides for GitHub, GitLab, Bitbucket, Gerrit, etc.
+- deployed PR preview URL template and optional readiness/vision settings
 - review strictness knobs
 
 Minimal example:
@@ -142,6 +164,7 @@ Run `install` for guided setup, or `turkit-init` when you only want a proposed `
 
 - **Issue trackers are optional.** Turkit resolves tickets from MCP tracker tools when available, then branch names, then operator-provided descriptions. No tracker is a supported mode.
 - **PR hosts are optional.** `ship` resolves PR creation through `.turkit.yaml`, then `gh`, then `glab`, then prints a manual fallback.
+- **Preview hosts are optional.** `preview-test` reads `.turkit.yaml → preview.url_template`; without it, it asks for a URL or returns a structured finding.
 - **Parallel orchestration is optional.** When a host has Workflow/Task/Agent tools, Turkit uses them for faster surveys and reviews. Without them, skills run the same steps sequentially.
 - **Goal loops are bounded.** `goal-loop` defaults to a small round budget and stops on ambiguity, repeated verification failure, or scope expansion.
 - **References are self-contained.** Shared rubrics and detection contracts are vendored into each skill so per-skill installs work outside this repo.

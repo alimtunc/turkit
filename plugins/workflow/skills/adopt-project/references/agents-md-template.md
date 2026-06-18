@@ -49,6 +49,11 @@ Conflict helper:
 - resolve-conflict resolves current git merge/rebase/cherry-pick conflicts only.
   It never stages files, continues the operation, commits, pushes, resets, or aborts.
 
+Preview helper:
+
+- preview-test tests deployed PR previews from `.turkit.yaml → preview.url_template`
+  or an operator-provided URL, with no hardcoded preview host.
+
 Upgrade cleanup:
 
 - clean-skill audits installed skill folders for stale Turkit-owned skills left
