@@ -2,6 +2,13 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v3.6.0 — 2026-06-19
+
+### Added
+
+- `work-brief` summarizes what an AI work session produced, why it matters, the key pieces, linked files, quality evidence, and current git/ticket/PR state.
+- Generated `AGENTS.md` / `GEMINI.md` guidance and setup/adoption flows now include `work-brief` as an understanding gate after AI work.
+
 ## turkit v3.5.1 — 2026-06-18
 
 ### Changed
