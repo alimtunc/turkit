@@ -14,7 +14,7 @@ goal is to avoid two active workflow systems.
 ## Policy
 
 - Turkit owns generic workflow: ticket triage/plan/execute via `/ticket` flags, review, PR
-  description, test instructions, ship, handoff, rules refresh.
+  description, test instructions, ship, handoff, rules refresh, and understanding gates.
 - The project owns project knowledge: architecture, commands, branch naming,
   worktree policy, setup steps, stack conventions, business rules.
 - Prefer not to keep a local skill active when a Turkit skill now owns the same
@@ -29,8 +29,8 @@ Treat local skills/commands with these names as likely workflow duplicates:
 
 `install`, `turkit-init`, `ticket`, `goal-loop`, `pre-commit-review`, `pre-pr-review`,
 `pr-description`, `test-instructions`, `ship`, `handoff`, `rules-refresh`, `resolve-conflict`,
-`clean-skill`, `preview-test`, `zoom-out`, `explain-diff`, `teachback-gate`, `merge-brief`,
-`release-brief`, `react-review`.
+`clean-skill`, `preview-test`, `zoom-out`, `work-brief`, `explain-diff`, `teachback-gate`,
+`merge-brief`, `release-brief`, `react-review`.
 
 Also treat these legacy Turkit v1/v2 names as workflow duplicates if they exist
 locally: `ticket-triage`, `ticket-plan`, `ticket-execute`. They are now modes

@@ -73,6 +73,7 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 | `preview-test` | Functionally tests a deployed PR preview from config or an operator-provided URL and returns a structured verdict. |
 | `zoom-out` | Builds a compact map when the code area, diff, branch, or feature feels confusing. |
 | `explain-diff` | Explains staged, unstaged, or branch changes as a compact before/after brief. |
+| `work-brief` | Summarizes what was done, why, key pieces, quality, and current state after an AI work session. |
 | `teachback-gate` | Asks the operator to explain the change back before commit, PR, push, or release. |
 | `merge-brief` | Summarizes what enters the base branch, risks, verification, rollback, and files to reread. |
 | `release-brief` | Summarizes release target, public delta, risk, verification, and rollback. |
@@ -111,6 +112,7 @@ These are intentionally compact and read-only. They are meant to help the operat
 
 ```text
 When lost          zoom-out
+After AI work      work-brief
 Before commit      explain-diff
 Before ship        teachback-gate
 Before merge       merge-brief

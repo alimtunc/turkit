@@ -54,7 +54,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
    - Conflict helper now reachable: `/turkit:resolve-conflict`.
    - Preview helper now reachable: `/turkit:preview-test`.
    - Upgrade cleanup now reachable: `/turkit:clean-skill`.
-   - Understanding gates now reachable: `/turkit:explain-diff`, `/turkit:teachback-gate`, `/turkit:merge-brief`, `/turkit:release-brief`.
+   - Understanding gates now reachable: `/turkit:zoom-out`, `/turkit:work-brief`, `/turkit:explain-diff`, `/turkit:teachback-gate`, `/turkit:merge-brief`, `/turkit:release-brief`.
    - Suggested first quality command: `/turkit:pre-commit-review`, plus `/turkit-react:react-review` when React is detected.
    - If local Claude assets were detected, suggested migration command:
      `/turkit:adopt-project`.
