@@ -29,7 +29,7 @@ Parse these optional flags:
 | `--flow <name>` | Map one user/system workflow as a trace. |
 | `--entry <symbol|file|command>` | Start the feature path from this entry point. |
 | `--packages` | Emphasize package-to-package arrows and call order. |
-| `--db`, `--database` | Emphasize database entities, relationships, and feature-touched tables. |
+| `--db`, `--database` | Emphasize database entities, relationships, and feature-touched tables in a visual ERD canvas. |
 | `--diff` | Map the current branch/diff. |
 | `--output <path>` | Write to this HTML path. |
 | `--update <path>` | Update an existing visual-map HTML page. |
@@ -98,12 +98,15 @@ The HTML page must include these sections, in this order:
 4. **Database Map**
    - Include this section when `--db`/`--database` is passed or when database schemas, models, migrations, or DB access modules are discoverable.
    - If no database source is found, keep the section short and say what was checked.
-   - Show entities/tables grouped by domain/category, not as one flat dump.
-   - Show relationships with visible connectors and cardinality (`1-1`, `1-N`, `N-N`) only when the schema or code proves them.
+   - The primary view must be a database-designer canvas: light dotted/grid background, table cards placed on the canvas, connector lines between related tables, a compact legend, and an optional mini-map/overview when there are many tables.
+   - Each table card should look like a schema object: table name header, rows for key columns, small badges/icons/text for primary key, foreign key, unique, nullable/non-nullable, and the column type.
+   - Show relationships as visible SVG/CSS connectors anchored near the related table cards. Use solid lines for proven foreign keys and dashed lines for inferred or usage-based links.
+   - Label relation connectors with the foreign key or operation name when readable, and show cardinality (`1-1`, `1-N`, `N-N`) only when the schema or code proves it.
+   - Group entities/tables by domain/category or schema using visual lanes, section labels, or color accents; do not render them as one flat text dump.
    - Mark naming-based or usage-based relationships as `inferred`; do not invent foreign keys or cardinality.
    - Each entity/table box should include: role, primary key, foreign keys, and only the few domain fields needed to understand the area.
    - For feature/flow/diff scopes, highlight the tables/entities touched by the path and label the operation: `reads`, `writes`, `creates`, `updates`, `deletes`, or `subscribes`.
-   - When useful, include a copyable Mermaid `erDiagram` block as a secondary export, backed by the same proven relationships shown visually.
+   - When useful, include a copyable Mermaid `erDiagram` block as a secondary export after the visual canvas, backed by the same proven relationships shown visually.
 
 5. **Directional Feature Path**
    - Show the path as a left-to-right or top-to-bottom directed line: entry -> function/route -> service/module -> state/event/API -> output.
@@ -132,8 +135,9 @@ The HTML page must include these sections, in this order:
 
 - Make the page useful at 1200px desktop and readable on mobile.
 - Use boxes inside boxes for hierarchy; do not reduce the page to separate cards.
-- Use a treemap-like area for topology, a package arrow map for package relations, a database relationship map when relevant, and a separate directed path for the feature/workflow.
+- Use a treemap-like area for topology, a package arrow map for package relations, a database-designer ERD canvas when relevant, and a separate directed path for the feature/workflow.
 - A small inline SVG is allowed for arrows/edges when it makes the path clearer; keep the boxes themselves as semantic HTML.
+- For database maps, prefer positioned HTML table cards plus inline SVG connectors over text-only Mermaid. The reader should understand table relationships visually before reading prose.
 - Keep paragraphs short. Prefer labels + one-line explanations.
 - Use file paths in `code` tags and links where possible.
 - Keep technical terms in English when `technical_terms: keep-english`.
@@ -149,6 +153,7 @@ The HTML page must include these sections, in this order:
 - Do not include database credentials, connection strings, seed PII, or sample production values.
 - Do not claim runtime behavior that was not visible in code/docs/diff; mark uncertain items as inferred.
 - Do not dump every column. Show only keys and fields that explain the relationship or feature.
+- Do not make the database view a paragraph, plain list, or Mermaid-only block. It must have visible table boxes and relationship lines when at least two related tables are known.
 - Do not list every file. A visual map is an onboarding artifact, not a code index.
 - Do not draw every import. Draw the requested feature path plus the relevant fan-out/fan-in that explains it.
 - Do not leave package relations as vague prose. Important package links must appear as visible arrows with labels.
