@@ -2,6 +2,24 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v3.8.0 — 2026-06-20
+
+### Added
+
+- Global Turkit preferences via `~/.config/turkit/config.yaml`, with `~/.turkit.yaml` as a legacy fallback.
+- Repo `.turkit.yaml` now overrides global preferences per key for supported personal settings.
+
+### Changed
+
+- Output preferences and `workflow.token_budget` can be inherited globally, while project-specific settings remain repo-local.
+- `install` and `turkit-init` now report inherited global preferences instead of copying them into every repo config.
+
+## turkit-react v0.4.0 — 2026-06-20
+
+### Changed
+
+- `react-review` inherits global output preferences through the shared output-preferences contract.
+
 ## turkit v3.7.0 — 2026-06-20
 
 ### Added

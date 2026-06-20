@@ -1,7 +1,7 @@
 {
   "name": "turkit-react",
   "description": "Opinionated React review skill — modern React 19+, component boundaries, conditional rendering, hooks hygiene. Language-agnostic in its output, strict in its rules.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": {
     "name": "alimtunc",
     "url": "https://github.com/alimtunc"
