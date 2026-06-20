@@ -13,9 +13,10 @@ Compress the diff into a short before/after brief the operator can understand be
 
 1. Inspect `git status --short`, staged diff, unstaged diff, and untracked files.
 2. If no local diff exists, compare the current branch to the resolved base branch.
-3. Read only the files needed to understand before/after behavior, intent, risk, and verification.
-4. Favor behavior and ownership over file lists.
-5. If the diff is too broad to explain safely in 12 lines, summarize the main slice and say what must be inspected next.
+3. Read `references/output-preferences.md` and apply the configured output language/style.
+4. Read only the files needed to understand before/after behavior, intent, risk, and verification.
+5. Favor behavior and ownership over file lists.
+6. If the diff is too broad to explain safely in 12 lines, summarize the main slice and say what must be inspected next.
 
 ## Output
 
@@ -39,6 +40,8 @@ Then ask exactly one question:
 ```text
 Does this match what you intended to commit?
 ```
+
+Translate labels and the final question naturally according to `references/output-preferences.md`.
 
 ## Guardrails
 

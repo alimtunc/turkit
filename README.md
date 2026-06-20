@@ -71,7 +71,7 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 | `resolve-conflict` | Resolves current git merge/rebase/cherry-pick conflicts without staging, continuing, committing, or pushing. |
 | `clean-skill` | Audits and removes stale Turkit skills left behind by additive installs, after explicit confirmation. |
 | `preview-test` | Functionally tests a deployed PR preview from config or an operator-provided URL and returns a structured verdict. |
-| `zoom-out` | Builds a compact map when the code area, diff, branch, or feature feels confusing. |
+| `zoom-out` | Explains a confusing function, file, config, diff, branch, or feature in a short why/how/risk format. |
 | `explain-diff` | Explains staged, unstaged, or branch changes as a compact before/after brief. |
 | `work-brief` | Summarizes what was done, why, key pieces, quality, and current state after an AI work session. |
 | `teachback-gate` | Asks the operator to explain the change back before commit, PR, push, or release. |
@@ -144,7 +144,7 @@ Add `.turkit.yaml` only when you want to pin project-specific behavior:
 - commands such as `dev`, `check`, `lint`, `test`, `build`, or `react_review`
 - rule docs to load before planning/reviewing
 - branch/worktree policy
-- token budget and output style
+- token budget, output style, preferred language, and technical-term policy
 - PR host overrides for GitHub, GitLab, Bitbucket, Gerrit, etc.
 - deployed PR preview URL template and optional readiness/vision settings
 - review strictness knobs
@@ -161,6 +161,8 @@ workflow:
   token_budget: low
 output:
   style: compact
+  language: auto # set fr or en to force a language
+  technical_terms: keep-english
 base_branch: main
 rules:
   docs:

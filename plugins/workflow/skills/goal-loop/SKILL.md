@@ -94,4 +94,4 @@ Remaining:
 - Never hide skipped verification or coverage caps.
 - Never keep looping after a repeated failure with no new evidence.
 - Never stage, commit, push, amend, rebase, reset, or rewrite history.
-- Respond in the conversation's language by default.
+- Apply `references/output-preferences.md` for operator-facing language/style.

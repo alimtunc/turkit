@@ -38,7 +38,7 @@ Accept at most one phase flag among `--triage`, `--plan`, and `--execute`. If mo
 Read `.turkit.yaml` when present, but tolerate a missing file.
 
 - `.turkit.yaml → workflow.token_budget`: `low`, `normal`, or `high`. Default `normal`.
-- `.turkit.yaml → output.style`: `compact`, `standard`, or `full`. Default `compact`.
+- `.turkit.yaml → output`: resolve operator-facing style/language via `references/output-preferences.md`.
 - `--fast` overrides `workflow.token_budget` to `low` for this run.
 - For invalid values, fall back to the default and mention the ignored value once.
 
@@ -128,4 +128,4 @@ When the **Workflow** tool is available and `workflow.token_budget` is not `low`
 - Editing files under the original repo root when a worktree was bootstrapped — the diff lands on the wrong working copy and silently disappears from source control on the feature branch.
 - Committing inside this skill — commits are operator-gated.
 
-Respond in the conversation's language by default.
+Apply `references/output-preferences.md` for operator-facing language/style.

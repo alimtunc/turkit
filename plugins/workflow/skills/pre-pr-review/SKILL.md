@@ -113,4 +113,4 @@ Walk the branch-level checklist and use the branch output sections in [`referenc
 - Never stage, commit, amend, rebase, reset, push, force-push, or rewrite history.
 - Never edit outside branch diff scope unless an in-scope auto-fix requires a sibling/shared file.
 - Branch history changes are recommendations only.
-- Respond in the conversation's language by default.
+- Apply `references/output-preferences.md` for operator-facing language/style.

@@ -13,8 +13,9 @@ Explain what becomes public before a release is published.
 
 1. Inspect working tree cleanliness, current branch, recent commits, latest tags, changelog, manifest versions, and release docs/scripts when present.
 2. Identify the release target: plugin/package/app/tag. If unclear, say so.
-3. Summarize only the public delta since the last relevant tag or release commit.
-4. Do not tag, publish, push, or create a release.
+3. Read `references/output-preferences.md` and apply the configured output language/style.
+4. Summarize only the public delta since the last relevant tag or release commit.
+5. Do not tag, publish, push, or create a release.
 
 ## Output
 
@@ -37,6 +38,8 @@ End with one question:
 ```text
 Release, hold, or run teachback-gate first?
 ```
+
+Translate labels and the final question naturally according to `references/output-preferences.md`.
 
 ## Guardrails
 

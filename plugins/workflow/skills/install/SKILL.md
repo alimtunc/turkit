@@ -32,7 +32,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
 
 3. **Set up project config.**
    - If `.turkit.yaml` is missing, follow [`turkit-init/SKILL.md`](../turkit-init/SKILL.md) as the source of truth to propose one.
-   - If `.turkit.yaml` exists, read it and report whether required commands appear covered (`check`, `lint`, `fmt`, `test`, `build`, `base_branch`) and whether optional `commands.dev`, `workflow.token_budget`, and `output.style` are configured. For React projects, also report whether `commands.react_review` is configured or whether the React review will use its fallback.
+   - If `.turkit.yaml` exists, read it and report whether required commands appear covered (`check`, `lint`, `fmt`, `test`, `build`, `base_branch`) and whether optional `commands.dev`, `workflow.token_budget`, `output.style`, `output.language`, and `output.technical_terms` are configured. For React projects, also report whether `commands.react_review` is configured or whether the React review will use its fallback.
    - Never overwrite or edit `.turkit.yaml` without showing the proposed content or diff and getting explicit confirmation.
 
 4. **Generate `AGENTS.md` + `GEMINI.md` (multi-LLM entry points).** Give non-Claude agents (Codex, Gemini, …) a thin pointer at the turkit workflow without restating project rules. Use [`references/agents-md-template.md`](references/agents-md-template.md) as the source of truth for the body and merge rules.
@@ -64,4 +64,4 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
 - This skill may only write `.turkit.yaml`, `AGENTS.md`, and `GEMINI.md`, and only after explicit confirmation. Never clobber an existing `AGENTS.md`/`GEMINI.md`; append a marked section instead.
 - Do not install plugins directly; output the `/plugin install ...` commands for the operator.
 - Do not add React-specific rules to `.turkit.yaml`; React behavior belongs in `turkit-react`.
-- Respond in the conversation's language by default.
+- Apply `references/output-preferences.md` for operator-facing language/style.

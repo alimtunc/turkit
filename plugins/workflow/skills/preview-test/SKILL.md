@@ -58,4 +58,4 @@ Functionally test a deployed PR preview without assuming the host, deployment pl
 - Do not run local build/test commands unless the operator explicitly asks; this skill tests the deployed preview.
 - Do not mark `PASS` if the preview could not be opened, the requested flow was not exercised, or required visual analysis was unavailable and essential.
 - Use `FAIL` with a clear configuration/tooling finding when the operator chooses not to provide a URL or manual evidence.
-- Respond in the conversation's language by default, but keep the final JSON keys in English.
+- Apply `references/output-preferences.md` for operator-facing language/style, but keep the final JSON keys in English.

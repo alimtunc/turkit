@@ -59,4 +59,4 @@ The bar is clean, minimal, DRY, SOC-respecting code. "Works" is the floor.
 - Do not edit unrelated files.
 - Do not stage, commit, push, amend, rebase, reset, or rewrite history.
 - If staged changes existed before auto-fixes, state clearly that fixes landed unstaged.
-- Respond in the conversation's language by default.
+- Apply `references/output-preferences.md` for operator-facing language/style.

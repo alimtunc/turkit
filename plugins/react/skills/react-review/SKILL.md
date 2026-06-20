@@ -52,4 +52,4 @@ The bar is clean, minimal, DRY, SOC-respecting React 19+ code.
 - Never reformat whole files; trust the formatter.
 - Never change public props signatures in auto-fix mode.
 - If unsure between auto-fix and required change, choose required change.
-- Respond in the conversation's language by default.
+- Apply `references/output-preferences.md` for operator-facing language/style.

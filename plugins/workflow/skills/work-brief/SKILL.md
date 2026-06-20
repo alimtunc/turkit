@@ -19,13 +19,14 @@ Explain the work produced in this session so the operator can regain context and
 
 1. Inspect `git status --short`, current branch, recent commits, staged diff, unstaged diff, and untracked files.
 2. If no local diff exists, resolve the base branch via `.turkit.yaml → base_branch`, remote HEAD, then `main`; compare base to current branch.
-3. Read only the files needed to explain the main behavior, important decisions, verification evidence, and current state.
-4. Group the work into 2-4 meaningful pieces. Prefer product/domain boundaries over file types.
-5. Link only the key files. Do not list every changed file.
+3. Read `references/output-preferences.md` and apply the configured output language/style.
+4. Read only the files needed to explain the main behavior, important decisions, verification evidence, and current state.
+5. Group the work into 2-4 meaningful pieces. Prefer product/domain boundaries over file types.
+6. Link only the key files. Do not list every changed file.
 
 ## Output
 
-Respond in the conversation language. Aim for one screen, roughly 25-45 lines. Use this shape:
+Respond using the configured output language. Aim for one screen, roughly 25-45 lines. Use this shape:
 
 ```markdown
 <ticket or subject> fait. Voilà l'essentiel :
@@ -68,4 +69,4 @@ For English conversations, translate the headings naturally (`What`, `Why`, `Pie
 - Keep links to 3-8 important files max. If a file line matters and is known, link the line.
 - If the work is too large for one screen, summarize the top pieces and end with `Open next: <file or command>`.
 
-Respond in the conversation's language by default.
+Apply `references/output-preferences.md` for operator-facing language/style.

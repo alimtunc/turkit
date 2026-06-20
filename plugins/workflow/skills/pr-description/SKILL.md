@@ -1,6 +1,6 @@
 ---
 name: pr-description
-description: Generate a short, concise PR description in the conversation's language from the current branch's commits and diff versus the base branch.
+description: Generate a short, concise PR description in the configured language from the current branch's commits and diff versus the base branch.
 disable-model-invocation: true
 allowed-tools: Bash(git *)
 ---
@@ -17,12 +17,12 @@ Generate a tight PR description from the branch's commits and diff.
    - `git diff --stat <base>..HEAD`
    - `git log <base>..HEAD --format='%B' --no-merges` (full commit messages)
 3. **Extract the ticket ID** via `references/issue-tracker-detection.md`. If present, include it in the description header.
-4. **Write the description** following the rules below.
+4. **Write the description** following the rules below and `references/output-preferences.md`.
 5. **Output** in a single fenced markdown block so the operator (or `ship`) can pass it to the host's PR-create command. The host that consumes this body is resolved per `references/vcs-host-detection.md` (e.g. `gh pr create --body-file`, `glab mr create`, or pasted into the host UI) — this skill stays host-agnostic and only produces the text.
 
 ## Writing rules
 
-- Respond in the conversation's language by default.
+- Apply `references/output-preferences.md` for operator-facing language/style.
 - **Short.** Aim for under 15 lines. Two sections max: Summary + Test plan.
 - **Summary:** 1–3 bullet points describing *what changed* and *why*, functional language.
 - **Test plan:** 2–5 bullets covering happy path + key edge cases. Reuse test-instructions output if present.

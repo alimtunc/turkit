@@ -177,4 +177,4 @@ Do not invent token counts or durations — they cannot be measured reliably.
 - Never stage, commit, push, amend, rebase, reset, or rewrite history. Fixes land unstaged.
 - Never turn the loop into a broad refactor beyond the scope.
 - Subagents are read-only; only the orchestrator applies fixes.
-- Respond in the conversation's language by default.
+- Apply `references/output-preferences.md` for operator-facing language/style.

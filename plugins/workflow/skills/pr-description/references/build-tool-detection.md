@@ -49,6 +49,8 @@ workflow:
     - pnpm install
 output:
   style: compact # compact | standard | full
+  language: auto # auto | fr | en
+  technical_terms: keep-english # keep-english | translate-when-natural
 rules:
   docs:
     - CLAUDE.md
@@ -89,13 +91,10 @@ Workflow-aware skills MAY read `.turkit.yaml → workflow`:
 
 ## `output`
 
-Skills MAY read `.turkit.yaml → output.style` for operator-facing responses:
-
-- `compact` (default): short, scan-first output.
-- `standard`: normal detail for plans and handoffs.
-- `full`: expanded detail when the operator explicitly wants it.
-
-Output style does not weaken required verification or safety guardrails.
+Skills MAY read `.turkit.yaml → output` for operator-facing responses. See
+`output-preferences.md` for the canonical `style`, `language`, and
+`technical_terms` contract. Output preferences do not weaken required verification
+or safety guardrails.
 
 ## `rules`
 

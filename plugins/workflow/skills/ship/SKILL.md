@@ -18,7 +18,7 @@ Finalize a validated change: commit → push → PR → close out the ticket.
 2. **Confirm a worktree or feature branch exists.** If on a detached HEAD or a suspicious state, abort.
 
 3. **Stage and commit changes.**
-   - Write a commit subject in the conversation's language using the project's convention if detectable (Conventional Commits if prior commits follow it — check `git log --oneline -20`).
+   - Write a commit subject in the configured language per `references/output-preferences.md` and the project's convention if detectable (Conventional Commits if prior commits follow it — check `git log --oneline -20`).
    - Include a 1–3 sentence body only if the diff needs motivation; otherwise subject-only.
    - **Never** add `Co-Authored-By` or AI credit.
    - Run commit via HEREDOC to preserve formatting.
@@ -64,4 +64,4 @@ Rules:
 - If a pre-commit hook fails: fix the underlying issue, re-stage, create a **new** commit. Do not amend.
 - Do not assume GitHub. Resolve PR creation per `references/vcs-host-detection.md`; a missing host CLI degrades to the manual fallback, never a hard failure.
 - Custom `vcs.pr_create` commands may require operator approval depending on the host/tool sandbox. If approval is unavailable, use the manual fallback.
-- Respond in the conversation's language by default.
+- Apply `references/output-preferences.md` for operator-facing language/style.

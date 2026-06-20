@@ -13,8 +13,9 @@ Summarize what enters the base branch and what the operator should reread.
 
 1. Resolve the base branch from `.turkit.yaml → base_branch`, remote HEAD, then `main`.
 2. Compare `<base>..HEAD`; include local dirty state if present.
-3. Read the smallest set of files needed to explain behavior, risk, and rollback.
-4. Do not run the merge.
+3. Read `references/output-preferences.md` and apply the configured output language/style.
+4. Read the smallest set of files needed to explain behavior, risk, and rollback.
+5. Do not run the merge.
 
 ## Output
 
@@ -38,6 +39,8 @@ End with one question:
 ```text
 Merge, hold, or review one file first?
 ```
+
+Translate labels and the final question naturally according to `references/output-preferences.md`.
 
 ## Guardrails
 

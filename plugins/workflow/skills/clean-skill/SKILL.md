@@ -93,4 +93,4 @@ Matt Pocock's `grill-me` is not stale if its description says "A relentless inte
 - Never delete ambiguous candidates.
 - Never delete current Turkit skills such as `ticket`, `goal-loop`, `resolve-conflict`, `work-brief`, `teachback-gate`, `handoff`, or `ship`.
 - Never modify repository source code while cleaning an installed skills directory.
-- Respond in the conversation's language by default.
+- Apply `references/output-preferences.md` for operator-facing language/style.

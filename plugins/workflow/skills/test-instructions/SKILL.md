@@ -13,7 +13,7 @@ Emit a checklist the operator can copy-paste to verify the work.
 2. **Skim the diff.** `git diff --stat <base>` (base resolved via `references/build-tool-detection.md#base_branch`) to know which areas were touched. No deep file reads.
 3. **Identify the ticket** via `references/issue-tracker-detection.md`. Skip if none.
 4. **Pick test commands** from `.turkit.yaml → commands.test` / `commands.check`, or the project's build-tool defaults.
-5. **Emit the block below.** No prose around it.
+5. **Emit the block below** using `references/output-preferences.md` for operator-facing language/style. No prose around it.
 
 ## Output template
 
@@ -52,4 +52,4 @@ Then:
 - **Max ~3 items** in *Edge cases*. Happy path + 1–2 critical edges. If more, you're over-testing.
 - **Omit "Live"** if there's no runtime to exercise (pure refactor, types-only change, docs).
 - No "Prerequisites" section, no "Expected result" subsections — fold into the line.
-- Respond in the conversation's language by default. `Résumé` stays in the conversation's language too.
+- Apply `references/output-preferences.md` for operator-facing language/style. Translate `Résumé` naturally when the configured language is not French.

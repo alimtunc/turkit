@@ -65,6 +65,8 @@ Scan the current repo and propose a `.turkit.yaml` matching its build tool, pack
      token_budget: low
    output:
      style: compact
+     language: auto
+     technical_terms: keep-english
    ```
 
 7. **Ask before writing.** Show the proposed config + a one-line summary of what was detected and what was omitted. Then: *"Write this as `.turkit.yaml` at the repo root? [y/n]"*. Only write on explicit yes.
@@ -74,7 +76,7 @@ Scan the current repo and propose a `.turkit.yaml` matching its build tool, pack
 - Never overwrite `.turkit.yaml` without showing the diff and getting consent.
 - Never invent commands that won't actually run (don't default to `tsc --noEmit` without `tsconfig.json`, don't default to `prettier` without a prettier config, etc.).
 - Never add a `tracker:` key or similar — tracker detection is fully runtime, not config-driven.
-- Respond in the conversation's language by default.
+- Apply `references/output-preferences.md` for operator-facing language/style.
 
 ## Example — pnpm / TypeScript project
 
@@ -94,6 +96,8 @@ workflow:
   token_budget: low
 output:
   style: compact
+  language: auto
+  technical_terms: keep-english
 ```
 
 ## Example — Rust / just project
@@ -112,4 +116,6 @@ workflow:
   token_budget: low
 output:
   style: compact
+  language: auto
+  technical_terms: keep-english
 ```

@@ -70,7 +70,7 @@ STALE
   Proposed replacement: <new rule> | REMOVE
 ```
 
-Respond in the conversation's language by default.
+Apply `references/output-preferences.md` for operator-facing language/style.
 
 ## Guardrails
 

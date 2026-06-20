@@ -84,6 +84,8 @@ of `/ticket` (`--triage`, `--plan`, `--execute`), not separate public skills.
        - <copy env / install deps / seed config command>
    output:
      style: compact
+     language: auto
+     technical_terms: keep-english
    rules:
      docs:
        - CLAUDE.md
@@ -155,4 +157,4 @@ of `/ticket` (`--triage`, `--plan`, `--execute`), not separate public skills.
   and only append or refresh the workflow section; the body in
   `references/agents-md-template.md` stays a thin pointer and carries no
   project-specific hard rules.
-- Respond in the conversation's language by default.
+- Apply `references/output-preferences.md` for operator-facing language/style.

@@ -103,4 +103,4 @@ After the closing fence, re-emit ship's strict trailer (`✅ Shipped` … `#<PR_
 - All tracker interaction goes through `references/issue-tracker-detection.md` and is **read-only** in default mode; tracker status changes happen only inside `ship` (ship mode).
 - Worktree cleanup is reported as an optional manual step, never executed.
 - Do not assume a specific PR host. Resolve PR viewing via `references/vcs-host-detection.md`.
-- Respond in the conversation's language by default — the summary content follows the conversation language; the field labels above are a template.
+- Apply `references/output-preferences.md` for operator-facing language/style — the summary content follows the configured language; the field labels above are a template.

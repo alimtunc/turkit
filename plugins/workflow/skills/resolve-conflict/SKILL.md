@@ -70,4 +70,4 @@ Resolve the current git conflicts and stop. Do not stage files or continue the m
 - Never choose `ours` or `theirs` blindly.
 - Never leave conflict markers in files.
 - Never claim conflicts are resolved until `git diff --name-only --diff-filter=U` is empty.
-- Respond in the conversation's language by default.
+- Apply `references/output-preferences.md` for operator-facing language/style.
