@@ -1,6 +1,6 @@
 ---
 name: visual-map
-description: Use when the operator wants a visual HTML map of a repo, app, feature, workflow, architecture, package interaction, call path, or diff for human onboarding and understanding. Trigger on visual map, architecture page, workflow diagram, boxes-in-boxes, treemap, package arrows, feature path, call chain, app map, or docs/ai HTML.
+description: Use when the operator wants a visual HTML map of a repo, app, feature, workflow, architecture, package interaction, database schema, call path, or diff for human onboarding and understanding. Trigger on visual map, architecture page, workflow diagram, boxes-in-boxes, treemap, package arrows, database map, ERD, schema map, feature path, call chain, app map, or docs/ai HTML.
 disable-model-invocation: true
 allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git diff:*), Bash(git log:*), Bash(git ls-files:*), Bash(git merge-base:*), Bash(git rev-parse:*), Bash(git symbolic-ref:*), Bash(pwd:*), Bash(mkdir:*), Bash(test:*), Bash(rg:*), Read, Grep, Glob, Write, Edit, MultiEdit
 ---
@@ -11,10 +11,11 @@ Generate a standalone HTML page that explains a repo, app, feature, workflow, ar
 
 ## Intent
 
-This is not a generic node graph. Build a guided visual document with three linked views:
+This is not a generic node graph. Build a guided visual document with linked views:
 
 - a treemap-like nested box map for ownership and structure;
 - a package interaction map showing which packages call/import/emit/read/write each other;
+- a database map when schemas/models/migrations are discoverable;
 - a directional feature path showing exactly what calls what, what each step calls next, and where state/data moves.
 
 ## Arguments
@@ -28,6 +29,7 @@ Parse these optional flags:
 | `--flow <name>` | Map one user/system workflow as a trace. |
 | `--entry <symbol|file|command>` | Start the feature path from this entry point. |
 | `--packages` | Emphasize package-to-package arrows and call order. |
+| `--db`, `--database` | Emphasize database entities, relationships, and feature-touched tables. |
 | `--diff` | Map the current branch/diff. |
 | `--output <path>` | Write to this HTML path. |
 | `--update <path>` | Update an existing visual-map HTML page. |
@@ -45,16 +47,19 @@ If no flag is provided, infer the scope from the operator prompt. If still uncle
 2. **Load context.**
    - Read `references/output-preferences.md` and apply configured language/style.
    - Read `.turkit.yaml` if present, then the listed `rules.docs` when relevant.
-   - Inspect only what explains the scope: manifests, package/workspace files, entry points, route/API files, domain/contracts, boundary configs, and the current diff when `--diff`.
+   - Inspect only what explains the scope: manifests, package/workspace files, entry points, route/API files, domain/contracts, boundary configs, database schema/model/migration files, and the current diff when `--diff`.
    - For `--feature`, `--flow`, `--entry`, or `--diff`, trace the concrete call path with `rg`, imports, route handlers, commands, event names, API clients, and state writes. Prefer real symbols/functions/files over package-level guesses.
+   - For `--db` or when schema files are obvious, inspect common project-agnostic DB sources: SQL migrations, ORM schemas/models, generated schema files, and migration folders. Do not assume one ORM or framework.
 
 3. **Build the model before writing HTML.**
    Produce an internal outline with:
    - Subject: what this repo/feature/workflow does.
    - Treemap model: repo/app/package/module/file groups, each with responsibility and role.
    - Package interactions: package -> package edges, edge type, direction, call order when known, and representative file/symbol proving the link.
+   - Database model: entities/tables grouped by domain/category, primary keys, foreign keys, important domain fields, relationships, cardinality, and source files proving each link.
    - Feature path: entry -> call -> call -> state/event/API -> output.
    - For each path node: file, symbol/route/command, what it calls next, important data/state, and whether the edge is proven or inferred.
+   - For feature scopes, touched database entities and whether the feature reads, writes, creates, updates, deletes, or subscribes to each one.
    - Boundaries: allowed/forbidden imports, ownership, external systems, contracts.
    - Key files: 5-12 files max, each with why to open it.
    - Unknowns: anything not proven by code/docs.
@@ -90,7 +95,17 @@ The HTML page must include these sections, in this order:
    - Each package node should list 1-4 key responsibilities and 1-3 representative files/symbols.
    - If one package both calls and is called by another package, draw two explicit arrows or label the bidirectional relation.
 
-4. **Directional Feature Path**
+4. **Database Map**
+   - Include this section when `--db`/`--database` is passed or when database schemas, models, migrations, or DB access modules are discoverable.
+   - If no database source is found, keep the section short and say what was checked.
+   - Show entities/tables grouped by domain/category, not as one flat dump.
+   - Show relationships with visible connectors and cardinality (`1-1`, `1-N`, `N-N`) only when the schema or code proves them.
+   - Mark naming-based or usage-based relationships as `inferred`; do not invent foreign keys or cardinality.
+   - Each entity/table box should include: role, primary key, foreign keys, and only the few domain fields needed to understand the area.
+   - For feature/flow/diff scopes, highlight the tables/entities touched by the path and label the operation: `reads`, `writes`, `creates`, `updates`, `deletes`, or `subscribes`.
+   - When useful, include a copyable Mermaid `erDiagram` block as a secondary export, backed by the same proven relationships shown visually.
+
+5. **Directional Feature Path**
    - Show the path as a left-to-right or top-to-bottom directed line: entry -> function/route -> service/module -> state/event/API -> output.
    - Use arrows between nodes. The reader must be able to follow the feature from start to finish without reading prose.
    - Each node contains: title, file, symbol/route/command, what happens, and the data/state passed forward.
@@ -98,18 +113,18 @@ The HTML page must include these sections, in this order:
    - For important nodes, include a small "calls next" list with 2-5 direct callees or downstream events. Do not expand every trivial helper.
    - Prefer one main happy path over many shallow branches.
 
-5. **Boundaries**
+6. **Boundaries**
    - Show what can call/import what, what is forbidden, and why.
    - If no boundary config exists, state the inferred boundary and mark it as inferred.
 
-6. **Mental Model**
+7. **Mental Model**
    - 3-5 bullets the reader should keep in mind.
 
-7. **Key Files**
+8. **Key Files**
    - 5-12 links max.
    - Each file explains its role in one line.
 
-8. **Risks / Unknowns**
+9. **Risks / Unknowns**
    - What the map does not prove.
    - What to reread before changing this area.
 
@@ -117,12 +132,12 @@ The HTML page must include these sections, in this order:
 
 - Make the page useful at 1200px desktop and readable on mobile.
 - Use boxes inside boxes for hierarchy; do not reduce the page to separate cards.
-- Use a treemap-like area for topology, a package arrow map for package relations, and a separate directed path for the feature/workflow.
+- Use a treemap-like area for topology, a package arrow map for package relations, a database relationship map when relevant, and a separate directed path for the feature/workflow.
 - A small inline SVG is allowed for arrows/edges when it makes the path clearer; keep the boxes themselves as semantic HTML.
 - Keep paragraphs short. Prefer labels + one-line explanations.
 - Use file paths in `code` tags and links where possible.
 - Keep technical terms in English when `technical_terms: keep-english`.
-- Do not use Mermaid by default. If the operator asks for Mermaid, include it as a secondary export, not the main visual doc.
+- Do not use Mermaid by default for the whole document. For database maps, Mermaid `erDiagram` is allowed as a secondary export; the page still needs a readable HTML/SVG view without external Mermaid runtime.
 
 ## HTML Guardrails
 
@@ -131,7 +146,9 @@ The HTML page must include these sections, in this order:
 - Add `data-turkit-visual-map="true"` on `<body>`.
 - Escape user/code text before embedding in HTML.
 - Do not include secrets, `.env` values, tokens, private URLs, or long source snippets.
+- Do not include database credentials, connection strings, seed PII, or sample production values.
 - Do not claim runtime behavior that was not visible in code/docs/diff; mark uncertain items as inferred.
+- Do not dump every column. Show only keys and fields that explain the relationship or feature.
 - Do not list every file. A visual map is an onboarding artifact, not a code index.
 - Do not draw every import. Draw the requested feature path plus the relevant fan-out/fan-in that explains it.
 - Do not leave package relations as vague prose. Important package links must appear as visible arrows with labels.

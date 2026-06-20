@@ -72,7 +72,7 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 | `clean-skill` | Audits and removes stale Turkit skills left behind by additive installs, after explicit confirmation. |
 | `preview-test` | Functionally tests a deployed PR preview from config or an operator-provided URL and returns a structured verdict. |
 | `zoom-out` | Explains a confusing function, file, config, diff, branch, or feature in a short why/how/risk format. |
-| `visual-map` | Generates a standalone visual HTML doc with nested boxes, package arrows, and a directional feature/call path. |
+| `visual-map` | Generates a standalone visual HTML doc with nested boxes, package arrows, database relations, and a directional feature/call path. |
 | `explain-diff` | Explains staged, unstaged, or branch changes as a compact before/after brief. |
 | `work-brief` | Summarizes what was done, why, key pieces, quality, and current state after an AI work session. |
 | `teachback-gate` | Asks the operator to explain the change back before commit, PR, push, or release. |
@@ -114,6 +114,7 @@ These are intentionally compact and read-only. They are meant to help the operat
 ```text
 When lost          zoom-out
 Need a visual doc  visual-map
+Need DB relations visual-map --db
 After AI work      work-brief
 Before commit      explain-diff
 Before ship        teachback-gate

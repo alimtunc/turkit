@@ -45,9 +45,9 @@ Focused modes:
 Understanding gates:
 
 - zoom-out when lost, visual-map for a standalone visual HTML doc with nested
-  boxes, package arrows, and a directional feature path, work-brief after AI
-  work, explain-diff before commit, teachback-gate before ship, merge-brief
-  before merge, release-brief before release.
+  boxes, package arrows, database relations, and a directional feature path,
+  work-brief after AI work, explain-diff before commit, teachback-gate before
+  ship, merge-brief before merge, release-brief before release.
 
 Conflict helper:
 
