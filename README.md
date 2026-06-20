@@ -83,7 +83,7 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 | `handoff` | Creates a read-only session handoff for another agent or a later session. |
 | `rules-refresh` | Reviews a rules document and proposes keep, sharpen, redundant, or stale updates. |
 | `install` | Optional setup diagnostic: proposes `.turkit.yaml`, `AGENTS.md`, or `GEMINI.md` changes. |
-| `turkit-init` | Proposes a `.turkit.yaml` from detected commands, base branch, tracker, workflow, and rules docs. |
+| `turkit-init` | Proposes a repo `.turkit.yaml` from detected commands, base branch, tracker, workflow overrides, and rules docs. |
 | `adopt-project` | Migrates repos that already have local Claude skills, commands, or duplicated workflow rules. |
 
 ## Preview Testing
@@ -135,6 +135,28 @@ Use Matt's `grill-me` for a general plan/design challenge. Use `ticket --grill` 
 
 Skill installers are usually additive: reinstalling Turkit updates current skills but may not remove skills that Turkit no longer ships. Run `clean-skill` when an old Turkit command still appears after an update.
 
+## Global Preferences
+
+Use a global config for preferences you want across repos:
+
+```yaml
+# ~/.config/turkit/config.yaml
+workflow:
+  token_budget: low
+output:
+  style: compact
+  language: fr
+  technical_terms: keep-english
+```
+
+Turkit also accepts the legacy fallback `~/.turkit.yaml`. For supported
+preference keys, repo `.turkit.yaml` is merged over the global config, so a
+project can override only what it needs.
+
+Keep global config for personal preferences only: `output.*` and
+`workflow.token_budget`. Project-specific settings such as `commands`,
+`base_branch`, `rules`, `preview`, and `vcs` belong in the repo.
+
 ## Optional Project Config
 
 You do **not** need `.turkit.yaml` to try Turkit. The skills detect common package managers, base branches, issue trackers, and PR hosts at runtime, then degrade to manual fallbacks when something is missing.
@@ -144,12 +166,12 @@ Add `.turkit.yaml` only when you want to pin project-specific behavior:
 - commands such as `dev`, `check`, `lint`, `test`, `build`, or `react_review`
 - rule docs to load before planning/reviewing
 - branch/worktree policy
-- token budget, output style, preferred language, and technical-term policy
+- repo-specific token budget, output style, preferred language, and technical-term overrides
 - PR host overrides for GitHub, GitLab, Bitbucket, Gerrit, etc.
 - deployed PR preview URL template and optional readiness/vision settings
 - review strictness knobs
 
-Minimal example:
+Minimal project example:
 
 ```yaml
 commands:
@@ -158,17 +180,20 @@ commands:
   lint: pnpm lint
   test: pnpm test
 workflow:
-  token_budget: low
-output:
-  style: compact
-  language: auto # set fr or en to force a language
-  technical_terms: keep-english
+  token_budget: low # optional repo override; omit if global config covers it
 base_branch: main
 rules:
   docs:
     - CLAUDE.md
     - AGENTS.md
     - docs/conventions/*.md
+```
+
+To override language for one repo only:
+
+```yaml
+output:
+  language: en
 ```
 
 Run `install` for guided setup, or `turkit-init` when you only want a proposed `.turkit.yaml`. See [.turkit.yaml.example](.turkit.yaml.example) for the full schema.

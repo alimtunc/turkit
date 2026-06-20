@@ -1,5 +1,31 @@
 # Build Tool Detection Contract
 
+## Config lookup
+
+Project-specific config lives in `.turkit.yaml` at the repo root. Personal
+preferences may live in `~/.config/turkit/config.yaml`, with `~/.turkit.yaml` as
+a legacy fallback. If both global files exist, prefer
+`~/.config/turkit/config.yaml`; if the host cannot read a global file, skip it.
+
+Global config may supply only personal preferences by default:
+
+```yaml
+workflow:
+  token_budget: low # low | normal | high
+output:
+  style: compact # compact | standard | full
+  language: fr # auto | fr | en
+  technical_terms: keep-english # keep-english | translate-when-natural
+```
+
+Project config is merged over global config for these preference keys. Maps are
+merged by key; arrays and scalar values are replaced by the repo value.
+
+Do not read project-specific keys from global config unless another contract
+explicitly opts in. Ignore global `commands`, `base_branch`, `rules`, `preview`,
+`vcs`, `workflow.workspace`, `workflow.worktree_dir`, `workflow.branch_template`,
+and `workflow.init`.
+
 Skills that need to run project commands (`dev`, `check`, `lint`, `fmt`, `test`, `build`) MUST resolve them via this order:
 
 1. **`.turkit.yaml`** at the repo root, `commands:` section — explicit user override. If present, use it verbatim for any command it defines; fall through only for commands it does not define.
@@ -71,7 +97,7 @@ Core workflow skills ignore unknown command keys. Stack plugins own their own re
 
 ## `workflow`
 
-Workflow-aware skills MAY read `.turkit.yaml → workflow`:
+Workflow-aware skills MAY read workflow settings:
 
 - `workspace`
   - `feature_branch` (default): create/use a normal feature branch.
@@ -89,12 +115,15 @@ Workflow-aware skills MAY read `.turkit.yaml → workflow`:
   - `normal` (default): use the standard workflow.
   - `high`: allow broader exploration when the operator explicitly wants depth.
 
+Only `workflow.token_budget` may come from global config. All other workflow
+keys are project-specific and must come from repo `.turkit.yaml` only.
+
 ## `output`
 
-Skills MAY read `.turkit.yaml → output` for operator-facing responses. See
+Skills MAY read resolved `output` preferences for operator-facing responses. See
 `output-preferences.md` for the canonical `style`, `language`, and
-`technical_terms` contract. Output preferences do not weaken required verification
-or safety guardrails.
+`technical_terms` contract. Output preferences do not weaken required
+verification or safety guardrails.
 
 ## `rules`
 

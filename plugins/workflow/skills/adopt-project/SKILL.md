@@ -92,7 +92,10 @@ of `/ticket` (`--triage`, `--plan`, `--execute`), not separate public skills.
        - docs/conventions/*.md
    ```
 
-   Keep commands literal and copy-pasteable. Do not invent commands.
+   Keep commands literal and copy-pasteable. Do not invent commands. Omit
+   `output` and `workflow.token_budget` when they are personal preferences
+   already covered by global Turkit config and the repo does not need an
+   override.
 
 4. **Show the migration plan before writing.**
    Output:

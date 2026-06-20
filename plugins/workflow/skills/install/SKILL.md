@@ -14,6 +14,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
 1. **Confirm repository context.**
    - Read the repo root and current branch.
    - Inspect `git status --short`.
+   - Read global Turkit preferences if present (`~/.config/turkit/config.yaml`, then `~/.turkit.yaml`) and report only inherited `output.*` / `workflow.token_budget`.
    - If `.claude/skills/*` or `.claude/commands/*` exists, note that the repo
      already has local Claude assets. Recommend
      `/turkit:adopt-project` after install so generic workflow skills
@@ -32,7 +33,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
 
 3. **Set up project config.**
    - If `.turkit.yaml` is missing, follow [`turkit-init/SKILL.md`](../turkit-init/SKILL.md) as the source of truth to propose one.
-   - If `.turkit.yaml` exists, read it and report whether required commands appear covered (`check`, `lint`, `fmt`, `test`, `build`, `base_branch`) and whether optional `commands.dev`, `workflow.token_budget`, `output.style`, `output.language`, and `output.technical_terms` are configured. For React projects, also report whether `commands.react_review` is configured or whether the React review will use its fallback.
+   - If `.turkit.yaml` exists, read it and report whether required commands appear covered (`check`, `lint`, `fmt`, `test`, `build`, `base_branch`) and whether optional `commands.dev`, repo overrides for `workflow.token_budget`, `output.style`, `output.language`, and `output.technical_terms` are configured or inherited globally. For React projects, also report whether `commands.react_review` is configured or whether the React review will use its fallback.
    - Never overwrite or edit `.turkit.yaml` without showing the proposed content or diff and getting explicit confirmation.
 
 4. **Generate `AGENTS.md` + `GEMINI.md` (multi-LLM entry points).** Give non-Claude agents (Codex, Gemini, …) a thin pointer at the turkit workflow without restating project rules. Use [`references/agents-md-template.md`](references/agents-md-template.md) as the source of truth for the body and merge rules.
@@ -47,6 +48,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
 
 5. **Emit the setup summary.** Keep it short:
    - Detected stack.
+   - Global preferences status: none / inherited / ignored project-specific or invalid keys.
    - Recommended plugin install commands.
    - `.turkit.yaml` status: created / update proposed / already OK / skipped.
    - `AGENTS.md` / `GEMINI.md` status: created / section appended / already OK / skipped.

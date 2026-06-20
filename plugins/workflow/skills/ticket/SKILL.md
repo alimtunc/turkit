@@ -35,10 +35,10 @@ Accept at most one phase flag among `--triage`, `--plan`, and `--execute`. If mo
 
 ## Config
 
-Read `.turkit.yaml` when present, but tolerate a missing file.
+Read resolved Turkit config when present, but tolerate missing files.
 
-- `.turkit.yaml → workflow.token_budget`: `low`, `normal`, or `high`. Default `normal`.
-- `.turkit.yaml → output`: resolve operator-facing style/language via `references/output-preferences.md`.
+- `workflow.token_budget`: resolve from repo `.turkit.yaml`, then global `~/.config/turkit/config.yaml` / `~/.turkit.yaml`, then default `normal`.
+- `output`: resolve operator-facing style/language via `references/output-preferences.md`.
 - `--fast` overrides `workflow.token_budget` to `low` for this run.
 - For invalid values, fall back to the default and mention the ignored value once.
 

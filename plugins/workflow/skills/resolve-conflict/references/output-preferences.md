@@ -1,9 +1,21 @@
 # Output Preferences Contract
 
-Skills that emit operator-facing prose MAY read `.turkit.yaml -> output`.
-All fields are optional and must degrade cleanly when absent.
+Skills that emit operator-facing prose MAY read Turkit output preferences from
+the resolved config. All fields are optional and must degrade cleanly when
+absent.
 
-## `.turkit.yaml` shape
+## Config files
+
+Resolve output preferences from:
+
+1. Repo config: `.turkit.yaml` at the current repo root.
+2. Global config: `~/.config/turkit/config.yaml`.
+3. Legacy global fallback: `~/.turkit.yaml`.
+
+If both global files exist, prefer `~/.config/turkit/config.yaml`. If the host
+cannot read a global file, skip it without failing.
+
+## Config shape
 
 ```yaml
 output:
@@ -15,9 +27,14 @@ output:
 ## Resolution order
 
 1. An explicit language/style request in the current operator message wins.
-2. `.turkit.yaml -> output.*`
-3. The current conversation language.
-4. English fallback.
+2. Repo `.turkit.yaml -> output.*`.
+3. Global config `output.*`.
+4. The current conversation language.
+5. English fallback.
+
+Merge repo and global values per key: global `output` is the base, and repo
+`output` overrides only the keys it defines. Do not copy global preferences into
+repo config unless the repo needs to override them.
 
 Invalid values are ignored. Mention the ignored value only if it would affect the
 current answer.

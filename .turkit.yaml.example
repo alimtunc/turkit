@@ -1,4 +1,6 @@
-# Copy to .turkit.yaml at your repo root to override build tool detection.
+# Copy to .turkit.yaml at your repo root to override project-specific detection.
+# Personal preferences may live globally at ~/.config/turkit/config.yaml.
+# Repo config wins over global preferences for keys it defines.
 # All fields optional. Run /turkit:turkit-init to auto-generate one tailored to your project.
 
 commands:
