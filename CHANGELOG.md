@@ -2,6 +2,24 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v3.7.0 — 2026-06-20
+
+### Added
+
+- `.turkit.yaml → output.language` and `output.technical_terms` configure operator-facing prose while keeping code, CLI, API, and common technical terms stable.
+- `output-preferences` contract is vendored into skills that emit operator-facing text so per-skill installs stay self-contained.
+
+### Changed
+
+- `zoom-out` now explains focused targets such as functions, files, configs, scripts, and code areas with a short why/how/risk shape instead of a rigid map dump.
+- Understanding gates now localize their labels and final questions through the shared output-preferences contract.
+
+## turkit-react v0.3.0 — 2026-06-20
+
+### Changed
+
+- `react-review` now reads the shared output-preferences contract for operator-facing language/style.
+
 ## turkit v3.6.0 — 2026-06-19
 
 ### Added
