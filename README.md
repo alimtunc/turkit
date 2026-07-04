@@ -72,7 +72,7 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 | `clean-skill` | Audits and removes stale Turkit skills left behind by additive installs, after explicit confirmation. |
 | `preview-test` | Functionally tests a deployed PR preview from config or an operator-provided URL and returns a structured verdict. |
 | `zoom-out` | Explains a confusing function, file, config, diff, branch, or feature in a short why/how/risk format. |
-| `visual-map` | Generates a standalone visual HTML doc with nested boxes, package arrows, database ERD canvas, and a directional feature/call path. |
+| `visual-map` | Generates a standalone visual HTML doc for repos, features, workflows, databases, and diffs; diff mode includes a changed-file ledger, linked file graph, reasons, and clickable patch hunks. |
 | `explain-diff` | Explains staged, unstaged, or branch changes as a compact before/after brief. |
 | `work-brief` | Summarizes what was done, why, key pieces, quality, and current state after an AI work session. |
 | `teachback-gate` | Asks the operator to explain the change back before commit, PR, push, or release. |
@@ -115,12 +115,44 @@ These are intentionally compact and read-only. They are meant to help the operat
 When lost          zoom-out
 Need a visual doc  visual-map
 Need DB relations visual-map --db
+Need diff review  visual-map --diff
 After AI work      work-brief
 Before commit      explain-diff
 Before ship        teachback-gate
 Before merge       merge-brief
 Before release     release-brief
 ```
+
+## Visual Maps
+
+Use `visual-map` when prose is not enough and you need a navigable HTML artifact under `docs/ai/`.
+
+Common modes:
+
+```text
+visual-map --repo
+visual-map --feature <name>
+visual-map --flow <name>
+visual-map --entry <symbol|file|command>
+visual-map --packages
+visual-map --db
+visual-map --diff
+visual-map --diff-review
+visual-map --change-map
+```
+
+For architecture and workflow scopes, `visual-map` renders a guided document with nested topology boxes, package arrows, database ERD canvas when schemas are present, and a directional feature/call path.
+
+For diff scopes, `visual-map --diff` is a change-review map. It includes:
+
+- a full changed-file ledger with status, additions/deletions, role, summary, likely reason, confidence, linked files, and patch anchors
+- a changed-file tree grouped by folder and status
+- why/impact cards backed by evidence such as hunks, symbols, imports, tests, config, schema, migrations, docs, or linked files
+- a relationship map centered on changed files and their direct neighbors
+- a complete diff explorer with clickable file and hunk anchors
+- an explicit rejected/excluded section for binary, generated, vendored, huge, secret-bearing, or lockfile changes
+
+If `graphify` is installed, `visual-map` uses it as an optional code graph index before falling back to Git and `rg`. Git remains authoritative for changed-file status, line counts, and patch hunks; graph data is used for relationship discovery and impact prioritization.
 
 ## Pair With Matt Pocock's Skills
 

@@ -2,6 +2,18 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v3.9.0 — 2026-07-04
+
+### Added
+
+- `visual-map --diff` now produces a change-review map with an exhaustive changed-file ledger, changed-file tree, why/impact cards, relationship map, complete diff explorer, and rejected/excluded changes section.
+- `visual-map --diff-review` and `visual-map --change-map` aliases for diff-centered review maps.
+- Optional `graphify` integration for `visual-map`, used as a code graph index for imports, reverse imports, tests, symbols, package edges, and changed-file context before falling back to Git/rg.
+
+### Changed
+
+- README now documents `visual-map` modes, diff-review output, and the optional `graphify` acceleration path.
+
 ## turkit v3.8.0 — 2026-06-20
 
 ### Added
