@@ -2,6 +2,19 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v3.10.0 — 2026-07-05
+
+### Added
+
+- `visual-map` now documents Codiff as the recommended companion for interactive diff walkthroughs and file-by-file review.
+- `visual-map --trace [command|name]` for mapping a typical execution path from command/script to entrypoint, functions, DB/API/filesystem/events, and output without running the command.
+- `visual-map --diff` is now scoped to architecture impact from the current diff instead of full diff walkthrough generation.
+
+### Changed
+
+- `visual-map` is refocused on durable architecture artifacts: topology, execution traces, package interactions, database maps, feature/call paths, external systems, boundaries, key files, and unknowns.
+- README now separates responsibilities: Codiff for diff review UX, Visual Map for architecture, relation, package, workflow, and database context.
+
 ## turkit v3.9.0 — 2026-07-04
 
 ### Added

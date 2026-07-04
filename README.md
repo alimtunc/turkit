@@ -72,7 +72,7 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 | `clean-skill` | Audits and removes stale Turkit skills left behind by additive installs, after explicit confirmation. |
 | `preview-test` | Functionally tests a deployed PR preview from config or an operator-provided URL and returns a structured verdict. |
 | `zoom-out` | Explains a confusing function, file, config, diff, branch, or feature in a short why/how/risk format. |
-| `visual-map` | Generates a standalone visual HTML doc for repos, features, workflows, databases, and diffs; diff mode includes a changed-file ledger, linked file graph, reasons, and clickable patch hunks. |
+| `visual-map` | Generates a standalone visual HTML architecture doc for repos, features, workflows, execution traces, package relations, databases, and architecture impact from diffs. |
 | `explain-diff` | Explains staged, unstaged, or branch changes as a compact before/after brief. |
 | `work-brief` | Summarizes what was done, why, key pieces, quality, and current state after an AI work session. |
 | `teachback-gate` | Asks the operator to explain the change back before commit, PR, push, or release. |
@@ -114,8 +114,9 @@ These are intentionally compact and read-only. They are meant to help the operat
 ```text
 When lost          zoom-out
 Need a visual doc  visual-map
+Need typical trace visual-map --trace
 Need DB relations visual-map --db
-Need diff review  visual-map --diff
+Need diff review  Codiff
 After AI work      work-brief
 Before commit      explain-diff
 Before ship        teachback-gate
@@ -125,7 +126,7 @@ Before release     release-brief
 
 ## Visual Maps
 
-Use `visual-map` when prose is not enough and you need a navigable HTML artifact under `docs/ai/`.
+Use `visual-map` when prose is not enough and you need a navigable HTML artifact under `docs/ai/` for architecture, package relationships, database relationships, typical execution traces, or feature/workflow paths.
 
 Common modes:
 
@@ -134,25 +135,19 @@ visual-map --repo
 visual-map --feature <name>
 visual-map --flow <name>
 visual-map --entry <symbol|file|command>
+visual-map --trace [command|name]
 visual-map --packages
 visual-map --db
 visual-map --diff
-visual-map --diff-review
-visual-map --change-map
 ```
 
-For architecture and workflow scopes, `visual-map` renders a guided document with nested topology boxes, package arrows, database ERD canvas when schemas are present, and a directional feature/call path.
+`visual-map` renders a guided document with nested topology boxes, package arrows, database ERD canvas when schemas are present, external-system notes, boundaries, and directional feature/call paths.
 
-For diff scopes, `visual-map --diff` is a change-review map. It includes:
+`visual-map --trace` maps a typical execution path without running it: command/script -> entrypoint -> bootstrap -> router/server/worker -> functions/modules -> DB/API/filesystem/events -> output. Use it when you want to understand how the project starts or how a typical request/command moves through files and functions.
 
-- a full changed-file ledger with status, additions/deletions, role, summary, likely reason, confidence, linked files, and patch anchors
-- a changed-file tree grouped by folder and status
-- why/impact cards backed by evidence such as hunks, symbols, imports, tests, config, schema, migrations, docs, or linked files
-- a relationship map centered on changed files and their direct neighbors
-- a complete diff explorer with clickable file and hunk anchors
-- an explicit rejected/excluded section for binary, generated, vendored, huge, secret-bearing, or lockfile changes
+`visual-map --diff` does not produce a diff walkthrough. It uses the current diff only to highlight changed modules, packages, database entities, and architecture impact inside the map. For interactive diff review, narrative walkthroughs, inline comments, and file-by-file hunk review, use [Codiff](https://github.com/nkzw-tech/codiff).
 
-If `graphify` is installed, `visual-map` uses it as an optional code graph index before falling back to Git and `rg`. Git remains authoritative for changed-file status, line counts, and patch hunks; graph data is used for relationship discovery and impact prioritization.
+If `graphify` is installed, `visual-map` treats it as an optional code graph index before falling back to Git and `rg`. Git remains authoritative for changed-file status when `--diff` is used; graph data is used for relationship discovery and architecture prioritization.
 
 ## Pair With Matt Pocock's Skills
 
