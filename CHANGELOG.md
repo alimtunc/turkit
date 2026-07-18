@@ -2,6 +2,22 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v3.11.0 — 2026-07-18
+
+### Added
+
+- `rules-baseline.md`: authoring-time code-quality baseline (DRY, SOC, over-engineering, naming, comments, complexity, error handling, types, boundaries, simplification), the dev-time mirror of the review rubric.
+- `turkit-init` and `adopt-project` seed `docs/conventions/code-quality.md` from the baseline and wire `rules.docs` when the repo has no rules doc.
+- `rules-refresh`: Missing bucket sourced from the baseline, and a guided `--interactive` mode with per-rule accept/rephrase/skip decisions, repo-evidence proposals, and documented-tradeoff recording.
+- `goal-loop --review`: optional single-pass quality gate on the loop's diff against the shared rubric.
+- Shared rubric: Simplification section (named behavior-preserving moves only, wired to `review.strictness`), Out of Scope statement, and Finding Discipline (structural first, documented tradeoffs respected).
+
+### Changed
+
+- `goal-review` hardened: scope is recomputed from the working tree after each fix round, findings are identified by rule + symbol + hunk content instead of line numbers, a vet pass drops unsupported reviewer findings with per-run rejection memory, reviewer fan-out is capped at 4 per round, and a regression surviving the corrective round now reverts the offending fix.
+- Shared rubric output format renamed to Shared Output Format with an explicit composition rule for entry points; dead-symbol auto-fixes now require a repo-wide grep; DRY and single-export rules gain same-reason-to-change and framework-contract qualifiers.
+- `pre-pr-review` drops the unused Review Cost section.
+
 ## turkit v3.10.0 — 2026-07-05
 
 ### Added
