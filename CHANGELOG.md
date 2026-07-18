@@ -55,6 +55,13 @@ All notable changes to turkit are tracked here. The project follows [SemVer](htt
 - Output preferences and `workflow.token_budget` can be inherited globally, while project-specific settings remain repo-local.
 - `install` and `turkit-init` now report inherited global preferences instead of copying them into every repo config.
 
+## turkit-react v0.5.0 — 2026-07-18
+
+### Added
+
+- Severity weighting by render path: hot-path findings (per keystroke, per list row, per frame) escalate; rarely-mounted surfaces demote judgment calls. P0 structural/behavioral findings never downgrade.
+- Fix policy now resolves the canonical react-doctor recipe (`npx react-doctor rules explain <rule>`) before fixing a gate finding instead of improvising.
+
 ## turkit-react v0.4.0 — 2026-06-20
 
 ### Changed
