@@ -25,6 +25,7 @@ Parse these optional flags before reading files:
 | `--scope <path>` | Limit reads and edits to a path or package. |
 | `--verify <command>` | Verification command to run after each round. |
 | `--max-rounds <N>` | Loop budget. Default `3`; hard cap `5` unless the operator explicitly confirms after round 5. |
+| `--review` | After all criteria pass, run one single-pass quality gate on the loop's diff against the shared review rubric. |
 
 Everything else is the goal text.
 
@@ -58,6 +59,8 @@ For each round, up to the loop budget:
 
 Stop early when all criteria are `done` and verification passes. If the same verification failure survives two rounds, stop as `blocked` and report it instead of looping blindly.
 
+**Quality gate (`--review` only).** When all criteria are `done` and verification passes, review the diff the loop produced against [`references/review-rubric.md`](references/review-rubric.md): apply its Auto-fix bucket, then treat remaining P0/P1 findings as gaps for **at most one** extra round. Never loop the gate; findings that survive that round go under `Remaining` in the report.
+
 ## Orchestration & Platform
 
 Use parallel subagents only for read-only investigation, such as surveying candidate files or checking whether a criterion is satisfied. The main agent applies all edits. If subagents or Workflow tools are unavailable, run the same inspection sequentially. Correctness must not depend on Claude-only orchestration.
@@ -82,6 +85,7 @@ Changes:
 Verification:
 - Ran: <commands or "static check only">
 - Result: pass | fail | unverified
+- Quality gate (--review): not requested | clean | residual findings under Remaining
 
 Remaining:
 - <none or concrete follow-up>

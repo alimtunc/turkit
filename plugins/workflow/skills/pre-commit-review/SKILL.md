@@ -45,7 +45,7 @@ The bar is clean, minimal, DRY, SOC-respecting code. "Works" is the floor.
    rules that are relevant to the touched files.
 8. Apply only the shared rubric's Auto-fix bucket. Do not stage or commit.
 9. Re-run lint after auto-fixes and capture residual failures.
-10. Report using the shared rubric's Pre-Commit Output Format.
+10. Report using the shared rubric's Shared Output Format.
 
 ## Review Sizing
 

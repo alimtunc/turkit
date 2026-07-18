@@ -69,4 +69,5 @@ Flag:
 
 - Ready for PR | Needs N fixes before PR | Reconsider branch structure
 - If `Local` scope present and non-empty, `Ready for PR` requires the operator to commit (or discard) the local diff. State this explicitly.
+- If the branch touches auth, payments, schemas, or migrations: remind that this review covers structural cleanliness only — run the project's correctness/security tooling before shipping.
 ```

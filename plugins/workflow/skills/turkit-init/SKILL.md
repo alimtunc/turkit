@@ -71,11 +71,22 @@ Scan the current repo and propose a `.turkit.yaml` matching its build tool, pack
 
    Omit `output` and `workflow.token_budget` when global config already covers them and the repo does not need an override. Mention the inherited global values in the summary instead of copying them into the repo.
 
-8. **Ask before writing.** Show the proposed config + a one-line summary of what was detected, inherited, and omitted. Then: *"Write this as `.turkit.yaml` at the repo root? [y/n]"*. Only write on explicit yes.
+8. **Seed the quality baseline.** If the repo has no rules doc (no `CLAUDE.md` / `AGENTS.md` with coding rules, no `docs/conventions/*.md`), propose writing `docs/conventions/code-quality.md` from [`references/rules-baseline.md`](references/rules-baseline.md) and adding to the proposed config:
+
+   ```yaml
+   rules:
+     docs:
+       - docs/conventions/code-quality.md
+   ```
+
+   The project owns the copy afterwards — sharpening, additions, and documented tradeoffs live in the repo, not in the baseline. If rules docs already exist, skip seeding and recommend `rules-refresh` instead.
+
+9. **Ask before writing.** Show the proposed config + a one-line summary of what was detected, inherited, and omitted. Then: *"Write `.turkit.yaml` (and `docs/conventions/code-quality.md` when proposed) at the repo root? [y/n]"*. Only write on explicit yes.
 
 ## Guardrails
 
 - Never overwrite `.turkit.yaml` without showing the diff and getting consent.
+- Seeding only creates new files — never overwrite an existing rules doc.
 - Never invent commands that won't actually run (don't default to `tsc --noEmit` without `tsconfig.json`, don't default to `prettier` without a prettier config, etc.).
 - Never add a `tracker:` key or similar — tracker detection is fully runtime, not config-driven.
 - Apply `references/output-preferences.md` for operator-facing language/style.

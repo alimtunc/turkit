@@ -2,6 +2,12 @@
 
 Use this rubric for language-agnostic reviews. It complements the project's own linter / formatter / type-checker; do not re-flag a line already covered by a mechanical rule unless extra context matters.
 
+The authoring-time mirror of this rubric is `rules-baseline.md`, seeded into project rules docs by `turkit-init` / `adopt-project`. Update the two together.
+
+## Out of Scope
+
+This rubric reviews structure and cleanliness: DRY, separation of concerns, over-engineering, naming, comments, complexity, error-shape hygiene, types, boundaries. It does **not** check security (authorization, tenant isolation, injection), atomicity/races, resource lifetimes, migration/rollout compatibility, or test adequacy. A clean review does not imply any of those; never report them as covered. Route correctness and security review to the project's dedicated tooling.
+
 ## Strictness Profiles
 
 Reviews read optional knobs from `.turkit.yaml → review`. All are optional; the defaults reproduce this rubric's standard behavior. Resolve them once before judging, and state the resolved profile in the output (`Strictness: <profile> · Comments: <mode>`).
@@ -12,8 +18,8 @@ Reviews read optional knobs from `.turkit.yaml → review`. All are optional; th
 | `comments` | `allow` \| `allow-why-only` \| `zero-new-comments` | `allow-why-only` | Governs the Comments checklist (§5). |
 
 - **`standard`** (default) — apply this rubric exactly as written: P0/P1 as defined below, Suggested for true judgment calls.
-- **`relaxed`** — downgrade P1 *cleanup* findings (DRY duplication under 3 occurrences, Over-engineering §3, Complexity §6, Naming §4) to Suggested. **Never** downgrade P0 structural violations, behavioral regressions, broken contracts, swallowed errors, or unsafe type escapes — those stay blocking. The Auto-fix bucket is unchanged.
-- **`strict`** — promote borderline Suggested findings to P1, and treat the §3 Over-engineering and §6 Complexity thresholds as hard (any single-call-site abstraction or >~40-line function is P1, not a judgment call).
+- **`relaxed`** — downgrade P1 *cleanup* findings (DRY duplication under 3 occurrences, Over-engineering §3, Complexity §6, Naming §4) to Suggested, and skip §10 Simplification entirely. **Never** downgrade P0 structural violations, behavioral regressions, broken contracts, swallowed errors, or unsafe type escapes — those stay blocking. The Auto-fix bucket is unchanged.
+- **`strict`** — promote borderline Suggested findings to P1, treat the §3 Over-engineering and §6 Complexity thresholds as hard (any single-call-site abstraction or >~40-line function is P1, not a judgment call), and promote a §10 Simplification finding with a named behavior-preserving move to P0.
 
 Comments knob (§5):
 
@@ -37,7 +43,7 @@ Apply in place when the fix is mechanical, unambiguous, reversible by reading th
 - fix deep relative imports to the project's established alias/module path when one clearly exists
 - move helpers/types/constants out of entry-point/render files only when an obvious existing ownership target exists and the move cannot introduce cycles or public API changes
 - replace a new duplicate helper with an import of the existing symbol and delete the duplicate
-- remove dead props, parameters, enum variants, options, or wrapper files that have no caller in the diff/touched files
+- remove dead props, parameters, enum variants, options, or wrapper files only after a repo-wide grep of the symbol confirms no caller anywhere — "no caller in the diff/touched files" is not sufficient (spread props, dynamic access, other modules)
 - inline one-method `manager` / `service` / `helper` wrappers introduced by the diff
 
 ### Required Changes
@@ -71,7 +77,12 @@ These severities describe the `standard` profile. `.turkit.yaml → review.stric
 
 ## Categories
 
-Use one tag per finding: `SOC`, `DRY`, `OverEng`, `Comments`, `DeadCode`, `Naming`, `Complexity`, `ErrorHandling`, `Types`, `Boundary`, `I18n`, `Verification`, `Regression`.
+Use one tag per finding: `SOC`, `DRY`, `OverEng`, `Comments`, `DeadCode`, `Naming`, `Complexity`, `Simplify`, `ErrorHandling`, `Types`, `Boundary`, `I18n`, `Verification`, `Regression`.
+
+## Finding Discipline
+
+- Report structural findings first. When structural findings exist, drop cosmetic nits — a few high-conviction findings beat an exhaustive list.
+- A tradeoff the project has documented (ADR, rules doc, `.turkit.yaml`, a deliberately disabled rule) is a decision, not a finding. Suppress it and cite the source.
 
 ## Checklist
 
@@ -82,7 +93,7 @@ A renderer renders. A handler/hook orchestrates. A util computes. Flag:
 - **P0** pure helpers, formatters, builders, predicates, sorters, mappers, key derivation, or shape transforms inside an entry-point/render file when an obvious helper/shared module exists
 - **P0** domain types/interfaces inside an entry-point/render file when a shared/sibling type module exists; local props/return types may colocate
 - **P0** non-trivial constants (option lists, defaults, regexes, magic numbers, config objects) inside an entry-point/render file when a constants/shared module exists
-- **P0** more than one exported public unit per file when the file's primary concern is a single renderer/orchestrator, except a tiny local presentational sub-unit
+- **P0** more than one exported public unit per file when the file's primary concern is a single renderer/orchestrator, except a tiny local presentational sub-unit or a framework-mandated file contract (e.g. a route module exporting `loader` / `ErrorBoundary`); cite the convention when waiving
 - **P1** a unit branching on more than ~2 distinct shapes/modes
 - **P1** a unit doing rendering/orchestration plus data fetching plus derived state
 
@@ -95,7 +106,7 @@ Flag:
 - **P1** copy-pasted blocks differing only by parameters/props, especially 3+ occurrences
 - **P1** repeated mapping/filter/derive chains over the same domain object
 
-Do not extract prematurely. Three clear lines can beat one bad abstraction.
+Do not extract prematurely. Three clear lines can beat one bad abstraction. Identical shapes are duplicates only when they change for the same reason — two policies that coincide today (same formula, different owners or change schedules) stay separate.
 
 ### 3. Over-engineering
 
@@ -167,11 +178,23 @@ Flag:
 - **P1** hardcoded user-facing strings when i18n/string catalogs exist
 - **P1** hand-rolled equivalents of project primitives
 
-### 10. Verification
+### 10. Simplification
+
+For every meaningful hunk, ask once: would a reframing delete this complexity instead of polishing it — a state model that removes the branches, an ownership move that makes the feature a natural extension of an existing abstraction, a default flow that absorbs the special cases?
+
+- **P1** `Simplify` only when you can name the concrete move and its behavior-preserving path: what disappears (branches, layers, modes, wrappers) and where the remaining logic lands.
+- If you cannot name the move, stay silent. An open-ended "restructure this" is not a finding.
+- Prefer moves that delete complexity over moves that relocate it.
+
+`relaxed` skips this section; `strict` promotes a named move to P0 — see [Strictness Profiles](#strictness-profiles).
+
+### 11. Verification
 
 After auto-fixes, re-run the mechanical command. If checks were unavailable, report why. If the operator claimed testing without evidence, list it under Residual Risks.
 
-## Pre-Commit Output Format
+## Shared Output Format
+
+Composition rule: every review entry point renders these sections in this order. A skill may append extra sections it declares in its own SKILL.md; it never renames, reorders, or drops a shared section. Non-review skills (e.g. `goal-loop`'s result report) are exempt.
 
 ```markdown
 ## Profile

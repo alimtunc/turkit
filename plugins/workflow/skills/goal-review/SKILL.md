@@ -16,7 +16,7 @@ Slow and multi-agent — **never auto-chained** by another skill. `/ticket` only
 This skill does **not** inline a rubric. The judgment pass forwards the shared rubric **verbatim** to every reviewer:
 
 - [`references/review-rubric.md`](references/review-rubric.md) — severity, categories, fix policy (2 buckets), language-agnostic checklist, output format. Forward it whole to each reviewer.
-- For `--branch` only, also forward [`references/branch-review.md`](references/branch-review.md) — the branch-level checklist (B1–B4) and branch output sections.
+- For `--branch` only, also forward [`references/branch-review.md`](references/branch-review.md) — the branch-level checklist (B1–B4) and branch output sections. B4's lint-only verification guidance applies to reviewers; this skill's final verification step supersedes it for the orchestrator.
 
 The 3-tier fix policy below **supersedes** the rubric's 2-bucket policy **for this skill only** (the rubric's buckets still govern what each reviewer reports).
 
@@ -40,7 +40,8 @@ Resolve the base branch (`--branch`) per `references/build-tool-detection.md#bas
 
 - Only `--branch` runs the deep loop: review→fix repeats until **K = 2** consecutive rounds produce no new findings, or the token budget is exhausted.
 - `--diff` and `--repo` run a single review→fix pass (`--repo` per package) — no multi-round loop. A whole-repo loop-until-clean is unbounded; if a package needs deeper iteration, rerun `--repo <package-path>` or `--branch` on it.
-- Dedup findings across rounds by `file:line:rule`. Never re-fix an already-applied finding.
+- **Re-scope after fixes.** Fixes land unstaged, so `git diff <base>..HEAD` stops describing the code under review the moment a fix lands. From the second round on, build the `--branch` scope with `git diff <base>` (committed **plus** working tree) so the fixes' own hunks are re-reviewed. A dry round counts only if the reviewers saw the current working tree.
+- Identify a finding by `rule + enclosing symbol + the hunk's current content` — never by line number, which shifts as fixes land. Never re-fix an already-applied finding, and never re-surface a vet-rejected one **while its hunk is unchanged**; if a later edit touches a rejected finding's hunk, the rejection lapses and the finding is re-evaluated.
 - Any coverage cap (top-N findings, sampling, a package skipped for budget) must be surfaced explicitly — no silent truncation.
 
 ## Workflow
@@ -56,15 +57,16 @@ Resolve the base branch (`--branch`) per `references/build-tool-detection.md#bas
 4. **Mechanical pre-pass** = the **project's lint**, not a hardcoded tool:
     - Resolve `lint` via `.turkit.yaml → commands.lint`, fallback per `references/build-tool-detection.md`. If unavailable, note "lint unavailable" and continue.
     - **React gate (only when React files are in scope and a gate is configured).** If the scope contains React files (`*.tsx` / `*.jsx` / `*.ts` with hooks or JSX) and either `.turkit.yaml → commands.react_review` is set or the `turkit-react` pack is installed, run that React gate too (delegate to the `turkit-react` `react-review` skill when the pack is present; otherwise run `commands.react_review`). If neither is configured, skip it — never hardcode a specific React linter.
-5. **Review→fix loop** (single pass for `--diff` and `--repo`; `--repo` runs steps a–d per package; `--branch` repeats them):
-   a. **Review fan-out.** Launch generic reviewer agents in parallel, each on its scoped subset, each seeded with `review-rubric.md` **verbatim** (plus `branch-review.md` for `--branch`) and its slice of the mechanical pre-pass output. Delegate any React surface to the `turkit-react` pack when present; otherwise a generic reviewer covers it with the shared rubric. **Subagents are read-only — they report findings only.** The orchestrator applies fixes.
-   b. **Dedup** new findings against the already-fixed set by `file:line:rule`.
-   c. **Fix** every new finding in place per `## Fix policy` (the orchestrator edits; subagents never do). Unstaged. Never commit.
-   d. **`--branch` only:** if no new findings landed this round, increment the clean-round counter; stop at **K = 2**. Surface any coverage cap.
+5. **Review→fix loop** (single pass for `--diff` and `--repo`; `--repo` runs steps a–e per package; `--branch` repeats them):
+   a. **Review fan-out.** Launch generic reviewer agents in parallel — **max 4 per round**; when the scope needs more, shard by package/directory and surface the cap. Each runs on its scoped subset, seeded with `review-rubric.md` **verbatim** (plus `branch-review.md` for `--branch`) and its slice of the mechanical pre-pass output. Delegate any React surface to the `turkit-react` pack when present; otherwise a generic reviewer covers it with the shared rubric. **Subagents are read-only — they report findings only.** The orchestrator applies fixes.
+   b. **Vet.** Reviewers over-report by design — that is their job, not a defect; the rubric's Finding Discipline governs the final report, not their raw output. Before fixing anything, the orchestrator re-reads every cited location and drops findings the code does not support. Record each rejection as `rule @ symbol — reason`; rejected findings join the dedup set and stay suppressed while their hunk is unchanged.
+   c. **Dedup** surviving findings against the already-fixed and rejected sets by `rule + symbol + hunk content` (see Loop control).
+   d. **Fix** every new finding in place per `## Fix policy` (the orchestrator edits; subagents never do). Unstaged. Never commit.
+   e. **`--branch` only:** if no new findings landed this round, increment the clean-round counter; stop at **K = 2**. Surface any coverage cap.
 6. **Final verification (single pass).**
-    - Run the project's lint/test gate (`commands.lint` / `commands.test`, fallback per the build-tool contract) over the scope.
+    - Run the project's lint/test gate (`commands.lint` / `commands.test`, fallback per the build-tool contract) over the scope — the narrowest relevant gate (touched packages when the runner supports it); full-suite runs only when the operator asks.
     - **Adversarial regression check:** one reviewer agent diffs before/after and flags any behavioral fix that changed behavior unsafely (focus on the entries in `## Behavioral Fixes Applied (verify)`).
-    - On failure → run **one** corrective round → re-verify **once**. If a regression survives, surface it under `## Required Changes` rather than leaving broken code.
+    - On failure → run **one** corrective round → re-verify **once**. If a regression survives, **revert the offending tier-(b) fix** (an unstaged edit of this run — reverting it is not a git operation), then surface the original finding under `## Required Changes`.
 7. **Report** per `## Output format`. Never `git add` / commit / push.
 
 ## Reviewer mindset
@@ -92,7 +94,8 @@ Three tiers, **extending** `review-rubric.md`'s Auto-fix / Required-Changes buck
 - Never `git add` / stage / commit / push / amend / rebase / reset / rewrite history. Fixes land unstaged.
 - Never edit outside the review scope unless an in-scope extraction genuinely requires a new sibling/shared file (list new files explicitly).
 - If an auto-fix may change behavior, promote it from tier (a) to tier (b).
-- If the final verification flags a regression, run **one** corrective round; if it persists, surface it under `## Required Changes` rather than leaving broken code.
+- If fixing one finding would recreate another (SOC extraction vs OverEng single-call-site, and similar rule pairs), do not flip-flop across rounds: pick the shape with less total complexity once, and record the losing finding as a rejection with that reason.
+- If the final verification flags a regression, run **one** corrective round; if it persists, revert the offending tier-(b) fix and surface the original finding under `## Required Changes`. Never leave a known-broken fix in the tree.
 
 ## Orchestration & platform
 
@@ -107,6 +110,7 @@ Add to it, for this skill:
 - For `--branch`, the branch-level sections from [`references/branch-review.md`](references/branch-review.md): Branch summary, Per-Commit, Cross-Commit, Branch-Level, Verdict.
 - A `## Behavioral Fixes Applied (verify)` section — tier (b) fixes the operator should verify; the focus of the adversarial regression check.
 - A `## Required Changes` section — tier (c) findings the loop could not safely apply, plus any regression that survived the corrective round (P0/P1 only).
+- A `## Rejected Findings` section — vet-pass rejections with reasons, so they do not resurface next run.
 
 ```markdown
 ## Mechanical Pre-pass (lint)
@@ -134,6 +138,12 @@ Add to it, for this skill:
 > Tier (c) findings the loop could not safely apply (needs a contract/UX/product decision or author intent), or a regression that survived the corrective round.
 
 - [P0|P1] [Category] [file:line | commit:<hash>] What must change and why it cannot be auto-fixed
+
+## Rejected Findings
+
+> Vet-pass rejections — reported by a reviewer, dropped because the cited code does not support them. Suppressed while their hunk is unchanged.
+
+- [rule @ file:symbol] Reason (one sentence)
 
 ## Blocking Issues
 
@@ -164,6 +174,7 @@ Add to it, for this skill:
 - Rounds run (`--branch`): N (stopped at K = 2 dry rounds | budget exhausted)
 - Coverage caps surfaced: none | list
 - Reviewer agents launched: N
+- Findings rejected by vet: N
 ```
 
 If a section has no entries, say so explicitly with `- None.`

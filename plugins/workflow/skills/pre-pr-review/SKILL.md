@@ -102,10 +102,6 @@ Walk the branch-level checklist and use the branch output sections in [`referenc
 ## Residual Risks
 
 - Remaining uncertainty
-
-## Review Cost
-
-- Subagents launched: N
 ```
 
 ## Guardrails

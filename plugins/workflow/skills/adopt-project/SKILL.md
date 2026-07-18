@@ -97,6 +97,11 @@ of `/ticket` (`--triage`, `--plan`, `--execute`), not separate public skills.
    already covered by global Turkit config and the repo does not need an
    override.
 
+   If the repo ends up with no conventions or rules doc at all after migration,
+   propose seeding `docs/conventions/code-quality.md` from
+   [`references/rules-baseline.md`](references/rules-baseline.md) and point `rules.docs` at it. The
+   project owns the copy afterwards. Never overwrite an existing rules doc.
+
 4. **Show the migration plan before writing.**
    Output:
    - What Turkit will own.
