@@ -34,6 +34,7 @@ output:
   technical_terms: keep-english # keep-english | translate-when-natural
 
 # Optional project rule sources loaded by planning/execution/review skills.
+# turkit-init seeds docs/conventions/code-quality.md here when the repo has no rules doc.
 rules:
   docs:
     - CLAUDE.md

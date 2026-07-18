@@ -63,7 +63,7 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 | Skill | What it does |
 |---|---|
 | `ticket` | Main ticket workflow: plan, approval, execute, and handoff; supports `--triage`, `--plan`, `--execute`, `--grill`, and `--fast`. |
-| `goal-loop` | Iterates on a bounded non-ticket objective until criteria pass, budget is exhausted, or a human decision is needed. |
+| `goal-loop` | Iterates on a bounded non-ticket objective until criteria pass, budget is exhausted, or a human decision is needed. `--review` adds a final quality gate on the produced diff. |
 | `goal-review` | Review/fix loop for a diff, branch, or repo; useful when you want the agent to keep fixing until clean. |
 | `pre-commit-review` | Strict review of the current working-tree diff before committing. |
 | `pre-pr-review` | Strict full-branch review before opening or updating a PR. |
@@ -82,10 +82,23 @@ Names below are skill names. Claude Code exposes them as slash commands; other A
 | `test-instructions` | Produces a short manual-test checklist after implementation. |
 | `ship` | Commit, push, open a PR, and close the ticket with host fallbacks. |
 | `handoff` | Creates a read-only session handoff for another agent or a later session. |
-| `rules-refresh` | Reviews a rules document and proposes keep, sharpen, redundant, or stale updates. |
+| `rules-refresh` | Audits a rules document (keep / sharpen / redundant / stale), proposes missing rules from the shared quality baseline, and offers a guided `--interactive` mode with per-rule decisions. |
 | `install` | Optional setup diagnostic: proposes `.turkit.yaml`, `AGENTS.md`, or `GEMINI.md` changes. |
-| `turkit-init` | Proposes a repo `.turkit.yaml` from detected commands, base branch, tracker, workflow overrides, and rules docs. |
+| `turkit-init` | Proposes a repo `.turkit.yaml` from detected commands, base branch, tracker, workflow overrides, and rules docs. Seeds a quality-baseline rules doc when the repo has none. |
 | `adopt-project` | Migrates repos that already have local Claude skills, commands, or duplicated workflow rules. |
+
+## Quality Rules Lifecycle
+
+Turkit ships a code-quality baseline — DRY, separation of concerns, over-engineering, naming, comments, complexity, error handling, types, boundaries, simplification — in two synchronized forms: authoring-time rules (`rules-baseline.md`) and the review rubric that enforces them.
+
+```text
+turkit-init / adopt-project   seed docs/conventions/code-quality.md and wire rules.docs
+any agent, any dev skill      loads rules.docs before planning or editing
+reviews                       enforce the same rules; documented tradeoffs are respected
+rules-refresh                 maintains the doc (batch, or --interactive per-rule wizard)
+```
+
+The seeded doc belongs to the project: sharpen rules, add project-specific ones, record tradeoffs. Reviews stop flagging what a documented tradeoff overrides. Review strictness is tunable per repo via `.turkit.yaml → review.strictness` (`relaxed` / `standard` / `strict`).
 
 ## Preview Testing
 
