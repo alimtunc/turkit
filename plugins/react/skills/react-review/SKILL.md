@@ -19,6 +19,7 @@ The bar is clean, minimal, DRY, SOC-respecting React 19+ code.
 
 - Effects are for synchronizing with external systems. Derived values and user-action work usually do not belong in `useEffect`.
 - Render files render; hooks orchestrate; utils compute.
+- Severity follows the render path: a finding on hot-path code (per keystroke, per list row, per frame) outranks the same finding on a rarely-mounted surface.
 - React-specific structural violations block merge unless the operator explicitly accepts an exception.
 - Do not normalize legacy patterns just because the surrounding file already has them.
 

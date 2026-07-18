@@ -16,6 +16,8 @@ This rubric reads the same optional `.turkit.yaml → review` knobs as the share
 
 ## Fix Policy
 
+When a finding maps to a `react-doctor` rule, resolve the canonical fix recipe first — `npx -y react-doctor@latest rules explain <rule>` — and apply that fix shape instead of improvising. The recipe governs both the Auto-fix edit and the suggestion attached to a Required Change.
+
 ### Auto-fix
 
 Apply only when mechanical, behavior-preserving, and scoped to touched files:
@@ -51,6 +53,8 @@ Surface these; do not auto-fix:
 - **P0**: broken behavior/contract, unsafe type escape, missing effect cleanup, fetch outside project data primitive, missing cache invalidation, component defined inside component, React 19 banned APIs in new code, structural SOC violation, duplicate shared helper, violating comments/debug prints.
 - **P1**: must-fix before merge: branching complexity, over-engineering, JSX hygiene, a11y baselines, optional chaining hiding a type bug, broad store subscriptions, waterfalls, non-functional state updates, reorderable `key={index}`.
 - **Suggested**: true judgment calls only.
+
+Weight judgment-call severity by render path: code that runs per keystroke, per list row, per frame, or on every route escalates a borderline finding to P1; a rarely-mounted surface (settings modal, onboarding step) can demote it to Suggested or noise. Never downgrade P0 structural/behavioral findings this way.
 
 ## Categories
 
