@@ -2,6 +2,19 @@
 
 All notable changes to turkit are tracked here. The project follows [SemVer](https://semver.org/).
 
+## turkit v3.12.0 — 2026-07-23
+
+### Added
+
+- `goal-review`: `--max-rounds` loop cap (default 4, hard cap 6) as the real backstop — the token-budget stop is unmeasurable and never fires, so a chatty reviewer surfacing one finding per round could run away past 20 rounds.
+- `goal-review`: light path for small scopes (≤2 files / single package / no tier-b candidate) — one reviewer, single pass, no K=2 loop.
+- `goal-review`: per-finding confidence (0–100) and a confidence gate on tier-b behavioral fixes (relaxed 90 / standard 80 / strict 70), demoting sub-threshold findings to surface-only.
+
+### Changed
+
+- `goal-review` vet is now refute-by-default and de-anchored: it re-checks each finding from `rule + hunk` alone, defaulting to reject, instead of re-reading and dropping unsupported findings.
+- `goal-review` reviewers emit a findings-table-only output contract (no re-quoted code, narration, or praise) to cut per-round token burn; the adversarial regression check is de-anchored from the fix's reasoning.
+
 ## turkit v3.11.0 — 2026-07-18
 
 ### Added
