@@ -25,10 +25,10 @@ The 3-tier fix policy below **supersedes** the rubric's 2-bucket policy **for th
 | Mode                 | Scope                                          | Loop                                   |
 | -------------------- | ---------------------------------------------- | -------------------------------------- |
 | `--diff`             | staged + unstaged + untracked working tree     | single pass (no deep loop)             |
-| `--branch` (default) | committed diff `base..HEAD`                     | loop until clean (K = 2 dry rounds)    |
+| `--branch` (default) | committed diff `base..HEAD`                     | loop until clean (K = 2 dry rounds, cap `--max-rounds`) |
 | `--repo`             | whole codebase                                 | single pass per package (no deep loop) |
 
-Parse the mode from the skill argument. No argument → `--branch`. A bare path argument (e.g. `src/features/billing`) implies a scoped `--repo`-style sweep of that path.
+Parse the mode from the skill argument. No argument → `--branch`. A bare path argument (e.g. `src/features/billing`) implies a scoped `--repo`-style sweep of that path. Also parse `--max-rounds <N>` (the `--branch` loop cap; see `## Loop control`).
 
 Resolve the base branch (`--branch`) per `references/build-tool-detection.md#base_branch`:
 
@@ -38,7 +38,9 @@ Resolve the base branch (`--branch`) per `references/build-tool-detection.md#bas
 
 ## Loop control
 
-- Only `--branch` runs the deep loop: review→fix repeats until **K = 2** consecutive rounds produce no new findings, or the token budget is exhausted.
+- Only `--branch` runs the deep loop: review→fix repeats until **K = 2** consecutive rounds produce no new findings, **`--max-rounds` is reached**, or the token budget is exhausted. `--max-rounds` defaults to **4** and is hard-capped at **6** — going past 6 requires the operator to explicitly confirm.
+- **`--max-rounds` is the real backstop, not the budget.** Token counts cannot be measured reliably (see Output), so the budget stop rarely fires. Without a round cap, a reviewer that surfaces even one fresh finding per round — common when fixes land unstaged and get re-reviewed (see Re-scope) — never reaches K = 2 and the loop runs away (20+ rounds). The cap bounds that; K = 2 is the fast-path exit when the code genuinely converges.
+- **Light path (skip the loop for small scopes).** Before the loop, size the surviving scope: if it is small — roughly ≤ 2 files, single package, no behavioral (tier-b) candidate expected — run **one** reviewer, a single review→fix pass, and fold the regression check into the orchestrator's own before/after re-read (no K = 2, no separate regression agent). Otherwise run the **full path**. State the chosen path under Loop & Cost.
 - `--diff` and `--repo` run a single review→fix pass (`--repo` per package) — no multi-round loop. A whole-repo loop-until-clean is unbounded; if a package needs deeper iteration, rerun `--repo <package-path>` or `--branch` on it.
 - **Re-scope after fixes.** Fixes land unstaged, so `git diff <base>..HEAD` stops describing the code under review the moment a fix lands. From the second round on, build the `--branch` scope with `git diff <base>` (committed **plus** working tree) so the fixes' own hunks are re-reviewed. A dry round counts only if the reviewers saw the current working tree.
 - Identify a finding by `rule + enclosing symbol + the hunk's current content` — never by line number, which shifts as fixes land. Never re-fix an already-applied finding, and never re-surface a vet-rejected one **while its hunk is unchanged**; if a later edit touches a rejected finding's hunk, the rejection lapses and the finding is re-evaluated.
@@ -57,15 +59,23 @@ Resolve the base branch (`--branch`) per `references/build-tool-detection.md#bas
 4. **Mechanical pre-pass** = the **project's lint**, not a hardcoded tool:
     - Resolve `lint` via `.turkit.yaml → commands.lint`, fallback per `references/build-tool-detection.md`. If unavailable, note "lint unavailable" and continue.
     - **React gate (only when React files are in scope and a gate is configured).** If the scope contains React files (`*.tsx` / `*.jsx` / `*.ts` with hooks or JSX) and either `.turkit.yaml → commands.react_review` is set or the `turkit-react` pack is installed, run that React gate too (delegate to the `turkit-react` `react-review` skill when the pack is present; otherwise run `commands.react_review`). If neither is configured, skip it — never hardcode a specific React linter.
-5. **Review→fix loop** (single pass for `--diff` and `--repo`; `--repo` runs steps a–e per package; `--branch` repeats them):
-   a. **Review fan-out.** Launch generic reviewer agents in parallel — **max 4 per round**; when the scope needs more, shard by package/directory and surface the cap. Each runs on its scoped subset, seeded with `review-rubric.md` **verbatim** (plus `branch-review.md` for `--branch`) and its slice of the mechanical pre-pass output. Delegate any React surface to the `turkit-react` pack when present; otherwise a generic reviewer covers it with the shared rubric. **Subagents are read-only — they report findings only.** The orchestrator applies fixes.
-   b. **Vet.** Reviewers over-report by design — that is their job, not a defect; the rubric's Finding Discipline governs the final report, not their raw output. Before fixing anything, the orchestrator re-reads every cited location and drops findings the code does not support. Record each rejection as `rule @ symbol — reason`; rejected findings join the dedup set and stay suppressed while their hunk is unchanged.
+5. **Review→fix loop** (single pass for `--diff`, `--repo`, and the light path; `--repo` runs steps a–e per package; the full `--branch` path repeats them up to `--max-rounds`):
+   a. **Review fan-out.** Launch generic reviewer agents in parallel — **max 4 per round**; when the scope needs more, shard by package/directory and surface the cap. Each runs on its scoped subset, seeded with `review-rubric.md` **verbatim** (plus `branch-review.md` for `--branch`) and its slice of the mechanical pre-pass output. Delegate any React surface to the `turkit-react` pack when present; otherwise a generic reviewer covers it with the shared rubric. **Subagents are read-only — they report findings only.** The orchestrator applies fixes. Each reported finding carries a `Confidence` (0–100) — the reviewer's estimate that it is real and correctly located — consumed by the vet and the tier-(b) gate.
+
+   **Reviewer output contract (token discipline).** Reviewers emit the **findings table only** — one row per finding, no re-quoted code blocks, no narration, no praise, no restating the rubric back:
+
+   ```
+   | Category | Severity | Confidence | file:symbol | Issue (1 line) | Fix (1 line, concrete) |
+   ```
+
+   `file:symbol` = enclosing symbol, never a line number (it shifts as fixes land). `Fix` names the exact edit or the existing shared symbol to call, so the orchestrator applies rather than re-derives. A reviewer that finds nothing emits an empty table, not an essay. Prose belongs only in the orchestrator's final report.
+   b. **Vet — refute, don't confirm.** Reviewers over-report by design — that is their job, not a defect; the rubric's Finding Discipline governs the final report, not their raw output. Before fixing anything, re-check each finding **de-anchored**: read only `rule + the current cited hunk`, **not** the reviewer's rationale, and default the verdict to **reject** — keep the finding only if you cannot construct a plausible reason the code is correct as-is. For a finding citing a rules-doc / `CLAUDE.md` clause, confirm the clause **literally** covers this case; if not, reject. Attach a `confidence` (0–100) to each survivor. Record each rejection as `rule @ symbol — refutation`; rejected findings join the dedup set and stay suppressed while their hunk is unchanged.
    c. **Dedup** surviving findings against the already-fixed and rejected sets by `rule + symbol + hunk content` (see Loop control).
    d. **Fix** every new finding in place per `## Fix policy` (the orchestrator edits; subagents never do). Unstaged. Never commit.
-   e. **`--branch` only:** if no new findings landed this round, increment the clean-round counter; stop at **K = 2**. Surface any coverage cap.
+   e. **`--branch` full path only:** if no new findings landed this round, increment the clean-round counter. Stop at **K = 2** dry rounds, or when the round count reaches **`--max-rounds`** (default 4, hard cap 6) — whichever comes first. If the cap stopped the loop before K = 2, say so under Loop & Cost and note that residual findings may remain (rerun to continue). Surface any coverage cap.
 6. **Final verification (single pass).**
     - Run the project's lint/test gate (`commands.lint` / `commands.test`, fallback per the build-tool contract) over the scope — the narrowest relevant gate (touched packages when the runner supports it); full-suite runs only when the operator asks.
-    - **Adversarial regression check:** one reviewer agent diffs before/after and flags any behavioral fix that changed behavior unsafely (focus on the entries in `## Behavioral Fixes Applied (verify)`).
+    - **Adversarial regression check (de-anchored):** feed one reviewer only the before/after hunks of the `## Behavioral Fixes Applied (verify)` entries plus each behavioral claim — **not** the reasoning that produced the fix — and have it flag any fix that changed behavior unsafely. (The light path folds this into the orchestrator's own before/after re-read.)
     - On failure → run **one** corrective round → re-verify **once**. If a regression survives, **revert the offending tier-(b) fix** (an unstaged edit of this run — reverting it is not a git operation), then surface the original finding under `## Required Changes`.
 7. **Report** per `## Output format`. Never `git add` / commit / push.
 
@@ -86,7 +96,7 @@ This skill **fixes everything it safely can** and **surfaces (does not apply)** 
 Three tiers, **extending** `review-rubric.md`'s Auto-fix / Required-Changes buckets **for this skill**. Apply with `Edit` / `MultiEdit`, always **unstaged**:
 
 - **(a) Mechanical** — unambiguous, reversible by reading the diff, **no behavior change**. The rubric's Auto-fix bucket: comment hygiene, debug-print removal, unused imports, deep relative imports → established alias, extract helpers/types/constants out of entry-point/render files when an obvious ownership target exists, replace a duplicate helper with the existing symbol, remove dead props/params/variants/wrapper files, inline one-method `manager`/`service`/`helper` indirections. **Apply in place, unstaged.**
-- **(b) Behavioral** — apply, but **verify and list**. Refactors that change behavior: splitting a unit branching on >2 shapes, splitting a two-responsibility hook/module, removing a typed escape hatch by tightening the upstream type or adding a parse/guard, converging duplicated unions/enums into a shared schema, resolving a cross-module import by moving code to a shared module, adding missing invalidation/error/empty states, accessibility primitives, swapping an unstable list key for a stable id. **Apply, then list under `## Behavioral Fixes Applied (verify)`** — these are the focus of the adversarial regression check.
+- **(b) Behavioral** — apply, but **verify and list**. Refactors that change behavior: splitting a unit branching on >2 shapes, splitting a two-responsibility hook/module, removing a typed escape hatch by tightening the upstream type or adding a parse/guard, converging duplicated unions/enums into a shared schema, resolving a cross-module import by moving code to a shared module, adding missing invalidation/error/empty states, accessibility primitives, swapping an unstable list key for a stable id. **Apply only when the finding's `confidence` ≥ the strictness threshold** (relaxed 90 / standard 80 / strict 70, resolved from `.turkit.yaml → review.strictness`); below the threshold, **demote to tier (c)** and surface it instead of guessing. Applied tier-(b) fixes **list under `## Behavioral Fixes Applied (verify)`** — the focus of the adversarial regression check.
 - **(c) Unsafe / ambiguous** — **surface only, never guess-apply**. Anything whose intended behavior is ambiguous from the diff alone, or that needs a product/UX decision, a backend/contract change, or author intent to determine the correct target shape. Flag with a concrete suggestion under `## Required Changes`.
 
 ### Hard rules
@@ -170,8 +180,9 @@ Add to it, for this skill:
 
 ## Loop & Cost
 
-- Mode: `--diff` | `--branch` | `--repo`
-- Rounds run (`--branch`): N (stopped at K = 2 dry rounds | budget exhausted)
+- Mode: `--diff` | `--branch` | `--repo` · Path: light | full
+- Rounds run (`--branch`): N / <max-rounds> (stopped at: K = 2 dry rounds | max-rounds | budget exhausted)
+- Strictness: `<relaxed|standard|strict>` · tier-(b) confidence threshold: `<90|80|70>`
 - Coverage caps surfaced: none | list
 - Reviewer agents launched: N
 - Findings rejected by vet: N
