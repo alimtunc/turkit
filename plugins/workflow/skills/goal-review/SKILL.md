@@ -13,10 +13,11 @@ Slow and multi-agent — **never auto-chained** by another skill. `/ticket` only
 
 ## Source of Truth
 
-This skill does **not** inline a rubric. The judgment pass forwards the shared rubric **verbatim** to every reviewer:
+This skill does **not** inline a rubric. The judgment pass forwards the shared rubric **verbatim** to every reviewer, together with the project rules docs resolved in workflow step 3:
 
 - [`references/review-rubric.md`](references/review-rubric.md) — severity, categories, fix policy (2 buckets), language-agnostic checklist, output format. Forward it whole to each reviewer.
 - For `--branch` only, also forward [`references/branch-review.md`](references/branch-review.md) — the branch-level checklist (B1–B4) and branch output sections. B4's lint-only verification guidance applies to reviewers; this skill's final verification step supersedes it for the orchestrator.
+- The project rules docs (step 3) — the project's own review bar. Findings may cite their clauses; the vet holds each citation to the literal-coverage test.
 
 The 3-tier fix policy below **supersedes** the rubric's 2-bucket policy **for this skill only** (the rubric's buckets still govern what each reviewer reports).
 
@@ -60,7 +61,7 @@ Resolve the base branch (`--branch`) per `references/build-tool-detection.md#bas
     - Resolve `lint` via `.turkit.yaml → commands.lint`, fallback per `references/build-tool-detection.md`. If unavailable, note "lint unavailable" and continue.
     - **React gate (only when React files are in scope and a gate is configured).** If the scope contains React files (`*.tsx` / `*.jsx` / `*.ts` with hooks or JSX) and either `.turkit.yaml → commands.react_review` is set or the `turkit-react` pack is installed, run that React gate too (delegate to the `turkit-react` `react-review` skill when the pack is present; otherwise run `commands.react_review`). If neither is configured, skip it — never hardcode a specific React linter.
 5. **Review→fix loop** (single pass for `--diff`, `--repo`, and the light path; `--repo` runs steps a–e per package; the full `--branch` path repeats them up to `--max-rounds`):
-   a. **Review fan-out.** Launch generic reviewer agents in parallel — **max 4 per round**; when the scope needs more, shard by package/directory and surface the cap. Each runs on its scoped subset, seeded with `review-rubric.md` **verbatim** (plus `branch-review.md` for `--branch`) and its slice of the mechanical pre-pass output. Delegate any React surface to the `turkit-react` pack when present; otherwise a generic reviewer covers it with the shared rubric. **Subagents are read-only — they report findings only.** The orchestrator applies fixes. Each reported finding carries a `Confidence` (0–100) — the reviewer's estimate that it is real and correctly located — consumed by the vet and the tier-(b) gate.
+   a. **Review fan-out.** Launch generic reviewer agents in parallel — **max 4 per round**; when the scope needs more, shard by package/directory and surface the cap. Each runs on its scoped subset, seeded with `review-rubric.md` **verbatim** (plus `branch-review.md` for `--branch`), the project rules docs resolved in step 3 — forwarded whole, since a reviewer that never read the project's rules can only enforce the generic rubric — and its slice of the mechanical pre-pass output. When the combined rules docs exceed ~600 lines, forward the first-listed doc whole plus the sections relevant to the reviewer's slice, and surface the cut under Loop & Cost. Delegate any React surface to the `turkit-react` pack when present; otherwise a generic reviewer covers it with the shared rubric. **Subagents are read-only — they report findings only.** The orchestrator applies fixes. Each reported finding carries a `Confidence` (0–100) — the reviewer's estimate that it is real and correctly located — consumed by the vet and the tier-(b) gate.
 
    **Reviewer output contract (token discipline).** Reviewers emit the **findings table only** — one row per finding, no re-quoted code blocks, no narration, no praise, no restating the rubric back:
 
