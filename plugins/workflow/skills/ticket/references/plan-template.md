@@ -1,6 +1,6 @@
 # Plan Templates
 
-Single source of truth for ticket plan markdown. Consumed by `ticket`. Pick the section that matches the chosen path: a full plan for a standard ticket, a one-shot mini-plan for a single well-understood change, or a split sub-plan file per piece when a ticket is decomposed locally.
+Single source of truth for ticket plan markdown. Consumed by `ticket`. Pick the section that matches the chosen path: a full plan for a standard ticket, a one-shot mini-plan for a single well-understood change, or a split sub-plan file per piece when a ticket is decomposed locally. Plans are presented at the Phase 3 checkpoint, then wait for approval in manual mode or continue immediately under `--auto` unless genuinely blocked.
 
 ## Full plan
 
@@ -75,8 +75,8 @@ When a ticket genuinely mixes unrelated concerns, decompose it into local sub-ti
 <2–3 lines describing intent>
 
 ## Acceptance criteria
-1. <precise, verifiable criterion>
-2. ...
+- [ ] <precise, verifiable criterion>
+- [ ] <next criterion>
 
 ## Files to touch
 - `path/to/file` — <what + approach>
@@ -88,4 +88,4 @@ When a ticket genuinely mixes unrelated concerns, decompose it into local sub-ti
 <other sub-ticket file, or "none">
 ```
 
-Present the full set at the plan-approval pause. On approval, execute each sub-ticket plan in dependency order, in the same session.
+Present the full set at the plan checkpoint. In manual mode, wait for approval. Under `--auto`, continue without routine approval unless genuinely blocked. Execute each sub-ticket plan in dependency order in the same session.
