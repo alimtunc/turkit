@@ -43,21 +43,21 @@ flowchart LR
     S -. "understand before irreversible steps" .-> B["merge-brief<br/>release-brief"]
 ```
 
-Use `ticket` when you want to approve the plan manually. Use `ticket --auto` when the issue is attached to the agent session and you want Turkit to classify, plan, implement, and verify without routine approval. An explicit ticket argument overrides attached context; otherwise Turkit falls back to tracker tools, the branch name, and an operator-provided description. Neither flow commits.
+Use `ticket` when you want to approve the plan manually. Use `ticket --auto` when the issue is attached to the agent session and you want Turkit to classify, plan, implement, and verify without routine approval. An explicit ticket argument overrides attached context; otherwise Turkit falls back to tracker tools, the branch name, and an operator-provided description. Coherent work is classified as one-shot or standard; unrelated scopes stop with a recommendation for separate tickets. Neither flow commits.
 
 | Command | Use when |
 |---|---|
 | `ticket [ticket]` | Default ticket flow: plan -> approval -> execute -> handoff. |
 | `ticket --auto [ticket]` | Autonomous full flow from explicit or attached ticket context; pauses only when genuinely blocked. |
 | `ticket --triage [ticket]` | Classify scope and stop. |
-| `ticket --plan [ticket]` | Write/present the plan and stop before edits. |
-| `ticket --execute <ticket>` | Execute an already-approved `.claude/plans/<TICKET>.md`. |
+| `ticket --plan [ticket]` | Persist `.claude/plans/<TICKET>.md` for one-shot or standard, present it, and stop. |
+| `ticket --execute [ticket]` | Resolve the explicit or attached ticket, then execute its canonical plan. |
 | `ticket --grill [ticket]` | Challenge the plan before manual approval or autonomous continuation. |
 | `ticket --fast [ticket]` | Use compact output and a narrower reuse survey in the manual or autonomous flow. |
 
 `ticket-triage`, `ticket-plan`, and `ticket-execute` were folded into these flags in `turkit` v3.0.0. Same behavior, smaller public command surface.
 
-`--auto` may combine with `--fast` and `--grill`. Classification changes planning depth, not execution eligibility: a large coherent ticket is `standard` and can run autonomously, while `split` is reserved for genuinely unrelated goals. `--auto` does not weaken repository rules, authority boundaries, verification, never-commit, or operator-gated review.
+`ticket --plan` followed by `ticket --execute` is a durable handoff: both one-shot and standard plans use `.claude/plans/<TICKET>.md`, and an attached issue supplies the ID to both commands. `--auto` may combine with `--fast` and `--grill`. Classification changes planning depth, not execution eligibility: a large coherent ticket is `standard` and can run autonomously. `--auto` does not weaken repository rules, authority boundaries, verification, never-commit, or operator-gated review.
 
 Use `ticket --fast` for small or obvious work when you want lower token usage. It preserves the selected flow's approval behavior and always keeps verification; it only narrows exploration and shortens operator-facing output.
 

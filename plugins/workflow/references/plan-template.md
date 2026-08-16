@@ -1,6 +1,6 @@
 # Plan Templates
 
-Single source of truth for ticket plan markdown. Consumed by `ticket`. Pick the section that matches the chosen path: a full plan for a standard ticket, a one-shot mini-plan for a single well-understood change, or a split sub-plan file per piece when a ticket is decomposed locally. Plans are presented at the Phase 3 checkpoint, then wait for approval in manual mode or continue immediately under `--auto` unless genuinely blocked.
+Single source of truth for ticket plan markdown. Consumed by `ticket`. Every `--plan` run writes exactly one canonical file at `.claude/plans/<TICKET-ID>.md`: use the full plan for a standard ticket or the mini-plan for a one-shot ticket. Same-session one-shot flows may keep the mini-plan inline. Plans wait for approval in manual mode or continue immediately under `--auto` unless genuinely blocked.
 
 ## Full plan
 
@@ -64,28 +64,4 @@ Single source of truth for ticket plan markdown. Consumed by `ticket`. Pick the 
 - Verification: <project check/lint/test command(s)>
 ```
 
-## Split sub-plan
-
-When a ticket genuinely mixes unrelated concerns, decompose it into local sub-ticket plan files **in the repo** under `.claude/plans/` — never as tracker issues. One file per piece, named `<TICKET-ID>-1.md`, `<TICKET-ID>-2.md`, …, each a full plan in its own right:
-
-```markdown
-# <TICKET-ID>-<n> — <short title>
-
-## Summary
-<2–3 lines describing intent>
-
-## Acceptance criteria
-- [ ] <precise, verifiable criterion>
-- [ ] <next criterion>
-
-## Files to touch
-- `path/to/file` — <what + approach>
-
-## Reuse check
-- <existing modules/helpers/components reused, or "none">
-
-## Depends on
-<other sub-ticket file, or "none">
-```
-
-Present the full set at the plan checkpoint. In manual mode, wait for approval. Under `--auto`, continue without routine approval unless genuinely blocked. Execute each sub-ticket plan in dependency order in the same session.
+Tickets that genuinely mix unrelated scopes are not planned. Stop and recommend separate tickets instead of creating sub-plans.

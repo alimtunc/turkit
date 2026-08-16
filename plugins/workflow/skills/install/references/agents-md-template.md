@@ -21,7 +21,7 @@ disagrees with <RULES_DOCS>, the rules docs win.
 
 Single-session orchestrators:
 
-- /ticket — intake + route (one-shot / standard / split) → reuse-survey plan →
+- /ticket — intake + route (one-shot / standard) → reuse-survey plan →
   execute criterion by criterion → handoff. Default pauses once for plan approval;
   --auto continues without routine approval and pauses only for a blocking ambiguity,
   missing authority, or product decision. An explicit ticket argument overrides attached
@@ -40,8 +40,10 @@ Modes:
 - /ticket --auto — plan, execute, verify, and hand off in the same session without
   routine plan approval. May combine with --fast and --grill.
 - /ticket --triage — classify the ticket and stop.
-- /ticket --plan — write/present the plan and stop before edits.
-- /ticket --execute — execute an already-approved .claude/plans/<TICKET-ID>.md.
+- /ticket --plan — write `.claude/plans/<TICKET-ID>.md` for one-shot or standard,
+  present it, and stop before edits.
+- /ticket --execute — resolve an explicit or attached ticket, then execute its canonical
+  `.claude/plans/<TICKET-ID>.md`; attached sessions do not need the ID repeated.
 - /ticket --fast — run the normal ticket flow with narrow reuse survey and compact
   output. Safety gates still apply.
 - Reviews: pre-commit-review (working tree) / pre-pr-review (committed branch).
