@@ -1,6 +1,6 @@
 # Plan Templates
 
-Single source of truth for ticket plan markdown. Consumed by `ticket`. Every `--plan` run writes exactly one canonical file at `.claude/plans/<TICKET-ID>.md`: use the full plan for a standard ticket or the mini-plan for a one-shot ticket. Same-session one-shot flows may keep the mini-plan inline. Plans wait for approval in manual mode or continue immediately under `--auto` unless genuinely blocked.
+Single source of truth for ticket plan markdown. Consumed by `ticket`. Every `--plan` run writes exactly one canonical file at the agent-agnostic local path `docs/plans/<TICKET-ID>.md`: use the full plan for a standard ticket or the mini-plan for a one-shot ticket. Same-session one-shot flows may keep the mini-plan inline. Plans wait for approval in manual mode or continue immediately under `--auto` unless genuinely blocked.
 
 ## Full plan
 

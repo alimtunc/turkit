@@ -40,10 +40,10 @@ Modes:
 - /ticket --auto — plan, execute, verify, and hand off in the same session without
   routine plan approval. May combine with --fast and --grill.
 - /ticket --triage — classify the ticket and stop.
-- /ticket --plan — write `.claude/plans/<TICKET-ID>.md` for one-shot or standard,
+- /ticket --plan — write `docs/plans/<TICKET-ID>.md` for one-shot or standard,
   present it, and stop before edits.
 - /ticket --execute — resolve an explicit or attached ticket, then execute its canonical
-  `.claude/plans/<TICKET-ID>.md`; attached sessions do not need the ID repeated.
+  `docs/plans/<TICKET-ID>.md`; attached sessions do not need the ID repeated.
 - /ticket --fast — run the normal ticket flow with narrow reuse survey and compact
   output. Safety gates still apply.
 - Reviews: pre-commit-review (working tree) / pre-pr-review (committed branch).

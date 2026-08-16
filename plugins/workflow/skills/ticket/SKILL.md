@@ -2,7 +2,7 @@
 name: ticket
 description: Run or inspect a ticket workflow, manually or autonomously.
 disable-model-invocation: true
-allowed-tools: Skill, Bash(git status:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git checkout:*), Bash(git switch:*), Bash(git worktree:*), Bash(git diff:*), Bash(git ls-files:*), Bash(pwd:*), Bash(cp:*), Bash(mkdir:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(just:*), Bash(make:*), Bash(cargo:*), Bash(poetry:*), Bash(uv:*), Bash(go:*), Bash(mix:*), Bash(npx:*), Read, Grep, Glob, Edit, MultiEdit, Write, Task
+allowed-tools: Skill, Bash(git status:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git checkout:*), Bash(git switch:*), Bash(git worktree:*), Bash(git diff:*), Bash(git fetch:*), Bash(git log:*), Bash(git ls-files:*), Bash(pwd:*), Bash(cp:*), Bash(mkdir:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(just:*), Bash(make:*), Bash(cargo:*), Bash(poetry:*), Bash(uv:*), Bash(go:*), Bash(mix:*), Bash(npx:*), Read, Grep, Glob, Edit, MultiEdit, Write, Task
 ---
 
 # Ticket
@@ -21,7 +21,7 @@ Parse flags before resolving the ticket:
 | `--grill` | Challenge the plan before manual approval or autonomous continuation. Not default. |
 | `--fast` | Low-token run: compact output, no Workflow/Task fan-out, narrow reuse survey, same safety and verification gates. Approval behavior follows the manual or `--auto` flow. |
 | `--plan` | Plan only: intake, route, reuse survey, write/present the plan, then stop before edits. |
-| `--execute` | Execute only: resolve the explicit or attached ticket first, load `.claude/plans/<TICKET-ID>.md`, verify it still matches the source and code, then execute. |
+| `--execute` | Execute only: resolve the explicit or attached ticket first, load `docs/plans/<TICKET-ID>.md`, verify it still matches the source and code, then execute. |
 
 Accept at most one phase flag among `--triage`, `--plan`, and `--execute`. If more than one is passed, stop and ask the operator to choose one. `--auto` is a full-flow modifier and cannot combine with a phase flag; if combined, stop and ask the operator to choose autonomous full flow or the focused phase. `--grill` may combine with the default flow, `--auto`, or `--plan`; ignore it with `--triage` and `--execute` after saying why. `--fast` may combine with the default flow, `--auto`, `--plan`, or `--execute`; ignore it with `--triage` after saying triage is already compact. Reject any other unknown flag instead of treating it as ticket input.
 
@@ -84,8 +84,9 @@ Read resolved Turkit config when present, but tolerate missing files.
   - If `workflow.token_budget` is `low`, do not fan out. Read only the ticket, configured rules docs, directly referenced files, and one targeted search over likely reusable names. Record `Reuse survey limited by token budget` in the plan if that materially narrows confidence.
   - If `workflow.token_budget` is `high`, broaden the reuse survey only when the ticket touches shared behavior, cross-module contracts, or unclear architecture. Do not spend extra budget on obvious one-shot edits.
 - Produce the plan from `references/plan-template.md` — do not inline a template, point to the matching section:
-    - **standard** → write `.claude/plans/<TICKET-ID>.md` using the **Full plan** section.
-    - **one-shot with `--plan`** → write `.claude/plans/<TICKET-ID>.md` using the **One-shot mini-plan** section. Plan-only mode always persists this canonical file.
+    - Before writing a canonical plan, create the agent-agnostic local directory `docs/plans/` when absent.
+    - **standard** → write `docs/plans/<TICKET-ID>.md` using the **Full plan** section.
+    - **one-shot with `--plan`** → write `docs/plans/<TICKET-ID>.md` using the **One-shot mini-plan** section. Plan-only mode always persists this canonical file.
     - **one-shot in a same-session manual or `--auto` flow** → keep the mini-plan inline; no cross-session handoff is needed.
 - When a plan file exists, it is the canonical execution record. Persist any `--grill` revisions to that file before presenting it or stopping.
 
@@ -110,7 +111,7 @@ Read resolved Turkit config when present, but tolerate missing files.
 
 ### 4. Execute
 
-- If `--execute` was passed, the ticket must already be resolved in Phase 1. Load `.claude/plans/<TICKET-ID>.md` for that resolved identifier; never infer a plan filename before resolving the explicit or attached source. If it is missing, stop and tell the operator to run `/turkit:ticket --plan` when the resolved source was attached, or `/turkit:ticket --plan <TICKET-ID>` for an explicit override or another fallback.
+- If `--execute` was passed, the ticket must already be resolved in Phase 1. Load `docs/plans/<TICKET-ID>.md` for that resolved identifier; never infer a plan filename before resolving the explicit or attached source. If it is missing, stop and tell the operator to run `/turkit:ticket --plan` when the resolved source was attached, or `/turkit:ticket --plan <TICKET-ID>` for an explicit override or another fallback.
 - For a focused `--execute` session, load the project rules using the Phase 2 resolution order before validating or editing. Then verify the canonical plan still matches the resolved ticket title/body and the current code. If either the resolved ticket or plan mixes unrelated scopes, stop and recommend separate tickets. If the plan is otherwise stale, stop and report the mismatch instead of silently re-planning.
 - **Verify the environment first.** Resolve the workspace policy from `.turkit.yaml → workflow.workspace`:
     - `worktree_required`, or the operator explicitly asked for isolation → bootstrap a worktree following `references/worktree-bootstrap.md` **literally** (create-if-absent → enter → `pwd` / `git rev-parse --show-toplevel` / `git branch --show-current` verification with stop-on-mismatch → env copy → init). Do not reorder or skip a step.
@@ -138,7 +139,7 @@ When the **Workflow** tool is available and `workflow.token_budget` is not `low`
 - Requiring the operator to copy an attached ticket body or provide its identifier again.
 - Treating a large coherent ticket as unrelated scope — it is a normal `standard` plan.
 - Decomposing or partially executing a ticket with genuinely unrelated scopes — stop and recommend separate tickets.
-- Keeping a one-shot `--plan` inline — plan-only mode must write the canonical `.claude/plans/<TICKET-ID>.md` consumed by `--execute`.
+- Keeping a one-shot `--plan` inline — plan-only mode must write the canonical `docs/plans/<TICKET-ID>.md` consumed by `--execute`.
 - Starting `--execute` from a filename or branch guess before resolving the explicit or attached ticket source.
 - Skipping manual plan approval without `--auto`, or pausing `--auto` for routine plan approval — each mode has a distinct checkpoint contract.
 - Treating classification as an execution gate — it selects plan depth; it does not prevent a large coherent ticket from running.

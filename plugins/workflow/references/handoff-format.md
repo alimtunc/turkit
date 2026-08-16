@@ -35,7 +35,7 @@ Suggested next actions for the operator (do NOT run these yourself):
 
 ## Field notes
 
-- **Source** — the canonical plan path (`.claude/plans/<TICKET-ID>.md`) for a `standard`
+- **Source** — the canonical plan path (`docs/plans/<TICKET-ID>.md`) for a `standard`
   route and any focused `--plan` → `--execute` flow, or `inline mini-plan` for a
   same-session `one-shot` flow.
 - **Workspace / Branch** — Workspace is the branch name when execution ran in the current tree,
@@ -46,7 +46,7 @@ Suggested next actions for the operator (do NOT run these yourself):
 - **Manual tests done** — only tests actually run by hand this session; do not list checks you
   assumed or skipped.
 - **Blockers/questions** — anything that stopped a criterion or needs an operator decision; the
-  matching detail belongs in `.claude/plans/<TICKET-ID>.md#notes` when a plan file exists.
+  matching detail belongs in `docs/plans/<TICKET-ID>.md#notes` when a plan file exists.
 
 ## Suggested-actions block
 
