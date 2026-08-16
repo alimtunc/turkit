@@ -52,7 +52,7 @@ Set up Turkit for the current repository. This is an operator-invoked bootstrap;
    - Recommended plugin install commands.
    - `.turkit.yaml` status: created / update proposed / already OK / skipped.
    - `AGENTS.md` / `GEMINI.md` status: created / section appended / already OK / skipped.
-   - Available skills now reachable: `/ticket` (with `--triage`, `--plan`, `--execute`, `--grill`, `--fast`), `/goal-loop`, `/goal-review`, plus `pre-commit-review` / `pre-pr-review`.
+   - Available skills now reachable: `/ticket` (with autonomous `--auto`, focused `--triage` / `--plan` / `--execute`, optional `--grill`, and low-token `--fast`), `/goal-loop`, `/goal-review`, plus `pre-commit-review` / `pre-pr-review`.
    - Conflict helper now reachable: `/turkit:resolve-conflict`.
    - Preview helper now reachable: `/turkit:preview-test`.
    - Upgrade cleanup now reachable: `/turkit:clean-skill`.

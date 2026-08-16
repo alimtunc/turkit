@@ -21,11 +21,13 @@ disagrees with <RULES_DOCS>, the rules docs win.
 
 Single-session orchestrators:
 
-- /ticket — intake + route (one-shot / standard / split) → reuse-survey plan → one
-  plan-approval pause → execute criterion by criterion → handoff. Never commits;
-  suggests /goal-review, never auto-runs it. Use --triage, --plan, or --execute
-  when you only want that slice; use --grill to challenge the plan before approval;
-  use --fast for a lower-token run with compact output.
+- /ticket — intake + route (one-shot / standard) → reuse-survey plan →
+  execute criterion by criterion → handoff. Default pauses once for plan approval;
+  --auto continues without routine approval and pauses only for a blocking ambiguity,
+  missing authority, or product decision. An explicit ticket argument overrides attached
+  session issue context. Never commits; suggests /goal-review, never auto-runs it. Use
+  --triage, --plan, or --execute for one slice; --grill challenges the plan; --fast uses
+  a narrower reuse survey and compact output without weakening safety or verification.
 - /goal-loop — bounded objective loop for non-ticket work, refactors, cleanup, docs,
   or ticket follow-up. Turns the goal into criteria, edits in rounds, verifies, and
   stops when complete, blocked, or the round budget is exhausted. Never commits.
@@ -33,11 +35,15 @@ Single-session orchestrators:
   review→fix until clean, then a final verification pass; --diff and --repo are
   single-pass. Never commits.
 
-Focused modes:
+Modes:
 
+- /ticket --auto — plan, execute, verify, and hand off in the same session without
+  routine plan approval. May combine with --fast and --grill.
 - /ticket --triage — classify the ticket and stop.
-- /ticket --plan — write/present the plan and stop before edits.
-- /ticket --execute — execute an already-approved .claude/plans/<TICKET-ID>.md.
+- /ticket --plan — write `docs/plans/<TICKET-ID>.md` for one-shot or standard,
+  present it, and stop before edits.
+- /ticket --execute — resolve an explicit or attached ticket, then execute its canonical
+  `docs/plans/<TICKET-ID>.md`; attached sessions do not need the ID repeated.
 - /ticket --fast — run the normal ticket flow with narrow reuse survey and compact
   output. Safety gates still apply.
 - Reviews: pre-commit-review (working tree) / pre-pr-review (committed branch).
