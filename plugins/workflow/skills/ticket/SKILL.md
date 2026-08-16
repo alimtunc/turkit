@@ -1,6 +1,6 @@
 ---
 name: ticket
-description: Use when the operator explicitly invokes `/ticket`, including sessions with an attached issue or requests for autonomous `--auto` execution. Do not self-trigger on a bare ticket id, tracker link, pasted issue, or implementation request. Never commits.
+description: Run or inspect a ticket workflow, manually or autonomously.
 disable-model-invocation: true
 allowed-tools: Skill, Bash(git status:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(git checkout:*), Bash(git switch:*), Bash(git worktree:*), Bash(git diff:*), Bash(git ls-files:*), Bash(pwd:*), Bash(cp:*), Bash(mkdir:*), Bash(pnpm:*), Bash(npm:*), Bash(yarn:*), Bash(bun:*), Bash(just:*), Bash(make:*), Bash(cargo:*), Bash(poetry:*), Bash(uv:*), Bash(go:*), Bash(mix:*), Bash(npx:*), Read, Grep, Glob, Edit, MultiEdit, Write, Task
 ---
